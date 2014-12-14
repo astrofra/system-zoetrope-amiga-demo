@@ -44,6 +44,9 @@ struct BitMap theBitMap;
 struct Screen *main_screen = NULL;
 struct View my_view;
 
+struct  BitMap *bitmap_logo = NULL;
+
+
 struct NewScreen theScreen16 =
 {
   0, 0, SCR_WIDTH, SCR_HEIGHT, SCR_DEPTH, 0, 1, 0,
@@ -54,54 +57,23 @@ struct Library *IntuitionBase = NULL;
 struct Library *GfxBase = NULL;
 extern struct Library *SysBase;
 
-VOID drawSomething(struct RastPort *rp, short top_down)
-{
-    int width, height;
-    int r, c, i = 0;
-
-    width = SCR_WIDTH - 1; // rp->BitMap->BytesPerRow * 8;
-    height = SCR_HEIGHT - 1; // rp->BitMap->Rows;
-
-    for (r = 0; r < height; r += 40)
-    {
-        for (c = 0; c < width; c += 40)
-        {
-            SetAPen(rp, i);
-            if (top_down)
-            {
-                Move(rp, 0L, r);
-                Draw(rp, c, 0L);
-            }
-            else
-            {
-                Move(rp, 0L, height - r);
-                Draw(rp, c, height);    
-            }
-
-            if (i++ > 7)
-                i = 1;
-        }
-    }
-}
-
-void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y)
+void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y, USHORT clip_y)
 {
     /*
         Logo
     */
-	struct  BitMap *bitmap_logo;
-	int 	c;
-
-    for(c = 0; c < 31; c++)
-        SetRGB4(&main_screen->ViewPort, c, (mandarine_logoPaletteRGB4[c] & 0x0f00) >> 8, (mandarine_logoPaletteRGB4[c] & 0x00f0) >> 4, (mandarine_logoPaletteRGB4[c] & 0x000f));
-
     bitmap_logo = load_array_as_bitmap(mandarine_logoData, 8000 << 1, mandarine_logo.Width - 8, mandarine_logo.Height, mandarine_logo.Depth);
-    BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (SCR_WIDTH - mandarine_logo.Width) / 2, offset_y);
+
+    if (clip_y > mandarine_logo.Height)
+    	clip_y = mandarine_logo.Height;
+
+    if (clip_y > 0 && clip_y < mandarine_logo.Height)
+	    BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, clip_y, (SCR_WIDTH - mandarine_logo.Width) / 2, offset_y + mandarine_logo.Height - clip_y);
 }
 
 void open_main_screen(void)
 {
-	int i;
+	int i, c;
 
 	InitView(&my_view);
 
@@ -116,13 +88,16 @@ void open_main_screen(void)
 
 	main_screen = OpenScreen(&theScreen16);
 
-	my_view.ViewPort = &main_screen->ViewPort;
-	MakeVPort( &my_view, &main_screen->ViewPort );
-	MrgCop( &my_view );
-	LoadView( &my_view );	
+	// my_view.ViewPort = &main_screen->ViewPort;
+	// MakeVPort( &my_view, &main_screen->ViewPort );
+	// MrgCop( &my_view );
+	// LoadView( &my_view );	
 
 	// drawSomething(&theRP, 0);
-	drawMandarineLogo(theRP.BitMap, 8);
+    for(c = 0; c < 31; c++)
+        SetRGB4(&main_screen->ViewPort, c, (mandarine_logoPaletteRGB4[c] & 0x0f00) >> 8, (mandarine_logoPaletteRGB4[c] & 0x00f0) >> 4, (mandarine_logoPaletteRGB4[c] & 0x000f));
+
+	// drawMandarineLogo(theRP.BitMap, 8, 0);
 }
 
 void close_main_screen(void)
@@ -196,6 +171,8 @@ void sys_check_abort(void)
 
 int main(void)
 {
+	USHORT logo_y_clip = 0;
+
 	IntuitionBase = OpenLibrary( "intuition.library", INTUITION_REV);
 	GfxBase = OpenLibrary("graphics.library", INTUITION_REV);	
 
@@ -206,9 +183,16 @@ int main(void)
 
 	while(TRUE)
 	{
-		MakeVPort( &my_view, &main_screen->ViewPort );
-		MrgCop( &my_view );
-		LoadView( &my_view );	
+		WaitTOF();
+		// MakeVPort( &my_view, &main_screen->ViewPort );
+		// MrgCop( &my_view );
+		// LoadView( &my_view );
+
+		if (logo_y_clip <= mandarine_logo.Height)
+		{
+			drawMandarineLogo(theRP.BitMap, 8, logo_y_clip);
+			logo_y_clip++;	
+		}
 
 		sys_check_abort();
 	}

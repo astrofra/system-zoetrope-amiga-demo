@@ -35,7 +35,7 @@ UBYTE *keyMatrix = NULL;
 #define KEY_MATRIX_SIZE 16
 
 #define SCR_WIDTH           320
-#define SCR_HEIGHT          256
+#define SCR_HEIGHT          280
 #define SCR_DEPTH			5
 
 PLANEPTR theRaster;
@@ -46,10 +46,13 @@ struct View my_view;
 
 struct  BitMap *bitmap_logo = NULL;
 
+USHORT	dbl_buffer_index = 0;
+#define DBL_BUFFER_OFFSET (dbl_buffer_index * SCR_HEIGHT)
+#define DBL_BUFFER_SWAP dbl_buffer_index = !dbl_buffer_index;
 
 struct NewScreen theScreen16 =
 {
-  0, 0, SCR_WIDTH, SCR_HEIGHT, SCR_DEPTH, 0, 1, 0,
+  0, 0, SCR_WIDTH, SCR_HEIGHT << 1, SCR_DEPTH, 0, 1, 0,
   CUSTOMSCREEN | CUSTOMBITMAP | SCREENQUIET, NULL, NULL, NULL, &theBitMap
 };
 
@@ -62,13 +65,19 @@ void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y, USHORT clip_
     /*
         Logo
     */
-    bitmap_logo = load_array_as_bitmap(mandarine_logoData, 8000 << 1, mandarine_logo.Width - 8, mandarine_logo.Height, mandarine_logo.Depth);
+	if (bitmap_logo == NULL)
+    	bitmap_logo = load_array_as_bitmap(mandarine_logoData, 8000 << 1, mandarine_logo.Width - 8, mandarine_logo.Height, mandarine_logo.Depth);
 
     if (clip_y > mandarine_logo.Height)
     	clip_y = mandarine_logo.Height;
 
-    if (clip_y > 0 && clip_y < mandarine_logo.Height)
+    if (clip_y > 0 && clip_y <= mandarine_logo.Height)
+    {
+    	if (clip_y >= mandarine_logo.Height)
+    		clip_y = mandarine_logo.Height - 1;
+
 	    BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, clip_y, (SCR_WIDTH - mandarine_logo.Width) / 2, offset_y + mandarine_logo.Height - clip_y);
+	}
 }
 
 void open_main_screen(void)
@@ -77,10 +86,10 @@ void open_main_screen(void)
 
 	InitView(&my_view);
 
-	InitBitMap(&theBitMap, SCR_DEPTH, SCR_WIDTH, SCR_HEIGHT);
+	InitBitMap(&theBitMap, SCR_DEPTH, SCR_WIDTH, SCR_HEIGHT << 1);
 
 	for (i = 0; i < SCR_DEPTH; i++)
-		theBitMap.Planes[i] = AllocRaster(SCR_WIDTH, SCR_HEIGHT);
+		theBitMap.Planes[i] = AllocRaster(SCR_WIDTH, SCR_HEIGHT << 1);
 
 	InitRastPort(&theRP);
 	theRP.BitMap = &theBitMap;
@@ -171,7 +180,8 @@ void sys_check_abort(void)
 
 int main(void)
 {
-	USHORT logo_y_clip = 0;
+	int logo_y_clip = 0,
+			logo_y_clip_FP = 0;
 
 	IntuitionBase = OpenLibrary( "intuition.library", INTUITION_REV);
 	GfxBase = OpenLibrary("graphics.library", INTUITION_REV);	
@@ -188,9 +198,19 @@ int main(void)
 		// MrgCop( &my_view );
 		// LoadView( &my_view );
 
-		if (logo_y_clip <= mandarine_logo.Height)
+		main_screen->ViewPort.RasInfo->RxOffset = 0;
+		main_screen->ViewPort.RasInfo->RyOffset = DBL_BUFFER_OFFSET;
+		ScrollVPort(&(main_screen->ViewPort));
+
+		DBL_BUFFER_SWAP;
+
+		if (logo_y_clip <= mandarine_logo.Height << 4)
 		{
-			drawMandarineLogo(theRP.BitMap, 8, logo_y_clip);
+			logo_y_clip_FP = logo_y_clip << 1;
+			logo_y_clip_FP *= logo_y_clip_FP;
+			logo_y_clip_FP = (logo_y_clip_FP >> 2) >> 4;
+
+			drawMandarineLogo(theRP.BitMap, 8 + DBL_BUFFER_OFFSET, (USHORT) logo_y_clip_FP);
 			logo_y_clip++;	
 		}
 

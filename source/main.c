@@ -9,6 +9,7 @@
 #include <libraries/dos.h>          /* Official return codes defined here */
 #include <devices/keyboard.h>
 
+// #include <intuition/intuitionbase.h>
 #include <clib/exec_protos.h>       /* Exec function prototypes           */
 #include <clib/alib_protos.h>
 #include <clib/graphics_protos.h>       /* Exec function prototypes           */
@@ -41,6 +42,7 @@ PLANEPTR theRaster;
 struct RastPort theRP;
 struct BitMap theBitMap;
 struct Screen *main_screen = NULL;
+struct View my_view;
 
 struct NewScreen theScreen16 =
 {
@@ -101,6 +103,8 @@ void open_main_screen(void)
 {
 	int i;
 
+	InitView(&my_view);
+
 	InitBitMap(&theBitMap, SCR_DEPTH, SCR_WIDTH, SCR_HEIGHT);
 
 	for (i = 0; i < SCR_DEPTH; i++)
@@ -111,6 +115,11 @@ void open_main_screen(void)
 	SetRast(&theRP, 0);
 
 	main_screen = OpenScreen(&theScreen16);
+
+	my_view.ViewPort = &main_screen->ViewPort;
+	MakeVPort( &my_view, &main_screen->ViewPort );
+	MrgCop( &my_view );
+	LoadView( &my_view );	
 
 	// drawSomething(&theRP, 0);
 	drawMandarineLogo(theRP.BitMap, 8);
@@ -193,10 +202,14 @@ int main(void)
 	open_keyboard();
 	open_main_screen();
 
-	printf("Hello World!\n");
+	printf("Mandarine!\n");
 
 	while(TRUE)
 	{
+		MakeVPort( &my_view, &main_screen->ViewPort );
+		MrgCop( &my_view );
+		LoadView( &my_view );	
+
 		sys_check_abort();
 	}
 

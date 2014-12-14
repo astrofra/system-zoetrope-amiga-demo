@@ -14,6 +14,16 @@
 #include <clib/graphics_protos.h>       /* Exec function prototypes           */
 #include <clib/intuition_protos.h>  /* Intuition function prototypes      */
 
+/*
+	Custom routines
+*/
+#include "bitmap_routines.h"
+
+/*
+	Graphic assets
+*/
+#include "mandarine_logo.h"
+
 /* Use lowest non-obsolete version that supplies the functions needed. */
 #define INTUITION_REV 33L
 
@@ -25,7 +35,7 @@ UBYTE *keyMatrix = NULL;
 
 #define SCR_WIDTH           320
 #define SCR_HEIGHT          256
-#define SCR_DEPTH			4
+#define SCR_DEPTH			5
 
 PLANEPTR theRaster;
 struct RastPort theRP;
@@ -39,7 +49,53 @@ struct NewScreen theScreen16 =
 };
 
 struct Library *IntuitionBase = NULL;
+struct Library *GfxBase = NULL;
 extern struct Library *SysBase;
+
+VOID drawSomething(struct RastPort *rp, short top_down)
+{
+    int width, height;
+    int r, c, i = 0;
+
+    width = SCR_WIDTH - 1; // rp->BitMap->BytesPerRow * 8;
+    height = SCR_HEIGHT - 1; // rp->BitMap->Rows;
+
+    for (r = 0; r < height; r += 40)
+    {
+        for (c = 0; c < width; c += 40)
+        {
+            SetAPen(rp, i);
+            if (top_down)
+            {
+                Move(rp, 0L, r);
+                Draw(rp, c, 0L);
+            }
+            else
+            {
+                Move(rp, 0L, height - r);
+                Draw(rp, c, height);    
+            }
+
+            if (i++ > 7)
+                i = 1;
+        }
+    }
+}
+
+void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y)
+{
+    /*
+        Logo
+    */
+	struct  BitMap *bitmap_logo;
+	int 	c;
+
+    for(c = 0; c < 31; c++)
+        SetRGB4(&main_screen->ViewPort, c, (mandarine_logoPaletteRGB4[c] & 0x0f00) >> 8, (mandarine_logoPaletteRGB4[c] & 0x00f0) >> 4, (mandarine_logoPaletteRGB4[c] & 0x000f));
+
+    bitmap_logo = load_array_as_bitmap(mandarine_logoData, 8000 << 1, mandarine_logo.Width - 8, mandarine_logo.Height, mandarine_logo.Depth);
+    BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (SCR_WIDTH - mandarine_logo.Width) / 2, offset_y);
+}
 
 void open_main_screen(void)
 {
@@ -55,6 +111,9 @@ void open_main_screen(void)
 	SetRast(&theRP, 0);
 
 	main_screen = OpenScreen(&theScreen16);
+
+	// drawSomething(&theRP, 0);
+	drawMandarineLogo(theRP.BitMap, 8);
 }
 
 void close_main_screen(void)
@@ -73,6 +132,14 @@ void close_main_screen(void)
 		CloseLibrary(IntuitionBase);
 		IntuitionBase = NULL;
 	}
+
+	if (GfxBase)
+	{
+		CloseLibrary(GfxBase);
+		GfxBase = NULL;
+	}
+
+
 }
 
 void close_demo(void)
@@ -120,7 +187,8 @@ void sys_check_abort(void)
 
 int main(void)
 {
-	IntuitionBase = OpenLibrary( "intuition.library",INTUITION_REV );
+	IntuitionBase = OpenLibrary( "intuition.library", INTUITION_REV);
+	GfxBase = OpenLibrary("graphics.library", INTUITION_REV);	
 
 	open_keyboard();
 	open_main_screen();

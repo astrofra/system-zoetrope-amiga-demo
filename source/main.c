@@ -31,10 +31,15 @@ Graphic assets
 #define DEPTH2     3 /* 1 BitPlanes should be used, gives 2 colours. */
 #define COLOURS2   8 /* 2^1 = 2                                      */
 
+/* Keyboard device */
+struct MsgPort  *KeyMP;         /* Pointer for Message Port */
+struct IOStdReq *KeyIO;         /* Pointer for I/O request */
+UBYTE *keyMatrix = NULL;
+#define KEY_MATRIX_SIZE 16
 
 struct IntuitionBase *IntuitionBase;
 struct GfxBase *GfxBase;
-
+extern struct Library *SysBase;
 
 struct View my_view;
 struct View *my_old_view;
@@ -72,7 +77,69 @@ void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y, USHORT clip_
 	BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, 0, 0);
 }
 
-void clean_up(STRPTR message);
+/* Returns all allocated resources: */
+void close_demo(STRPTR message)
+{
+	int loop;
+
+	/* Free automatically allocated display structures: */
+	FreeVPortCopLists( &view_port1 );
+	FreeVPortCopLists( &view_port2 );
+	FreeCprList( my_view.LOFCprList );
+
+	/* Deallocate the display memory, BitPlane for BitPlane: */
+	for( loop = 0; loop < DEPTH1; loop++ )
+		if( bit_map1.Planes[ loop ] )
+			FreeRaster( bit_map1.Planes[ loop ], WIDTH1, HEIGHT1 );
+	for( loop = 0; loop < DEPTH2; loop++ )
+		if( bit_map2.Planes[ loop ] )
+			FreeRaster( bit_map2.Planes[ loop ], WIDTH2, HEIGHT2 );
+
+	/* Deallocate the ColorMap: */
+	if( view_port1.ColorMap ) FreeColorMap( view_port1.ColorMap );
+	if( view_port2.ColorMap ) FreeColorMap( view_port2.ColorMap );
+
+// /* Close the Graphics library: */
+// if( GfxBase ) CloseLibrary( GfxBase );
+
+//  Close the Intuition library: 
+// if( IntuitionBase ) CloseLibrary( IntuitionBase );
+
+	/* Restore the old View: */
+	LoadView( my_old_view );
+
+	/* Print the message and leave: */
+	printf( "%s\n", message ); 
+	exit(0);
+}
+
+int open_keyboard(void)
+{
+    if (KeyMP=CreatePort(NULL,NULL))
+      if (KeyIO=(struct IOStdReq *)CreateExtIO(KeyMP,sizeof(struct IOStdReq)))
+        if (OpenDevice( "keyboard.device",NULL,(struct IORequest *)KeyIO,NULL))
+        {
+          printf("keyboard.device did not open\n");
+          return(0);
+        }
+        else
+        if (!(keyMatrix=AllocMem(KEY_MATRIX_SIZE,MEMF_PUBLIC|MEMF_CLEAR)))
+        {
+          printf("Cannot allocate keyboard buffer\n");
+          return(0);
+        }
+}
+
+void sys_check_abort(void)
+{
+  KeyIO->io_Command=KBD_READMATRIX;
+  KeyIO->io_Data=(APTR)keyMatrix;
+  KeyIO->io_Length = SysBase->lib_Version >= 36 ? KEY_MATRIX_SIZE : 13;
+  DoIO((struct IORequest *)KeyIO);
+
+  if (keyMatrix[0x45 >> 3] & (0x20))
+    close_demo("My friend the end!");
+}
 
 void main()
 {
@@ -83,13 +150,16 @@ void main()
 	IntuitionBase = (struct IntuitionBase *)
 	OpenLibrary( "intuition.library", 0 );
 	if( !IntuitionBase )
-		clean_up( "Could NOT open the Intuition library!" );
+		close_demo( "Could NOT open the Intuition library!" );
 
 	/* Open the Graphics library: */
 	GfxBase = (struct GfxBase *)
 	OpenLibrary( "graphics.library", 0 );
 	if( !GfxBase )
-		clean_up( "Could NOT open the Graphics library!" );
+		close_demo( "Could NOT open the Graphics library!" );
+
+	/*	Keyboard IO handler */
+	open_keyboard();
 
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
@@ -116,7 +186,7 @@ void main()
 	view_port2.DWidth = WIDTH2;      /* Set the width.                */
 	view_port2.DHeight = HEIGHT2;    /* Set the height.               */
 	view_port2.DxOffset = 0;         /* X position.                   */
-	view_port2.DyOffset = HEIGHT1+5; /* Y position (5 lines under).   */
+	view_port2.DyOffset = HEIGHT1+2; /* Y position (5 lines under).   */
 	view_port2.RasInfo = &ras_info2; /* Give it a pointer to RasInfo. */
 	view_port2.Modes = NULL;        /* High resolution.              */
 	view_port2.Next = NULL;          /* Last ViewPort in the list.    */
@@ -126,7 +196,7 @@ void main()
 	/* ViewPort 1 */
 	view_port1.ColorMap = (struct ColorMap *) GetColorMap( COLOURS1 );
 	if( view_port1.ColorMap == NULL )
-		clean_up( "Could NOT get a ColorMap!" );
+		close_demo( "Could NOT get a ColorMap!" );
 	/* Get a pointer to the colour map: */
 	pointer = (UWORD *) view_port1.ColorMap->ColorTable;
 	/* Set the colours: */
@@ -136,7 +206,7 @@ void main()
 	/* ViewPort 2 */
 	view_port2.ColorMap = (struct ColorMap *) GetColorMap( COLOURS2 );
 	if( view_port2.ColorMap == NULL )
-		clean_up( "Could NOT get a ColorMap!" );
+		close_demo( "Could NOT get a ColorMap!" );
 	/* Get a pointer to the colour map: */
 	pointer = (UWORD *) view_port2.ColorMap->ColorTable;
 	/* Set the colours: */
@@ -154,7 +224,7 @@ void main()
 	{
 		bit_map1.Planes[ loop ] = (PLANEPTR) AllocRaster( WIDTH1, HEIGHT1 );
 		if( bit_map1.Planes[ loop ] == NULL )
-			clean_up( "Could NOT allocate enough memory for the raster!" );
+			close_demo( "Could NOT allocate enough memory for the raster!" );
 	/* Clear the display memory with help of the Blitter: */
 		BltClear( bit_map1.Planes[ loop ], RASSIZE( WIDTH1, HEIGHT1 ), 0 );
 	}
@@ -166,7 +236,7 @@ void main()
 	{
 		bit_map2.Planes[ loop ] = (PLANEPTR) AllocRaster( WIDTH2, HEIGHT2 );
 		if( bit_map2.Planes[ loop ] == NULL )
-			clean_up( "Could NOT allocate enough memory for the raster!" );
+			close_demo( "Could NOT allocate enough memory for the raster!" );
 		/* Clear the display memory with help of the Blitter: */
 		BltClear( bit_map2.Planes[ loop ], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
 	}
@@ -210,8 +280,6 @@ void main()
 	InitRastPort( &rast_port2 );
 	rast_port2.BitMap = &bit_map2;
 
-
-
 	/* 8. Show the new View: */
 	LoadView( &my_view );
 
@@ -224,65 +292,19 @@ void main()
 	/* Set FgPen's colour to 1 (white). */
 	SetAPen( &rast_port2, 1 );
 	/* Draw some pixels in the second ViewPort: */
-	for( loop = 0; loop < 500; loop++ )
-		WritePixel( &rast_port2, rand() % WIDTH2, rand() % HEIGHT2 );
+	for( loop = 0; loop < HEIGHT2; loop++ )
+		WritePixel( &rast_port2, rand() % WIDTH2, loop); // rand() % WIDTH2, rand() % HEIGHT2 );
 
 	/* Print some text into the second ViewPort: */
 	Move( &rast_port2, 0, 10 );
-	Text( &rast_port2, "This text is written on a single high resolution BitMap. The ViewPort above use ", 80 );
+	Text( &rast_port2, "Line 1", 6);
 	Move( &rast_port2, 0, 20 );
-	Text( &rast_port2, "a 32-colour low resolution BitMap.                                              ", 80 );
+	Text( &rast_port2, "Line 2", 6);
 
 	/* Draw 10000 pixels in seven different colours, randomly. */ 
-	for( loop = 0; loop < 1000; loop++ )
+	while(1)
 	{
 		WaitTOF();
-		/* Set FgPen's colour (1-31, 0 used for the the background). */
-		SetAPen( &rast_port1, rand() % (COLOURS1-1) + 1 );
-		/* Write a pixel somewere on the display: */
-		WritePixel( &rast_port1, rand() % WIDTH1, rand() % HEIGHT1 );
+		sys_check_abort();
 	}
-
-
-
-	/* 9. Restore the old View: */
-	LoadView( my_old_view );
-
-
-	/* Free all allocated resources and leave. */
-	clean_up( "THE END" );
-}
-
-
-/* Returns all allocated resources: */
-void clean_up(STRPTR message)
-{
-	int loop;
-
-	/* Free automatically allocated display structures: */
-	FreeVPortCopLists( &view_port1 );
-	FreeVPortCopLists( &view_port2 );
-	FreeCprList( my_view.LOFCprList );
-
-	/* Deallocate the display memory, BitPlane for BitPlane: */
-	for( loop = 0; loop < DEPTH1; loop++ )
-		if( bit_map1.Planes[ loop ] )
-			FreeRaster( bit_map1.Planes[ loop ], WIDTH1, HEIGHT1 );
-	for( loop = 0; loop < DEPTH2; loop++ )
-		if( bit_map2.Planes[ loop ] )
-			FreeRaster( bit_map2.Planes[ loop ], WIDTH2, HEIGHT2 );
-
-	/* Deallocate the ColorMap: */
-	if( view_port1.ColorMap ) FreeColorMap( view_port1.ColorMap );
-	if( view_port2.ColorMap ) FreeColorMap( view_port2.ColorMap );
-
-// /* Close the Graphics library: */
-// if( GfxBase ) CloseLibrary( GfxBase );
-
-//  Close the Intuition library: 
-// if( IntuitionBase ) CloseLibrary( IntuitionBase );
-
-	/* Print the message and leave: */
-	printf( "%s\n", message ); 
-	exit(0);
 }

@@ -93,6 +93,33 @@ struct BitMap *load_array_as_bitmap(UWORD *bitmap_array, UWORD array_size, UWORD
   return new_bitmap;
 }
 
+void free_allocated_bitmap(struct BitMap *allocated_bitmap)
+{
+  USHORT i;
+  ULONG block_len;
+
+  if (allocated_bitmap)
+  {
+    // printf("free_allocated_bitmap() allocated_bitmap = %x\n", allocated_bitmap);
+    // printf("allocated_bitmap, BytesPerRow = %d, Rows = %d, Depth = %d, pad = %d\n",
+    //       (*allocated_bitmap).BytesPerRow,
+    //       (*allocated_bitmap).Rows,
+    //       (*allocated_bitmap).Depth,
+    //       (int)(*allocated_bitmap).pad);
+
+    block_len = RASSIZE((*allocated_bitmap).BytesPerRow * 8, (*allocated_bitmap).Rows);
+    for (i = 0; i < (*allocated_bitmap).Depth; i++)
+    {
+      // printf("FreeMem() plane[%i], block_len = %i\n", i, block_len);
+      FreeMem((*allocated_bitmap).Planes[i], block_len); // (*allocated_bitmap).BytesPerRow * (*allocated_bitmap).Rows);
+    }
+
+    block_len = (LONG)sizeof(struct BitMap);
+    // printf("FreeMem() struct BitMap, block_len = %i\n", block_len);
+    FreeMem(allocated_bitmap, block_len);
+  }
+}
+
 void load_file_into_existing_bitmap(struct BitMap *new_bitmap, BYTE *name, ULONG byte_size, UWORD depth)
 {
   BPTR fileHandle;

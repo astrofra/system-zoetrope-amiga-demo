@@ -20,7 +20,8 @@ Graphic assets
 
 
 /* ViewPort 1 */
-#define WIDTH1   320 /* 320 pixels wide.                              */
+#define WIDTH1   380 /* 320 pixels wide.                              */
+#define DISPL_WIDTH1   320 /* 320 pixels wide.                              */
 #define HEIGHT1  80 /* 150 lines high.                               */ 
 #define DEPTH1     5 /* 5 BitPlanes should be used, gives 32 colours. */
 #define COLOURS1  32 /* 2^5 = 32                                      */
@@ -66,15 +67,15 @@ struct BitMap bit_map2;
 struct RastPort rast_port2;
 UWORD color_table2[] = { 0x000, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF };
 
-void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y, USHORT clip_y)
+struct  BitMap *bitmap_logo = NULL;
+
+void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y)
 {
 	/*
-	Logo
+		Logo
 	*/
-	struct  BitMap *bitmap_logo;
-	// if (bitmap_logo == NULL)
 	bitmap_logo = load_array_as_bitmap(mandarine_logoData, 8000 << 1, mandarine_logo.Width - 8, mandarine_logo.Height, mandarine_logo.Depth);
-	BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, 0, 0);
+	BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (WIDTH1 - mandarine_logo.Width) >> 1, offset_y);
 }
 
 /* Returns all allocated resources: */
@@ -99,11 +100,23 @@ void close_demo(STRPTR message)
 	if( view_port1.ColorMap ) FreeColorMap( view_port1.ColorMap );
 	if( view_port2.ColorMap ) FreeColorMap( view_port2.ColorMap );
 
-// /* Close the Graphics library: */
-// if( GfxBase ) CloseLibrary( GfxBase );
+	/* Deallocate various bitmaps */
+	free_allocated_bitmap(bitmap_logo);
 
-//  Close the Intuition library: 
-// if( IntuitionBase ) CloseLibrary( IntuitionBase );
+	/*  Close the keyboard device */
+	if (!(CheckIO((struct IORequest *)KeyIO)))
+		AbortIO((struct IORequest *)KeyIO);   //  Ask device to abort request, if pending 
+	// WaitIO((struct IORequest *)KeyIO);   /* Wait for abort, then clean up */
+	CloseDevice((struct IORequest *)KeyIO);
+	FreeMem(keyMatrix,KEY_MATRIX_SIZE);	
+
+	/* Close the Graphics library: */
+	if(GfxBase)
+		CloseLibrary((struct Library *)GfxBase);
+
+	/* C Close the Intuition library:  */
+	if(IntuitionBase)
+		CloseLibrary((struct Library *)IntuitionBase);
 
 	/* Restore the old View: */
 	LoadView( my_old_view );
@@ -173,7 +186,7 @@ void main()
 
 	/* ViewPort 1 */
 	InitVPort( &view_port1 );
-	view_port1.DWidth = WIDTH1;      /* Set the width.                */
+	view_port1.DWidth = DISPL_WIDTH1;      /* Set the width.                */
 	view_port1.DHeight = HEIGHT1;    /* Set the height.               */
 	view_port1.DxOffset = 0;         /* X position.                   */
 	view_port1.DyOffset = 0;         /* Y position.                   */
@@ -262,13 +275,10 @@ void main()
 	              /* RasInfo structure is necessary.   */
 
 
-
 	/* 6. Create the display: */
 	MakeVPort( &my_view, &view_port1 ); /* Prepare ViewPort 1 */
 	MakeVPort( &my_view, &view_port2 ); /* Prepare ViewPort 2 */
 	MrgCop( &my_view );
-
-
 
 	/* 7. Prepare the RastPort, and give it a pointer to the BitMap. */
 
@@ -283,7 +293,7 @@ void main()
 	/* 8. Show the new View: */
 	LoadView( &my_view );
 
-	drawMandarineLogo(&bit_map1, 0, mandarine_logo.Height);
+	drawMandarineLogo(&bit_map1, 0);
 
 	/* Set the draw mode to JAM1. FgPen's colour will be used. */
 	SetDrMd( &rast_port1, JAM1 );
@@ -302,9 +312,17 @@ void main()
 	Text( &rast_port2, "Line 2", 6);
 
 	/* Draw 10000 pixels in seven different colours, randomly. */ 
+	loop = 0;
 	while(1)
 	{
 		WaitTOF();
+		view_port1.DxOffset = loop;
+		loop++;
+		if (loop > 40)
+			loop = -40;
+		MakeVPort( &my_view, &view_port1 );
+		MrgCop( &my_view );
+		LoadView( &my_view );		
 		sys_check_abort();
 	}
 }

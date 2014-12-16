@@ -316,13 +316,15 @@ void main()
 	while(1)
 	{
 		WaitTOF();
-		view_port1.DxOffset = loop;
+
+	    view_port1.RasInfo->RxOffset = loop;
+	    view_port1.RasInfo->RyOffset = 0;
+	    ScrollVPort(&view_port1);
+	    	
 		loop++;
 		if (loop > 40)
 			loop = -40;
-		MakeVPort( &my_view, &view_port1 );
-		MrgCop( &my_view );
-		LoadView( &my_view );		
+		
 		sys_check_abort();
 	}
 }

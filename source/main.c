@@ -28,11 +28,14 @@ Graphic assets
 
 /* ViewPort 2 */
 #define WIDTH2   320 /* 640 pixels wide.                             */
-#define HEIGHT2   250-80 /* 45 lines high.                               */
-#define DEPTH2     3 /* 1 BitPlanes should be used, gives 2 colours. */
+#define HEIGHT2   (250-80) /* 45 lines high.                               */
+#define DEPTH2     1 /* 1 BitPlanes should be used, gives 2 colours. */
 #define COLOURS2   (2 << DEPTH2)
 
 USHORT bg_scroll_phase = 0;
+
+#define LISSAJOU_MAX_BOBS 16
+USHORT lissajou_phase = 0;
 
 /* Keyboard device */
 struct MsgPort  *KeyMP;         /* Pointer for Message Port */
@@ -168,6 +171,32 @@ void scrollLogoBackground(void)
     ScrollVPort(&view_port1);
 }
 
+void updateLissajouBobs()
+{
+	USHORT i, bob_phase, x, y;
+	lissajou_phase++;
+
+	while (lissajou_phase >= COSINE_TABLE_LEN)
+        lissajou_phase -= COSINE_TABLE_LEN;
+
+	for( i = 0; i < DEPTH2; i++ )
+		BltClear( bit_map2.Planes[i], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
+
+    bob_phase = lissajou_phase;
+    for(i = 0; i < LISSAJOU_MAX_BOBS; i++)
+    {
+    	bob_phase += 16;
+
+    	while (bob_phase >= COSINE_TABLE_LEN)
+    	    bob_phase -= COSINE_TABLE_LEN;
+
+    	x = ((tcos[bob_phase] + 512) * WIDTH2) >> 10;
+    	y = ((tsin[(bob_phase << 1) % COSINE_TABLE_LEN] + 512) * HEIGHT2) >> 10;
+    	if (x > 0 && x < WIDTH2 && y > 0 && y < HEIGHT2)
+    		WritePixel( &rast_port2, x, y);
+    }
+}
+
 void main()
 {
 	UWORD *pointer;
@@ -240,9 +269,7 @@ void main()
 	for( loop = 0; loop < COLOURS2; loop++ )
 		*pointer++ = color_table2[ loop ];
 
-
-
-	/* 4. Prepare the BitMap: */
+	/* Prepare the BitMap */
 
 	/* ViewPort 1 */
 	InitBitMap( &bit_map1, DEPTH1, WIDTH1, HEIGHT1 );
@@ -268,9 +295,7 @@ void main()
 		BltClear( bit_map2.Planes[ loop ], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
 	}
 
-
-
-	/* 5. Prepare the RasInfo structure: */
+	/* Prepare the RasInfo structure */
 
 	/* ViewPort 1 */
 	ras_info1.BitMap = &bit_map1; /* Pointer to the BitMap structure.  */
@@ -289,12 +314,12 @@ void main()
 	              /* RasInfo structure is necessary.   */
 
 
-	/* 6. Create the display: */
+	/* Create the display */
 	MakeVPort( &my_view, &view_port1 ); /* Prepare ViewPort 1 */
 	MakeVPort( &my_view, &view_port2 ); /* Prepare ViewPort 2 */
 	MrgCop( &my_view );
 
-	/* 7. Prepare the RastPort, and give it a pointer to the BitMap. */
+	/* Prepare the RastPort, and give it a pointer to the BitMap. */
 
 	/* ViewPort 1 */
 	InitRastPort( &rast_port1 );
@@ -313,11 +338,11 @@ void main()
 	SetDrMd( &rast_port1, JAM1 );
 	SetDrMd( &rast_port2, JAM1 );
 
-	/* Set FgPen's colour to 1 (white). */
-	SetAPen( &rast_port2, 1 );
-	/* Draw some pixels in the second ViewPort: */
-	for( loop = 0; loop < HEIGHT2; loop++ )
-		WritePixel( &rast_port2, rand() % WIDTH2, loop); // rand() % WIDTH2, rand() % HEIGHT2 );
+	// /* Set FgPen's colour to 1 (white). */
+	// SetAPen( &rast_port2, 1 );
+	// /* Draw some pixels in the second ViewPort: */
+	// for( loop = 0; loop < HEIGHT2; loop++ )
+	// 	WritePixel( &rast_port2, rand() % WIDTH2, loop); // rand() % WIDTH2, rand() % HEIGHT2 );
 
 	/* Print some text into the second ViewPort: */
 	Move( &rast_port2, 0, 10 );
@@ -331,6 +356,7 @@ void main()
 	{
 		WaitTOF();
 		scrollLogoBackground();
+		updateLissajouBobs();
 
 		sys_check_abort();
 	}

@@ -1,8 +1,7 @@
-/* Example 4                                                            */
-/* This example demonstrates how to open two different ViewPorts on the */
-/* same display. The first ViewPort is in low resolution and use 32     */
-/* colours, while the second ViewPort is in high resolution and only    */
-/* use 2 colours.                                                       */
+/*
+	Secret (demo) Project
+	by Mandarine
+*/
 
 #include "includes.prl"
 #include <intuition/intuition.h>
@@ -12,6 +11,7 @@
 Custom routines
 */
 #include "bitmap_routines.h"
+#include "cosine_table.h"
 
 /*
 Graphic assets
@@ -24,13 +24,15 @@ Graphic assets
 #define DISPL_WIDTH1   320 /* 320 pixels wide.                              */
 #define HEIGHT1  80 /* 150 lines high.                               */ 
 #define DEPTH1     5 /* 5 BitPlanes should be used, gives 32 colours. */
-#define COLOURS1  32 /* 2^5 = 32                                      */
+#define COLOURS1  (2 << DEPTH1)
 
 /* ViewPort 2 */
 #define WIDTH2   320 /* 640 pixels wide.                             */
 #define HEIGHT2   250-80 /* 45 lines high.                               */
 #define DEPTH2     3 /* 1 BitPlanes should be used, gives 2 colours. */
-#define COLOURS2   8 /* 2^1 = 2                                      */
+#define COLOURS2   (2 << DEPTH2)
+
+USHORT bg_scroll_phase = 0;
 
 /* Keyboard device */
 struct MsgPort  *KeyMP;         /* Pointer for Message Port */
@@ -152,6 +154,18 @@ void sys_check_abort(void)
 
   if (keyMatrix[0x45 >> 3] & (0x20))
     close_demo("My friend the end!");
+}
+
+void scrollLogoBackground(void)
+{
+    bg_scroll_phase += 4;
+
+    while (bg_scroll_phase >= COSINE_TABLE_LEN)
+        bg_scroll_phase -= COSINE_TABLE_LEN;
+
+    view_port1.RasInfo->RxOffset = (WIDTH1 - DISPL_WIDTH1) + ((tcos[bg_scroll_phase] + 512) * (WIDTH1 - DISPL_WIDTH1)) >> 10;
+    view_port1.RasInfo->RyOffset = 0;
+    ScrollVPort(&view_port1);
 }
 
 void main()
@@ -316,15 +330,8 @@ void main()
 	while(1)
 	{
 		WaitTOF();
+		scrollLogoBackground();
 
-	    view_port1.RasInfo->RxOffset = loop;
-	    view_port1.RasInfo->RyOffset = 0;
-	    ScrollVPort(&view_port1);
-	    	
-		loop++;
-		if (loop > 40)
-			loop = -40;
-		
 		sys_check_abort();
 	}
 }

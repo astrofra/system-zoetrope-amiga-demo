@@ -46,6 +46,7 @@ UBYTE *keyMatrix = NULL;
 struct IntuitionBase *IntuitionBase;
 struct GfxBase *GfxBase;
 extern struct Library *SysBase;
+struct Task *myTask;
 
 struct View my_view;
 struct View *my_old_view;
@@ -173,26 +174,31 @@ void scrollLogoBackground(void)
 
 void updateLissajouBobs()
 {
-	USHORT i, bob_phase, x, y;
+	USHORT i, bob_phase, bob_phase2, x, y;
 	lissajou_phase++;
 
-	while (lissajou_phase >= COSINE_TABLE_LEN)
+	if (lissajou_phase >= COSINE_TABLE_LEN)
         lissajou_phase -= COSINE_TABLE_LEN;
 
-	for( i = 0; i < DEPTH2; i++ )
-		BltClear( bit_map2.Planes[i], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
+	// for( i = 0; i < DEPTH2; i++ )
+	BltClear( bit_map2.Planes[0], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
 
     bob_phase = lissajou_phase;
     for(i = 0; i < LISSAJOU_MAX_BOBS; i++)
     {
     	bob_phase += 16;
 
-    	while (bob_phase >= COSINE_TABLE_LEN)
+    	if (bob_phase >= COSINE_TABLE_LEN)
     	    bob_phase -= COSINE_TABLE_LEN;
 
-    	x = ((tcos[bob_phase] + 512) * WIDTH2) >> 10;
-    	y = ((tsin[(bob_phase << 1) % COSINE_TABLE_LEN] + 512) * HEIGHT2) >> 10;
-    	if (x > 0 && x < WIDTH2 && y > 0 && y < HEIGHT2)
+    	bob_phase2 = bob_phase << 1;
+
+    	if (bob_phase2 >= COSINE_TABLE_LEN)
+    	    bob_phase2 -= COSINE_TABLE_LEN;
+
+    	x = 4 + ((tcos[bob_phase] + 512) * (WIDTH2 - 8)) >> 10;
+    	y = 4 + ((tsin[bob_phase2] + 512) * (HEIGHT2 - 8)) >> 10;
+    	// if (x > 0 && x < WIDTH2 && y > 0 && y < HEIGHT2)
     		WritePixel( &rast_port2, x, y);
     }
 }
@@ -200,6 +206,7 @@ void updateLissajouBobs()
 void main()
 {
 	UWORD *pointer;
+	short *rastershow;
 	int loop;
 
 	/* Open the Intuition library: */
@@ -352,10 +359,17 @@ void main()
 
 	/* Draw 10000 pixels in seven different colours, randomly. */ 
 	loop = 0;
+	rastershow = (short *)0x0DFF180;
+
+
+	myTask = FindTask(NULL);
+	SetTaskPri(myTask, 127);
+
 	while(1)
 	{
 		WaitTOF();
-		scrollLogoBackground();
+		*rastershow = 0xF0F;
+		scrollLogoBackground();		
 		updateLissajouBobs();
 
 		sys_check_abort();

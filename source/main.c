@@ -17,6 +17,7 @@ Custom routines
 Graphic assets
 */
 #include "mandarine_logo.h"
+#include "sprites_routines.h"
 
 
 /* ViewPort 1 */
@@ -34,7 +35,6 @@ Graphic assets
 
 USHORT bg_scroll_phase = 0;
 
-#define LISSAJOU_MAX_BOBS 16
 USHORT lissajou_phase = 0;
 
 /* Keyboard device */
@@ -164,7 +164,7 @@ void scrollLogoBackground(void)
 {
     bg_scroll_phase += 4;
 
-    while (bg_scroll_phase >= COSINE_TABLE_LEN)
+    if (bg_scroll_phase >= COSINE_TABLE_LEN)
         bg_scroll_phase -= COSINE_TABLE_LEN;
 
     view_port1.RasInfo->RxOffset = (WIDTH1 - DISPL_WIDTH1) + ((tcos[bg_scroll_phase] + 512) * (WIDTH1 - DISPL_WIDTH1)) >> 10;
@@ -174,33 +174,45 @@ void scrollLogoBackground(void)
 
 void updateLissajouBobs()
 {
-	USHORT i, bob_phase, bob_phase2, x, y;
+	USHORT i, sprite_phase, sprite_phase2; // , x, y;
 	lissajou_phase++;
 
 	if (lissajou_phase >= COSINE_TABLE_LEN)
         lissajou_phase -= COSINE_TABLE_LEN;
 
 	// for( i = 0; i < DEPTH2; i++ )
-	BltClear( bit_map2.Planes[0], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
+	// BltClear( bit_map2.Planes[0], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
 
-    bob_phase = lissajou_phase;
-    for(i = 0; i < LISSAJOU_MAX_BOBS; i++)
+    sprite_phase = lissajou_phase;
+    for(i = 0; i < MAXVSPRITES; i++)
     {
-    	bob_phase += 16;
+    	sprite_phase += 32;
 
-    	if (bob_phase >= COSINE_TABLE_LEN)
-    	    bob_phase -= COSINE_TABLE_LEN;
+    	if (sprite_phase >= COSINE_TABLE_LEN)
+    	    sprite_phase -= COSINE_TABLE_LEN;
 
-    	bob_phase2 = bob_phase << 1;
+    	sprite_phase2 = sprite_phase << 1;
 
-    	if (bob_phase2 >= COSINE_TABLE_LEN)
-    	    bob_phase2 -= COSINE_TABLE_LEN;
+    	if (sprite_phase2 >= COSINE_TABLE_LEN)
+    	    sprite_phase2 -= COSINE_TABLE_LEN;
 
-    	x = 4 + ((tcos[bob_phase] + 512) * (WIDTH2 - 8)) >> 10;
-    	y = 4 + ((tsin[bob_phase2] + 512) * (HEIGHT2 - 8)) >> 10;
-    	// if (x > 0 && x < WIDTH2 && y > 0 && y < HEIGHT2)
-    		WritePixel( &rast_port2, x, y);
+      	vsprite[i].X = 4 + ((tcos[sprite_phase] + 512) * (WIDTH2 - 8)) >> 10;
+      	vsprite[i].Y = 4 + ((tsin[sprite_phase2] + 512) * (HEIGHT2 - 8)) >> 10;
     }
+  
+    /* 9. Sort the Gels list: */
+    SortGList(&rast_port2);
+
+    /* 10. Draw the Gels list: */
+    DrawGList(&rast_port2, &view_port2);
+
+    /* 11. Set the Copper and redraw the display: */
+    MrgCop( &my_view );
+	LoadView( &my_view );    
+    // MakeScreen( my_screen );
+    // RethinkDisplay();      	
+
+    	// WritePixel( &rast_port2, x, y);
 }
 
 void main()
@@ -339,17 +351,19 @@ void main()
 	/* 8. Show the new View: */
 	LoadView( &my_view );
 
+	initSpriteDisplay(&rast_port2);
+
 	drawMandarineLogo(&bit_map1, 0);
 
 	/* Set the draw mode to JAM1. FgPen's colour will be used. */
 	SetDrMd( &rast_port1, JAM1 );
 	SetDrMd( &rast_port2, JAM1 );
 
-	// /* Set FgPen's colour to 1 (white). */
-	// SetAPen( &rast_port2, 1 );
-	// /* Draw some pixels in the second ViewPort: */
-	// for( loop = 0; loop < HEIGHT2; loop++ )
-	// 	WritePixel( &rast_port2, rand() % WIDTH2, loop); // rand() % WIDTH2, rand() % HEIGHT2 );
+	/* Set FgPen's colour to 1 (white). */
+	SetAPen( &rast_port2, 1 );
+	/* Draw some pixels in the second ViewPort: */
+	for( loop = 0; loop < HEIGHT2; loop++ )
+		WritePixel( &rast_port2, rand() % WIDTH2, loop); // rand() % WIDTH2, rand() % HEIGHT2 );
 
 	/* Print some text into the second ViewPort: */
 	Move( &rast_port2, 0, 10 );

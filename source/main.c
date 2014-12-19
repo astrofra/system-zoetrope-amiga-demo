@@ -201,17 +201,14 @@ void updateLissajouBobs()
     }
   
     /* 9. Sort the Gels list: */
-    SortGList(&rast_port2);
+    SortGList(&rast_port1);
 
     /* 10. Draw the Gels list: */
-    DrawGList(&rast_port2, &view_port2);
+    DrawGList(&rast_port1, &view_port1);
 
     /* 11. Set the Copper and redraw the display: */
     MrgCop( &my_view );
 	LoadView( &my_view );    
-    // MakeScreen( my_screen );
-    // RethinkDisplay();      	
-
     	// WritePixel( &rast_port2, x, y);
 }
 
@@ -351,7 +348,7 @@ void main()
 	/* 8. Show the new View: */
 	LoadView( &my_view );
 
-	initSpriteDisplay(&rast_port2);
+	initSpriteDisplay(&rast_port1);
 
 	drawMandarineLogo(&bit_map1, 0);
 

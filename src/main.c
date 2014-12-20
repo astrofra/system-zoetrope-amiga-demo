@@ -106,6 +106,9 @@ void close_demo(STRPTR message)
 	if( view_port1.ColorMap ) FreeColorMap( view_port1.ColorMap );
 	if( view_port2.ColorMap ) FreeColorMap( view_port2.ColorMap );
 
+	/*	Deallocate sprites */
+	closeSpriteDisplay();
+
 	/* Deallocate various bitmaps */
 	free_allocated_bitmap(bitmap_logo);
 
@@ -172,19 +175,16 @@ void scrollLogoBackground(void)
     ScrollVPort(&view_port1);
 }
 
-void updateLissajouBobs()
+void updateLissajouBobs(struct ViewPort *vp)
 {
-	USHORT i, sprite_phase, sprite_phase2; // , x, y;
+	USHORT i, sprite_phase, sprite_phase2, x, y;
 	lissajou_phase++;
 
 	if (lissajou_phase >= COSINE_TABLE_LEN)
         lissajou_phase -= COSINE_TABLE_LEN;
 
-	// for( i = 0; i < DEPTH2; i++ )
-	// BltClear( bit_map2.Planes[0], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
-
     sprite_phase = lissajou_phase;
-    for(i = 0; i < MAXVSPRITES; i++)
+    for(i = 0; i < MAX_SPRITES; i++)
     {
     	sprite_phase += 32;
 
@@ -196,20 +196,11 @@ void updateLissajouBobs()
     	if (sprite_phase2 >= COSINE_TABLE_LEN)
     	    sprite_phase2 -= COSINE_TABLE_LEN;
 
-      	vsprite[i].X = 4 + ((tcos[sprite_phase] + 512) * (WIDTH2 - 8)) >> 10;
-      	vsprite[i].Y = 4 + ((tsin[sprite_phase2] + 512) * (HEIGHT2 - 8)) >> 10;
+      	x = 4 + ((tcos[sprite_phase] + 512) * (WIDTH2 - 8)) >> 10;
+      	y = 4 + ((tsin[sprite_phase2] + 512) * (HEIGHT2 - 8)) >> 10;
+
+      	MoveSprite(vp, my_sprite[i], x, y );
     }
-  
-    /* 9. Sort the Gels list: */
-    SortGList(&rast_port1);
-
-    /* 10. Draw the Gels list: */
-    DrawGList(&rast_port1, &view_port1);
-
-    /* 11. Set the Copper and redraw the display: */
-    MrgCop( &my_view );
-	LoadView( &my_view );    
-    	// WritePixel( &rast_port2, x, y);
 }
 
 void main()
@@ -369,7 +360,6 @@ void main()
 	Text( &rast_port2, "Line 2", 6);
 
 	/* Draw 10000 pixels in seven different colours, randomly. */ 
-	loop = 0;
 	rastershow = (short *)0x0DFF180;
 
 
@@ -381,7 +371,7 @@ void main()
 		WaitTOF();
 		*rastershow = 0xF0F;
 		scrollLogoBackground();		
-		updateLissajouBobs();
+		updateLissajouBobs(&view_port2);
 
 		sys_check_abort();
 	}

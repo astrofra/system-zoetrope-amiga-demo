@@ -4,97 +4,60 @@
 
 #include "sprites_routines.h"
 
-UWORD chip vsprite_data[]=
-{
-  0x0180, 0x0000,
-  0x03C0, 0x0000,
-  0x07E0, 0x0000,
-  0x0FF0, 0x0000,
-  0x1FF8, 0x0000,
-  0x3FFC, 0x0000,
-  0x7FFE, 0x0000,
-  0x0000, 0xFFFF,
-  0x0000, 0xFFFF,
-  0x7FFE, 0x7FFE,
-  0x3FFC, 0x3FFC,
-  0x1FF8, 0x1FF8,
-  0x0FF0, 0x0FF0,
-  0x07E0, 0x07E0,
-  0x03C0, 0x03C0,
-  0x0180, 0x0180,
-};
-
 extern struct GfxBase *GfxBase;
 
-WORD nextline[8];
-WORD *lastcolor[8];
+UWORD chip ball_data[28]=
+{
+    0x0000, 0x0000,
 
-/* 2. Declare three VSprite structures. One will be used, */
-/*    the other two are "dummies":                        */
-struct VSprite head, tail, vsprite[MAXVSPRITES];
+    0xFFF8, 0x0000,
+    0x0200, 0x0000,
+    0x877C, 0x0000,
+    0x8786, 0x027C,
+    0xBFBF, 0x02C6,
+    0xEDFF, 0x1AC2,
+    0xA57D, 0x1AFE,
+    0xBF19, 0x02FE,
+    0x8F12, 0x00FC,
+    0x04FC, 0x0000,
+    0x0809, 0x0000,
+    0x3FFE, 0x0000,
 
+    0x0000, 0x0000
+};
 
-/* 3. Declare the VSprites' colour tables:     */
-WORD colour_table[MAXVSPRITES][3];
-
-
-/* 4. Declare a GelsInfo structure: */
-struct GelsInfo ginfo;
-
-
-/* This boolean variable will tell us if the VSprites are */
-/* in the list or not:                                    */
-BOOL vsprite_on = FALSE;
+struct SimpleSprite *my_sprite[MAX_SPRITES];
 
 void initSpriteDisplay(struct RastPort* rast_port)
 {
-  int i;
+  int i, spr_want, spr_got;
 
-  /* All sprites except the first two may be used to draw */
-  /* the VSprites: ( 11111100 = 0xFC )                    */
-  ginfo.sprRsrvd = 0xFC;
-  /* If we do not exclude the first two sprites, the mouse */
-  /* pointer's colours may be affected.                    */
+  printf("initSpriteDisplay()\n");
 
-
-  /* Give the GelsInfo structure some memory: */
-  ginfo.nextLine = nextline;
-  ginfo.lastColor = lastcolor;
-
-
-  /* Give the Rastport a pointer to the GelsInfo structure: */
-  rast_port->GelsInfo = &ginfo;
-
-  
-  /* Give the GelsInfo structure to the system: */
-  InitGels( &head, &tail, &ginfo );
-
-  for(i = 0; i < MAXVSPRITES; i++)
+  for(i = 0; i < MAX_SPRITES; i++)
   {
-    /* Set the VSprite's colours: */
-    colour_table[i][0] = i;      /* Blue  */
-    colour_table[i][1] = i << 4; /* Green */
-    colour_table[i][2] = i << 8; /* Red   */
-
-    vsprite[i].Flags = VSPRITE;    /* It is a VSprite.    */
-    vsprite[i].X = 10 + 20 * i; /* X position.         */
-    vsprite[i].Y = 10 + 20 * i; /* Y position.         */
-    vsprite[i].Height = 16;        /* 16 lines tall.      */
-    vsprite[i].Width = 2;          /* 2 words wide.       */
-    vsprite[i].Depth = 2;          /* 2 bitpl, 4 colours. */
-
-    /* Pointer to the sprite data: */
-    vsprite[i].ImageData = vsprite_data;
-
-    /* Pointer to the colour table: */
-    vsprite[i].SprColors = colour_table[ i ];
-
-
-    /* 8. Add the VSprites to the VSprite list: */
-    AddVSprite(&vsprite[i], rast_port);
+    my_sprite[i] = (struct SimpleSprite *)malloc(sizeof(struct SimpleSprite));
+    my_sprite[i]->posctldata = (unsigned short *)&ball_data[0];
+    my_sprite[i]->height = 12;
+    my_sprite[i]->x = i << 4; 
+    my_sprite[i]->y = i << 2;
+    // my_sprite[i]->num = i;  
   }
-  
-  
-  /* The VSprites are in the list. */
-  vsprite_on = TRUE;
+
+  for(i = 0; i < MAX_SPRITES; i++)
+  {
+      spr_want = i + 1;
+      spr_got = GetSprite(my_sprite[i], spr_want);
+      printf("Asked for sprite #%d, got sprite #%d\n", spr_want, spr_got);
+  }
+}
+
+void closeSpriteDisplay(void)
+{
+  int i;
+  for(i = 0; i < MAX_SPRITES; i++)
+  {
+    FreeSprite(my_sprite[i]->num);
+    free(my_sprite[i]);
+  }
 }

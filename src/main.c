@@ -113,13 +113,6 @@ void close_demo(STRPTR message)
 	/* Deallocate various bitmaps */
 	free_allocated_bitmap(bitmap_logo);
 
-	/*  Close the keyboard device */
-	if (!(CheckIO((struct IORequest *)KeyIO)))
-		AbortIO((struct IORequest *)KeyIO);   //  Ask device to abort request, if pending 
-	// WaitIO((struct IORequest *)KeyIO);   /* Wait for abort, then clean up */
-	CloseDevice((struct IORequest *)KeyIO);
-	FreeMem(keyMatrix,KEY_MATRIX_SIZE);	
-
 	/* Close the Graphics library: */
 	if(GfxBase)
 		CloseLibrary((struct Library *)GfxBase);
@@ -134,34 +127,6 @@ void close_demo(STRPTR message)
 	/* Print the message and leave: */
 	printf( "%s\n", message ); 
 	exit(0);
-}
-
-int open_keyboard(void)
-{
-    if (KeyMP=CreatePort(NULL,NULL))
-      if (KeyIO=(struct IOStdReq *)CreateExtIO(KeyMP,sizeof(struct IOStdReq)))
-        if (OpenDevice( "keyboard.device",NULL,(struct IORequest *)KeyIO,NULL))
-        {
-          printf("keyboard.device did not open\n");
-          return(0);
-        }
-        else
-        if (!(keyMatrix=AllocMem(KEY_MATRIX_SIZE,MEMF_PUBLIC|MEMF_CLEAR)))
-        {
-          printf("Cannot allocate keyboard buffer\n");
-          return(0);
-        }
-}
-
-void sys_check_abort(void)
-{
-  KeyIO->io_Command=KBD_READMATRIX;
-  KeyIO->io_Data=(APTR)keyMatrix;
-  KeyIO->io_Length = SysBase->lib_Version >= 36 ? KEY_MATRIX_SIZE : 13;
-  DoIO((struct IORequest *)KeyIO);
-
-  if (keyMatrix[0x45 >> 3] & (0x20))
-    close_demo("My friend the end!");
 }
 
 void scrollLogoBackground(void)
@@ -220,9 +185,6 @@ void main()
 	OpenLibrary( "graphics.library", 0 );
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
-
-	/*	Keyboard IO handler */
-	open_keyboard();
 
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
@@ -362,13 +324,15 @@ void main()
 	myTask = FindTask(NULL);
 	SetTaskPri(myTask, 127);
 
-	while(1)
+	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
 		WaitTOF();
 		*((short *)COLOR00_ADDR) = 0xF0F;
 		scrollLogoBackground();		
 		updateLissajouBobs(&view_port2);
 
-		sys_check_abort();
+		// sys_check_abort();
 	}
+
+	close_demo("My friend the end!");
 }

@@ -10,6 +10,7 @@
 /*
 Custom routines
 */
+#include "board.h"
 #include "bitmap_routines.h"
 #include "cosine_table.h"
 
@@ -206,7 +207,6 @@ void updateLissajouBobs(struct ViewPort *vp)
 void main()
 {
 	UWORD *pointer;
-	short *rastershow;
 	int loop;
 
 	/* Open the Intuition library: */
@@ -359,17 +359,13 @@ void main()
 	Move( &rast_port2, 0, 20 );
 	Text( &rast_port2, "Line 2", 6);
 
-	/* Draw 10000 pixels in seven different colours, randomly. */ 
-	rastershow = (short *)0x0DFF180;
-
-
 	myTask = FindTask(NULL);
 	SetTaskPri(myTask, 127);
 
 	while(1)
 	{
 		WaitTOF();
-		*rastershow = 0xF0F;
+		*((short *)COLOR00_ADDR) = 0xF0F;
 		scrollLogoBackground();		
 		updateLissajouBobs(&view_port2);
 

@@ -30,7 +30,9 @@ struct SimpleSprite *my_sprite[MAX_SPRITES];
 
 void initSpriteDisplay(struct RastPort* rast_port)
 {
-  int i;
+  int i, spr_want, spr_got;
+
+  printf("initSpriteDisplay()\n");
 
   for(i = 0; i < MAX_SPRITES; i++)
   {
@@ -39,11 +41,15 @@ void initSpriteDisplay(struct RastPort* rast_port)
     my_sprite[i]->height = 12;
     my_sprite[i]->x = i << 4; 
     my_sprite[i]->y = i << 2;
-    my_sprite[i]->num = i;  
+    // my_sprite[i]->num = i;  
   }
 
   for(i = 0; i < MAX_SPRITES; i++)
-    GetSprite(my_sprite[i], i);
+  {
+      spr_want = i + 1;
+      spr_got = GetSprite(my_sprite[i], spr_want);
+      printf("Asked for sprite #%d, got sprite #%d\n", spr_want, spr_got);
+  }
 }
 
 void closeSpriteDisplay(void)

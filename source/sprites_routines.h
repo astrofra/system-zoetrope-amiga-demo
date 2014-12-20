@@ -2,11 +2,6 @@
 #include <intuition/intuition.h>
 #include <graphics/gfxbase.h>
 
-#define MAXVSPRITES 15
-
-extern WORD nextline[8];
-extern WORD *lastcolor[8];
-
-extern struct VSprite head, tail, vsprite[MAXVSPRITES];
+#define MAX_SPRITES 8
 
 void initSpriteDisplay(struct RastPort* rast_port);

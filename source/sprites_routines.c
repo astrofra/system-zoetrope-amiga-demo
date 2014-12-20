@@ -6,6 +6,52 @@
 
 extern struct GfxBase *GfxBase;
 
+UWORD chip ball_data[28]=
+{
+    0x0000, 0x0000,
+
+    0xFFF8, 0x0000,
+    0x0200, 0x0000,
+    0x877C, 0x0000,
+    0x8786, 0x027C,
+    0xBFBF, 0x02C6,
+    0xEDFF, 0x1AC2,
+    0xA57D, 0x1AFE,
+    0xBF19, 0x02FE,
+    0x8F12, 0x00FC,
+    0x04FC, 0x0000,
+    0x0809, 0x0000,
+    0x3FFE, 0x0000,
+
+    0x0000, 0x0000
+};
+
+struct SimpleSprite *my_sprite[MAX_SPRITES];
+
 void initSpriteDisplay(struct RastPort* rast_port)
 {
+  int i;
+
+  for(i = 0; i < MAX_SPRITES; i++)
+  {
+    my_sprite[i] = (struct SimpleSprite *)malloc(sizeof(struct SimpleSprite));
+    my_sprite[i]->posctldata = (unsigned short *)&ball_data[0];
+    my_sprite[i]->height = 12;
+    my_sprite[i]->x = i << 4; 
+    my_sprite[i]->y = i << 2;
+    my_sprite[i]->num = i;  
+  }
+
+  for(i = 0; i < MAX_SPRITES; i++)
+    GetSprite(my_sprite[i], i);
+}
+
+void closeSpriteDisplay(void)
+{
+  int i;
+  for(i = 0; i < MAX_SPRITES; i++)
+  {
+    FreeSprite(my_sprite[i]->num);
+    free(my_sprite[i]);
+  }
 }

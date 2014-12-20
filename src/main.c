@@ -34,6 +34,8 @@ Graphic assets
 #define DEPTH2     1 /* 1 BitPlanes should be used, gives 2 colours. */
 #define COLOURS2   (2 << DEPTH2)
 
+// #define DEBUG_RASTER_LINE
+
 USHORT bg_scroll_phase = 0;
 
 USHORT lissajou_phase = 0;
@@ -321,18 +323,24 @@ void main()
 	Move( &rast_port2, 0, 20 );
 	Text( &rast_port2, "Line 2", 6);
 
-	myTask = FindTask(NULL);
-	SetTaskPri(myTask, 127);
+	// myTask = FindTask(NULL);
+	// SetTaskPri(myTask, 127);
+
+	Forbid();
+	Disable();
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
 		WaitTOF();
+		#ifdef DEBUG_RASTER_LINE
 		*((short *)COLOR00_ADDR) = 0xF0F;
+		#endif
 		scrollLogoBackground();		
 		updateLissajouBobs(&view_port2);
-
-		// sys_check_abort();
 	}
+
+	Enable();
+	Permit();
 
 	close_demo("My friend the end!");
 }

@@ -1,6 +1,8 @@
 #include "includes.prl"
 #include <intuition/intuition.h>
 #include <graphics/gfxbase.h>
+#include <graphics/gfxmacros.h>
+#include <hardware/custom.h>
 
 #include "screen_size.h"
 #include "bitmap_routines.h"
@@ -8,6 +10,7 @@
 #include "cosine_table.h"
 #include "mandarine_logo.h"
 #include "checkerboard_stripe.h"
+#include "vert_copper_palettes.h"
 
 extern struct GfxBase *GfxBase;
 extern struct ViewPort view_port1;
@@ -16,12 +19,16 @@ extern struct ViewPort view_port2;
 extern struct  BitMap *bitmap_logo;
 extern struct  BitMap *bitmap_checkerboard;
 
+extern struct Custom far custom;
+
 /*	Viewport 1, Mandarine Logo */
 USHORT bg_scroll_phase = 0;
 
 /*	Viewport 2, checkerboard and sprites animation */
 USHORT sprite_chain_phase = 0;
 USHORT checkerboard_scroll_offset = 0;
+struct UCopList *copper;
+
 
 /*	
 	Viewport 1, 
@@ -64,6 +71,31 @@ void drawCheckerboard(struct BitMap *dest_bitmap)
             checkerboard.Width, 100,
             0xC0, 0xFF, NULL);
         // BLIT_BITMAP_S(bitmap_checkerboard, dest_bitmap, checkerboard.Width, 100, 0, DISPL_HEIGHT2 * i + 60);
+}
+
+void setCheckerboardCopperlist(struct ViewPort *vp)
+{
+    USHORT i;
+
+    copper = (struct UCopList *)
+    AllocMem( sizeof(struct UCopList), MEMF_PUBLIC|MEMF_CHIP|MEMF_CLEAR );
+
+    CINIT( copper, 1 );
+
+    for(i = 0; i < DISPL_HEIGHT2; i++)
+    {
+        CWAIT(copper, i, 0);
+        CMOVE(copper, custom.color[1], vcopperlist_checker_0[i]);
+        CMOVE(copper, custom.color[0], vcopperlist_checker_1[i]);
+    }
+
+    CEND(copper);
+
+    vp->UCopIns = copper;
+
+    // /* 8. Create the display: */
+    // MakeVPort( &my_view, &my_view_port );
+    // MrgCop( &my_view );   
 }
 
 void updateCheckerboard(void)

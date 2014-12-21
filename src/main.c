@@ -249,11 +249,12 @@ void main()
 	ras_info2.Next = NULL;        /* Single playfield - only one       */
 	              /* RasInfo structure is necessary.   */
 
+	setCheckerboardCopperlist(&view_port2);
 
 	/* Create the display */
-	MakeVPort( &my_view, &view_port1 ); /* Prepare ViewPort 1 */
-	MakeVPort( &my_view, &view_port2 ); /* Prepare ViewPort 2 */
-	MrgCop( &my_view );
+	MakeVPort(&my_view, &view_port1); /* Prepare ViewPort 1 */
+	MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
+	MrgCop(&my_view);
 
 	/* Prepare the RastPort, and give it a pointer to the BitMap. */
 

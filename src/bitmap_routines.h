@@ -1,3 +1,6 @@
+#ifndef BITMAP_ROUTINES
+#define BITMAP_ROUTINES
+
 /*
     Misc bitmap routines headers
 */
@@ -38,3 +41,5 @@ void disp_interleaved_st_format(PLANEPTR data, struct BitMap *dest_BitMap, UWORD
             0xC0, 0xFF, NULL);
 
 #define FREE_BITMAP(BITMAP_TMP) ;
+
+#endif // #ifndef BITMAP_ROUTINES

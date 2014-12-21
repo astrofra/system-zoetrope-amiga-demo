@@ -16,35 +16,14 @@ Common routines
 #include "ptreplay_pragmas.h"
 #include "bitmap_routines.h"
 #include "sprites_routines.h"
-#include "cosine_table.h"
-
 /*
 Graphic assets
 */
+#include "fx_routines.h"
 #include "mandarine_logo.h"
-#include "checkerboard_stripe.h"
-
-
-/* ViewPort 1 */
-#define WIDTH1   380 /* 320 pixels wide.                              */
-#define DISPL_WIDTH1   320 /* 320 pixels wide.                              */
-#define HEIGHT1  80 /* 150 lines high.                               */ 
-#define DEPTH1     4 /* 5 BitPlanes should be used, gives 32 colours. */
-#define COLOURS1  (2 << DEPTH1)
-
-/* ViewPort 2 */
-#define ANIM_STRIPE 8
-#define WIDTH2   320 /* 640 pixels wide.                             */
-#define DISPL_HEIGHT2   160
-#define HEIGHT2 (DISPL_HEIGHT2 * ANIM_STRIPE)                        
-#define DEPTH2     1 /* 1 BitPlanes should be used, gives 2 colours. */
-#define COLOURS2   (2 << DEPTH2)
+#include "screen_size.h"
 
 // #define DEBUG_RASTER_LINE
-
-USHORT bg_scroll_phase = 0;
-
-USHORT lissajou_phase = 0;
 
 /* Music */
 struct Library *PTReplayBase;
@@ -59,7 +38,6 @@ struct Task *myTask;
 
 struct View my_view;
 struct View *my_old_view;
-
 
 /* ViewPort 1 */
 struct ViewPort view_port1;
@@ -102,15 +80,6 @@ void playMusic(void)
 {
 	theMod = PTSetupMod((APTR)mod);
 	PTPlay(theMod);
-}
-
-void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y)
-{
-	/*
-		Logo
-	*/
-	bitmap_logo = load_array_as_bitmap(mandarine_logoData, 6400 << 1, mandarine_logo.Width - 8, mandarine_logo.Height, mandarine_logo.Depth);
-	BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (WIDTH1 - mandarine_logo.Width) >> 1, offset_y);
 }
 
 /* Returns all allocated resources: */
@@ -161,46 +130,6 @@ void close_demo(STRPTR message)
 	/* Print the message and leave: */
 	printf( "%s\n", message ); 
 	exit(0);
-}
-
-void scrollLogoBackground(void)
-{
-    bg_scroll_phase += 4;
-
-    if (bg_scroll_phase >= COSINE_TABLE_LEN)
-        bg_scroll_phase -= COSINE_TABLE_LEN;
-
-    view_port1.RasInfo->RxOffset = (WIDTH1 - DISPL_WIDTH1) + ((tcos[bg_scroll_phase] + 512) * (WIDTH1 - DISPL_WIDTH1)) >> 10;
-    view_port1.RasInfo->RyOffset = 0;
-    ScrollVPort(&view_port1);
-}
-
-void updateLissajouBobs(struct ViewPort *vp)
-{
-	USHORT i, sprite_phase, sprite_phase2, x, y;
-	lissajou_phase++;
-
-	if (lissajou_phase >= COSINE_TABLE_LEN)
-        lissajou_phase -= COSINE_TABLE_LEN;
-
-    sprite_phase = lissajou_phase;
-    for(i = 0; i < MAX_SPRITES; i++)
-    {
-    	sprite_phase += 32;
-
-    	if (sprite_phase >= COSINE_TABLE_LEN)
-    	    sprite_phase -= COSINE_TABLE_LEN;
-
-    	sprite_phase2 = sprite_phase << 1;
-
-    	if (sprite_phase2 >= COSINE_TABLE_LEN)
-    	    sprite_phase2 -= COSINE_TABLE_LEN;
-
-      	x = 4 + ((tcos[sprite_phase] + 512) * (WIDTH2 - 8)) >> 10;
-      	y = 4 + ((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 8)) >> 10;
-
-      	MoveSprite(vp, my_sprite[i], x, y );
-    }
 }
 
 void main()
@@ -374,7 +303,7 @@ void main()
 		scrollLogoBackground();
 		ScrollVPort(&view_port2);
 
-		updateLissajouBobs(&view_port2);
+		updateSpritesChain(&view_port2);
 	}
 
 	Enable();

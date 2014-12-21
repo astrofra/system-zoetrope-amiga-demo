@@ -1,3 +1,6 @@
+#ifndef SPRITES_ROUTINES
+#define SPRITES_ROUTINES
+
 #include "includes.prl"
 #include <intuition/intuition.h>
 #include <graphics/gfxbase.h>
@@ -11,3 +14,5 @@ extern struct SimpleSprite *my_sprite[MAX_SPRITES];
 void initSpriteDisplay(struct RastPort* rast_port);
 
 void closeSpriteDisplay(void);
+
+#endif // #ifndef SPRITES_ROUTINES

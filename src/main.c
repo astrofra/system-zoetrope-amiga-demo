@@ -10,18 +10,19 @@
 /*
 Common routines
 */
+#include "board.h"
 #include "ptreplay.h"
 #include "ptreplay_protos.h"
 #include "ptreplay_pragmas.h"
-#include "board.h"
 #include "bitmap_routines.h"
+#include "sprites_routines.h"
 #include "cosine_table.h"
 
 /*
 Graphic assets
 */
 #include "mandarine_logo.h"
-#include "sprites_routines.h"
+#include "checkerboard_stripe.h"
 
 
 /* ViewPort 1 */
@@ -32,8 +33,10 @@ Graphic assets
 #define COLOURS1  (2 << DEPTH1)
 
 /* ViewPort 2 */
+#define ANIM_STRIPE 8
 #define WIDTH2   320 /* 640 pixels wide.                             */
-#define HEIGHT2   (250-80) /* 45 lines high.                               */
+#define DISPL_HEIGHT2   160
+#define HEIGHT2 (DISPL_HEIGHT2 * ANIM_STRIPE)                        
 #define DEPTH2     1 /* 1 BitPlanes should be used, gives 2 colours. */
 #define COLOURS2   (2 << DEPTH2)
 
@@ -126,7 +129,7 @@ void close_demo(STRPTR message)
 			FreeRaster( bit_map1.Planes[ loop ], WIDTH1, HEIGHT1 );
 	for( loop = 0; loop < DEPTH2; loop++ )
 		if( bit_map2.Planes[ loop ] )
-			FreeRaster( bit_map2.Planes[ loop ], WIDTH2, HEIGHT2 );
+			FreeRaster( bit_map2.Planes[ loop ], WIDTH2, DISPL_HEIGHT2 );
 
 	/* Deallocate the ColorMap: */
 	if( view_port1.ColorMap ) FreeColorMap( view_port1.ColorMap );
@@ -194,7 +197,7 @@ void updateLissajouBobs(struct ViewPort *vp)
     	    sprite_phase2 -= COSINE_TABLE_LEN;
 
       	x = 4 + ((tcos[sprite_phase] + 512) * (WIDTH2 - 8)) >> 10;
-      	y = 4 + ((tsin[sprite_phase2] + 512) * (HEIGHT2 - 8)) >> 10;
+      	y = 4 + ((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 8)) >> 10;
 
       	MoveSprite(vp, my_sprite[i], x, y );
     }
@@ -242,7 +245,7 @@ void main()
 	/* ViewPort 2 */
 	InitVPort( &view_port2 );
 	view_port2.DWidth = WIDTH2;      /* Set the width.                */
-	view_port2.DHeight = HEIGHT2;    /* Set the height.               */
+	view_port2.DHeight = DISPL_HEIGHT2;    /* Set the height.               */
 	view_port2.DxOffset = 0;         /* X position.                   */
 	view_port2.DyOffset = HEIGHT1+2; /* Y position (5 lines under).   */
 	view_port2.RasInfo = &ras_info2; /* Give it a pointer to RasInfo. */
@@ -345,7 +348,7 @@ void main()
 	/* Set FgPen's colour to 1 (white). */
 	SetAPen( &rast_port2, 1 );
 	/* Draw some pixels in the second ViewPort: */
-	for( loop = 0; loop < HEIGHT2; loop++ )
+	for( loop = 0; loop < DISPL_HEIGHT2; loop++ )
 		WritePixel( &rast_port2, rand() % WIDTH2, loop); // rand() % WIDTH2, rand() % HEIGHT2 );
 
 	/* Print some text into the second ViewPort: */

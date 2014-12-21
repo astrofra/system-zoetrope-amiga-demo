@@ -1,0 +1,8 @@
+FROM LIB:c.o "main.o"+"mandarine_logo.o"+"bitmap_routines.o"+"sprites_routines.o"+"cosine_table.o"
+TO "commonbin:main.exe"
+LIB LIB:scnb.lib LIB:amiga.lib
+SMALLCODE
+SMALLDATA
+STRIPDEBUG
+BUFSIZE 4096
+

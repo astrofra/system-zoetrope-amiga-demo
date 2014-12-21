@@ -8,8 +8,11 @@
 #include <graphics/gfxbase.h>
 
 /*
-Custom routines
+Common routines
 */
+#include "ptreplay.h"
+#include "ptreplay_protos.h"
+#include "ptreplay_pragmas.h"
 #include "board.h"
 #include "bitmap_routines.h"
 #include "cosine_table.h"
@@ -25,7 +28,7 @@ Graphic assets
 #define WIDTH1   380 /* 320 pixels wide.                              */
 #define DISPL_WIDTH1   320 /* 320 pixels wide.                              */
 #define HEIGHT1  80 /* 150 lines high.                               */ 
-#define DEPTH1     5 /* 5 BitPlanes should be used, gives 32 colours. */
+#define DEPTH1     4 /* 5 BitPlanes should be used, gives 32 colours. */
 #define COLOURS1  (2 << DEPTH1)
 
 /* ViewPort 2 */
@@ -40,15 +43,15 @@ USHORT bg_scroll_phase = 0;
 
 USHORT lissajou_phase = 0;
 
-/* Keyboard device */
-struct MsgPort  *KeyMP;         /* Pointer for Message Port */
-struct IOStdReq *KeyIO;         /* Pointer for I/O request */
-UBYTE *keyMatrix = NULL;
-#define KEY_MATRIX_SIZE 16
+/* Music */
+struct Library *PTReplayBase;
+struct Module *theMod;
+UBYTE *mod = NULL;
 
 struct IntuitionBase *IntuitionBase;
 struct GfxBase *GfxBase;
-extern struct Library *SysBase;
+extern struct ExecBase *SysBase;
+extern struct DosLibrary *DOSBase;
 struct Task *myTask;
 
 struct View my_view;
@@ -78,12 +81,32 @@ UWORD color_table2[] = { 0x000, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF 
 
 struct  BitMap *bitmap_logo = NULL;
 
+void initMusic(void)
+{
+	if (SysBase->LibNode.lib_Version >= 36)
+		if (!AssignPath("Libs","Libs"))
+			exit(0); //FIXME // init_conerr((UBYTE *)"Failed to Assign the local Libs drawer. Please copy ptreplay.library into your Libs: drawer.\n");
+
+	if (!(PTReplayBase = OpenLibrary((UBYTE *)"ptreplay.library", 0)))
+	{
+		exit(0); //FIXME
+	}
+
+	mod = load_getchipmem((UBYTE *)"JAZZY94.MOD", 99182);
+}
+
+void playMusic(void)
+{
+	theMod = PTSetupMod((APTR)mod);
+	PTPlay(theMod);
+}
+
 void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y)
 {
 	/*
 		Logo
 	*/
-	bitmap_logo = load_array_as_bitmap(mandarine_logoData, 8000 << 1, mandarine_logo.Width - 8, mandarine_logo.Height, mandarine_logo.Depth);
+	bitmap_logo = load_array_as_bitmap(mandarine_logoData, 6400 << 1, mandarine_logo.Width - 8, mandarine_logo.Height, mandarine_logo.Depth);
 	BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (WIDTH1 - mandarine_logo.Width) >> 1, offset_y);
 }
 
@@ -114,6 +137,12 @@ void close_demo(STRPTR message)
 
 	/* Deallocate various bitmaps */
 	free_allocated_bitmap(bitmap_logo);
+
+	/*	Stop music */
+	PTStop(theMod);
+	PTFreeMod(theMod);
+	FreeMem(mod, 99182);
+	if (PTReplayBase) CloseLibrary(PTReplayBase);
 
 	/* Close the Graphics library: */
 	if(GfxBase)
@@ -187,6 +216,8 @@ void main()
 	OpenLibrary( "graphics.library", 0 );
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
+
+	initMusic();
 
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
@@ -326,6 +357,8 @@ void main()
 	// myTask = FindTask(NULL);
 	// SetTaskPri(myTask, 127);
 
+	playMusic();
+
 	Forbid();
 	Disable();
 
@@ -335,7 +368,9 @@ void main()
 		#ifdef DEBUG_RASTER_LINE
 		*((short *)COLOR00_ADDR) = 0xF0F;
 		#endif
-		scrollLogoBackground();		
+		scrollLogoBackground();
+		ScrollVPort(&view_port2);
+
 		updateLissajouBobs(&view_port2);
 	}
 

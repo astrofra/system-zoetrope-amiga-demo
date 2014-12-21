@@ -7,7 +7,7 @@
 OBJ = main.o mandarine_logo.o bitmap_routines.o sprites_routines.o cosine_table.o
 
 main.exe: $(OBJ) includes.gst
-	sc LINK CODE=F DATA=F OBJ $(OBJ) TO main.exe
+	sc LINK CODE=F DATA=F OBJ $(OBJ) TO commonbin:main.exe
 
 includes.gst: includes.prl
 main.o: main.c mandarine_logo.h bitmap_routines.h sprites_routines.h cosine_table.h includes.gst

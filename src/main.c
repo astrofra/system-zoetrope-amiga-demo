@@ -6,6 +6,9 @@
 #include "includes.prl"
 #include <intuition/intuition.h>
 #include <graphics/gfxbase.h>
+#include <hardware/dmabits.h>
+#include <hardware/custom.h>
+#include <graphics/gfxmacros.h>
 
 /*
 Common routines
@@ -34,7 +37,7 @@ struct IntuitionBase *IntuitionBase;
 struct GfxBase *GfxBase;
 extern struct ExecBase *SysBase;
 extern struct DosLibrary *DOSBase;
-struct Task *myTask;
+extern struct Custom far custom;
 
 struct View my_view;
 struct View *my_old_view;
@@ -63,6 +66,36 @@ UWORD color_table2[] = { 0x000, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF 
 struct  BitMap *bitmap_logo = NULL;
 struct  BitMap *bitmap_checkerboard = NULL;
 
+/* Dummy screen & window */
+PLANEPTR dummy_raster;
+struct RastPort dummy_rastport;
+struct BitMap dummy_bitmap;
+struct Screen *dummy_screen = NULL;
+struct Window *dummy_window = NULL;
+
+struct NewScreen dummy_screen_tags =
+{
+  0, 0, 320, 8, 1, 0, 1, 0,
+  CUSTOMSCREEN | CUSTOMBITMAP | SCREENQUIET, NULL, NULL, NULL, &dummy_bitmap
+};
+
+struct NewWindow dummy_window_tags =
+{
+    0,0,		/* screen dimensions of window */
+    320, 8,
+    0,1,		/* for bar/border/gadget rendering */
+    NULL,			/* User-selected IDCMP flags */
+    WFLG_BORDERLESS | WFLG_ACTIVATE | WFLG_NOCAREREFRESH | WFLG_RMBTRAP,			/* see Window struct for defines */
+    NULL,
+    NULL,
+    NULL,			  /* the title text for this window */
+    NULL,
+    NULL,
+    320, 8,	    /* minimums */
+    320, 8,	     /* maximums */
+    CUSTOMSCREEN
+};
+
 void initMusic(void)
 {
 	if (SysBase->LibNode.lib_Version >= 36)
@@ -81,6 +114,30 @@ void playMusic(void)
 {
 	theMod = PTSetupMod((APTR)mod);
 	PTPlay(theMod);
+}
+
+void open_dummy_screen(void)
+{
+	InitBitMap(&dummy_bitmap, 320, 8, 1);
+	dummy_bitmap.Planes[0] = AllocRaster(320, 8);
+	InitRastPort(&dummy_rastport);
+	dummy_rastport.BitMap = &dummy_bitmap;
+	SetRast(&dummy_rastport, 0);
+	dummy_screen = OpenScreen(&dummy_screen_tags);
+
+	dummy_window_tags.Screen = dummy_screen;
+	dummy_window = OpenWindow(&dummy_window_tags);
+
+	ClearPointer(dummy_window);
+}
+
+void close_dummy_screen(void)
+{
+	if (dummy_screen)
+	{
+		CloseScreen(dummy_screen);
+		dummy_screen = NULL;
+	}
 }
 
 /* Returns all allocated resources: */
@@ -129,6 +186,8 @@ void close_demo(STRPTR message)
 	/* Restore the old View: */
 	LoadView( my_old_view );
 
+	close_dummy_screen();
+
 	/* Print the message and leave: */
 	printf( "%s\n", message ); 
 	exit(0);
@@ -152,6 +211,8 @@ void main()
 		close_demo( "Could NOT open the Graphics library!" );
 
 	initMusic();
+
+	open_dummy_screen();
 
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
@@ -295,6 +356,8 @@ void main()
 
 	playMusic();
 
+	// OFF_SPRITE;
+
 	Forbid();
 	Disable();
 
@@ -311,6 +374,8 @@ void main()
 
 	Enable();
 	Permit();
+
+	// ON_SPRITE;
 
 	close_demo("My friend the end!");
 }

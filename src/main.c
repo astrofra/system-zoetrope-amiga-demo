@@ -66,34 +66,29 @@ UWORD color_table2[] = { 0x000, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF 
 struct  BitMap *bitmap_logo = NULL;
 struct  BitMap *bitmap_checkerboard = NULL;
 
+struct Window *my_window;
+
 /* Dummy screen & window */
-PLANEPTR dummy_raster;
-struct RastPort dummy_rastport;
-struct BitMap dummy_bitmap;
-struct Screen *dummy_screen = NULL;
-struct Window *dummy_window = NULL;
-
-struct NewScreen dummy_screen_tags =
+struct NewWindow my_new_window=
 {
-  0, 0, 320, 8, 1, 0, 1, 0,
-  CUSTOMSCREEN | CUSTOMBITMAP | SCREENQUIET, NULL, NULL, NULL, &dummy_bitmap
-};
-
-struct NewWindow dummy_window_tags =
-{
-    0,0,		/* screen dimensions of window */
-    320, 8,
-    0,1,		/* for bar/border/gadget rendering */
-    NULL,			/* User-selected IDCMP flags */
-    WFLG_BORDERLESS | WFLG_ACTIVATE | WFLG_NOCAREREFRESH | WFLG_RMBTRAP,			/* see Window struct for defines */
-    NULL,
-    NULL,
-    NULL,			  /* the title text for this window */
-    NULL,
-    NULL,
-    320, 8,	    /* minimums */
-    320, 8,	     /* maximums */
-    CUSTOMSCREEN
+  50,            /* LeftEdge    x position of the window. */
+  25,            /* TopEdge     y positio of the window. */
+  150,           /* Width       150 pixels wide. */
+  100,           /* Height      100 lines high. */
+  0,             /* DetailPen   Text should be drawn with colour reg. 0 */
+  1,             /* BlockPen    Blocks should be drawn with colour reg. 1 */
+  NULL,          /* IDCMPFlags  No IDCMP flags. */
+  SMART_REFRESH | WFLG_RMBTRAP | WFLG_WINDOWACTIVE, /* Flags       Intuition should refresh the window. */
+  NULL,          /* FirstGadget No Custom Gadgets. */
+  NULL,          /* CheckMark   Use Intuition's default CheckMark (v). */
+  "MANDARINE",   /* Title       Title of the window. */
+  NULL,          /* Screen      Connected to the Workbench Screen. */
+  NULL,          /* BitMap      No Custom BitMap. */
+  0,             /* MinWidth    We do not need to care about these */
+  0,             /* MinHeight   since we havent supplied the window with */
+  0,             /* MaxWidth    a Sizing Gadget. */
+  0,             /* MaxHeight */
+  WBENCHSCREEN   /* Type        Connected to the Workbench Screen. */
 };
 
 void initMusic(void)
@@ -118,26 +113,13 @@ void playMusic(void)
 
 void open_dummy_screen(void)
 {
-	InitBitMap(&dummy_bitmap, 320, 8, 1);
-	dummy_bitmap.Planes[0] = AllocRaster(320, 8);
-	InitRastPort(&dummy_rastport);
-	dummy_rastport.BitMap = &dummy_bitmap;
-	SetRast(&dummy_rastport, 0);
-	dummy_screen = OpenScreen(&dummy_screen_tags);
-
-	dummy_window_tags.Screen = dummy_screen;
-	dummy_window = OpenWindow(&dummy_window_tags);
-
-	ClearPointer(dummy_window);
+	my_window = (struct Window *) OpenWindow( &my_new_window );
+	ClearPointer(my_window);
 }
 
 void close_dummy_screen(void)
 {
-	if (dummy_screen)
-	{
-		CloseScreen(dummy_screen);
-		dummy_screen = NULL;
-	}
+	CloseWindow( my_window );
 }
 
 /* Returns all allocated resources: */

@@ -11,14 +11,17 @@
 
 extern struct GfxBase *GfxBase;
 extern struct ViewPort view_port1;
+extern struct ViewPort view_port2;
 
 extern struct  BitMap *bitmap_logo;
+extern struct  BitMap *bitmap_checkerboard;
 
 /*	Viewport 1, Mandarine Logo */
 USHORT bg_scroll_phase = 0;
 
 /*	Viewport 2, checkerboard and sprites animation */
 USHORT sprite_chain_phase = 0;
+USHORT checkerboard_scroll_offset = 0;
 
 /*	
 	Viewport 1, 
@@ -49,6 +52,31 @@ void scrollLogoBackground(void)
 	Viewport 2, 
 	checkerboard and sprites animation
 */
+void drawCheckerboard(struct BitMap *dest_bitmap)
+{
+    USHORT i;
+
+    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 16000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
+
+    for(i = 0; i < 8; i++)
+        BltBitMap(bitmap_checkerboard, 0, 100 * i,
+            dest_bitmap, 0, DISPL_HEIGHT2 * i + 60,
+            checkerboard.Width, 100,
+            0xC0, 0xFF, NULL);
+        // BLIT_BITMAP_S(bitmap_checkerboard, dest_bitmap, checkerboard.Width, 100, 0, DISPL_HEIGHT2 * i + 60);
+}
+
+void updateCheckerboard(void)
+{
+    checkerboard_scroll_offset += DISPL_HEIGHT2;
+    if (checkerboard_scroll_offset >= HEIGHT2)
+        checkerboard_scroll_offset = 0;
+
+    view_port2.RasInfo->RyOffset = checkerboard_scroll_offset;
+
+    ScrollVPort(&view_port2);
+}
+
 void updateSpritesChain(struct ViewPort *vp)
 {
 	USHORT i, sprite_phase, sprite_phase2, x, y;

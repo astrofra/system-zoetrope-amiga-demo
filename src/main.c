@@ -61,6 +61,7 @@ struct RastPort rast_port2;
 UWORD color_table2[] = { 0x000, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF };
 
 struct  BitMap *bitmap_logo = NULL;
+struct  BitMap *bitmap_checkerboard = NULL;
 
 void initMusic(void)
 {
@@ -109,6 +110,7 @@ void close_demo(STRPTR message)
 
 	/* Deallocate various bitmaps */
 	free_allocated_bitmap(bitmap_logo);
+	free_allocated_bitmap(bitmap_checkerboard);
 
 	/*	Stop music */
 	PTStop(theMod);
@@ -269,6 +271,7 @@ void main()
 	initSpriteDisplay(&rast_port1);
 
 	drawMandarineLogo(&bit_map1, 0);
+	drawCheckerboard(&bit_map2);
 
 	/* Set the draw mode to JAM1. FgPen's colour will be used. */
 	SetDrMd( &rast_port1, JAM1 );
@@ -277,14 +280,14 @@ void main()
 	/* Set FgPen's colour to 1 (white). */
 	SetAPen( &rast_port2, 1 );
 	/* Draw some pixels in the second ViewPort: */
-	for( loop = 0; loop < DISPL_HEIGHT2; loop++ )
-		WritePixel( &rast_port2, rand() % WIDTH2, loop); // rand() % WIDTH2, rand() % HEIGHT2 );
+	// for( loop = 0; loop < DISPL_HEIGHT2; loop++ )
+	// 	WritePixel( &rast_port2, rand() % WIDTH2, loop); // rand() % WIDTH2, rand() % HEIGHT2 );
 
 	/* Print some text into the second ViewPort: */
-	Move( &rast_port2, 0, 10 );
-	Text( &rast_port2, "Line 1", 6);
-	Move( &rast_port2, 0, 20 );
-	Text( &rast_port2, "Line 2", 6);
+	// Move( &rast_port2, 0, 10 );
+	// Text( &rast_port2, "Line 1", 6);
+	// Move( &rast_port2, 0, 20 );
+	// Text( &rast_port2, "Line 2", 6);
 
 	// myTask = FindTask(NULL);
 	// SetTaskPri(myTask, 127);
@@ -301,8 +304,7 @@ void main()
 		*((short *)COLOR00_ADDR) = 0xF0F;
 		#endif
 		scrollLogoBackground();
-		ScrollVPort(&view_port2);
-
+		updateCheckerboard();
 		updateSpritesChain(&view_port2);
 	}
 

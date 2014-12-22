@@ -131,7 +131,7 @@ void updateSpritesChain(struct ViewPort *vp)
     	    sprite_phase2 -= COSINE_TABLE_LEN;
 
       	x = 4 + ((tcos[sprite_phase] + 512) * (WIDTH2 - 8)) >> 10;
-      	y = 4 + ((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 8)) >> 10;
+      	y = 4 + ((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 32)) >> 10;
 
       	MoveSprite(vp, my_sprite[i], x, y );
     }

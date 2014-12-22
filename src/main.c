@@ -55,7 +55,6 @@ UWORD color_table1[] =
 	0x00F, 0x00D, 0x00B, 0x009, 0x007, 0x005, 0x003, 0x001
 };
 
-
 /* ViewPort 2 */
 struct ViewPort view_port2;
 struct RasInfo ras_info2;
@@ -65,31 +64,6 @@ UWORD color_table2[] = { 0x000, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF 
 
 struct  BitMap *bitmap_logo = NULL;
 struct  BitMap *bitmap_checkerboard = NULL;
-
-struct Window *my_window;
-
-/* Dummy screen & window */
-struct NewWindow my_new_window=
-{
-  50,            /* LeftEdge    x position of the window. */
-  25,            /* TopEdge     y positio of the window. */
-  150,           /* Width       150 pixels wide. */
-  100,           /* Height      100 lines high. */
-  0,             /* DetailPen   Text should be drawn with colour reg. 0 */
-  1,             /* BlockPen    Blocks should be drawn with colour reg. 1 */
-  NULL,          /* IDCMPFlags  No IDCMP flags. */
-  SMART_REFRESH | WFLG_RMBTRAP | WFLG_WINDOWACTIVE, /* Flags       Intuition should refresh the window. */
-  NULL,          /* FirstGadget No Custom Gadgets. */
-  NULL,          /* CheckMark   Use Intuition's default CheckMark (v). */
-  "MANDARINE",   /* Title       Title of the window. */
-  NULL,          /* Screen      Connected to the Workbench Screen. */
-  NULL,          /* BitMap      No Custom BitMap. */
-  0,             /* MinWidth    We do not need to care about these */
-  0,             /* MinHeight   since we havent supplied the window with */
-  0,             /* MaxWidth    a Sizing Gadget. */
-  0,             /* MaxHeight */
-  WBENCHSCREEN   /* Type        Connected to the Workbench Screen. */
-};
 
 void initMusic(void)
 {
@@ -109,17 +83,6 @@ void playMusic(void)
 {
 	theMod = PTSetupMod((APTR)mod);
 	PTPlay(theMod);
-}
-
-void open_dummy_screen(void)
-{
-	my_window = (struct Window *) OpenWindow( &my_new_window );
-	ClearPointer(my_window);
-}
-
-void close_dummy_screen(void)
-{
-	CloseWindow( my_window );
 }
 
 /* Returns all allocated resources: */
@@ -168,8 +131,6 @@ void close_demo(STRPTR message)
 	/* Restore the old View: */
 	LoadView( my_old_view );
 
-	close_dummy_screen();
-
 	/* Print the message and leave: */
 	printf( "%s\n", message ); 
 	exit(0);
@@ -193,8 +154,6 @@ void main()
 		close_demo( "Could NOT open the Graphics library!" );
 
 	initMusic();
-
-	open_dummy_screen();
 
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;

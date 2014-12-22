@@ -7,7 +7,7 @@
 
 #define MAX_SPRITES 8
 
-extern UWORD chip ball_data[28];
+// extern UWORD chip ball_data[28];
 
 extern struct SimpleSprite *my_sprite[MAX_SPRITES];
 

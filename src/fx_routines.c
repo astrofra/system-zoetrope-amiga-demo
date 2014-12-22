@@ -63,9 +63,9 @@ void drawCheckerboard(struct BitMap *dest_bitmap)
 {
     USHORT i;
 
-    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 16000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
+    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 20000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
 
-    for(i = 0; i < 8; i++)
+    for(i = 0; i < ANIM_STRIPE; i++)
         BltBitMap(bitmap_checkerboard, 0, 100 * i,
             dest_bitmap, 0, DISPL_HEIGHT2 * i + 60,
             checkerboard.Width, 100,

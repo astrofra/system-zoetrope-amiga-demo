@@ -9,7 +9,7 @@
 #define COLOURS1  (2 << DEPTH1)
 
 /* ViewPort 2 */
-#define ANIM_STRIPE 8
+#define ANIM_STRIPE 10
 #define WIDTH2   320 /* 640 pixels wide.                             */
 #define DISPL_HEIGHT2   160
 #define HEIGHT2 (DISPL_HEIGHT2 * ANIM_STRIPE)                        

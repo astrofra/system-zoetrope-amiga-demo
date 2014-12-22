@@ -8,7 +8,6 @@
 extern struct GfxBase *GfxBase;
 
 struct SimpleSprite *my_sprite[MAX_SPRITES];
-#define SPR_H 28
 
 void initSpriteDisplay(struct RastPort* rast_port)
 {

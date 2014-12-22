@@ -8,6 +8,7 @@
 #include "bitmap_routines.h"
 #include "sprites_routines.h"
 #include "cosine_table.h"
+#include "ruby_stripe.h"
 #include "mandarine_logo.h"
 #include "checkerboard_stripe.h"
 #include "vert_copper_palettes.h"
@@ -75,27 +76,26 @@ void drawCheckerboard(struct BitMap *dest_bitmap)
 
 void setCheckerboardCopperlist(struct ViewPort *vp)
 {
-    USHORT i;
+    USHORT i, j;
 
     copper = (struct UCopList *)
     AllocMem( sizeof(struct UCopList), MEMF_PUBLIC|MEMF_CHIP|MEMF_CLEAR );
 
-    CINIT( copper, 1 );
+    CINIT(copper, 1);
 
     for(i = 0; i < DISPL_HEIGHT2; i++)
     {
         CWAIT(copper, i, 0);
         CMOVE(copper, custom.color[1], vcopperlist_checker_0[i]);
         CMOVE(copper, custom.color[0], vcopperlist_checker_1[i]);
+        if (i < 4)
+            for(j = 0; j < 4; j++)
+                CMOVE(copper, custom.color[16 + i * 4 + j], ruby_stripe_palRGB4[j]);            
     }
 
     CEND(copper);
 
     vp->UCopIns = copper;
-
-    // /* 8. Create the display: */
-    // MakeVPort( &my_view, &my_view_port );
-    // MrgCop( &my_view );   
 }
 
 void updateCheckerboard(void)
@@ -134,5 +134,6 @@ void updateSpritesChain(struct ViewPort *vp)
       	y = 4 + ((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 32)) >> 10;
 
       	MoveSprite(vp, my_sprite[i], x, y );
+        ChangeSprite(vp, my_sprite[i], (PLANEPTR)ruby_stripe_img[(sprite_chain_phase + i) & 0xF]);
     }
 }

@@ -2,7 +2,7 @@
 
 /* Image palette, RGB4 format (OCS/ECS machines) */
 UWORD ruby_stripe_palRGB4[4] = {
-	0xf0f,0x666,0x999,0xccc,
+	0x000,0x621,0x942,0xC62,
 };
 
 /* Ensure that this data is within chip memory or you'll see nothing !!! */

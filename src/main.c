@@ -251,6 +251,7 @@ void main()
 	ras_info2.Next = NULL;        /* Single playfield - only one       */
 	              /* RasInfo structure is necessary.   */
 
+	setLogoCopperlist(&view_port1);
 	setCheckerboardCopperlist(&view_port2);
 
 	/* Create the display */

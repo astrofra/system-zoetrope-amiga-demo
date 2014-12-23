@@ -4,6 +4,7 @@
 #include <graphics/gfxmacros.h>
 #include <hardware/custom.h>
 
+#include "board.h"
 #include "screen_size.h"
 #include "bitmap_routines.h"
 #include "sprites_routines.h"
@@ -30,6 +31,26 @@ USHORT sprite_chain_phase = 0;
 USHORT checkerboard_scroll_offset = 0;
 struct UCopList *copper;
 
+UWORD chip blank_pointer[32]=
+{
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+    0x0000, 0x0000,
+};
+
 
 /*	
 	Viewport 1, 
@@ -39,7 +60,7 @@ struct UCopList *copper;
 /*	Draws the Mandarine Logo */
 void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y)
 {
-	bitmap_logo = load_array_as_bitmap(mandarine_logoData, 6400 << 1, mandarine_logo.Width - 8, mandarine_logo.Height, mandarine_logo.Depth);
+	bitmap_logo = load_array_as_bitmap(mandarine_logoData, 6400 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
 	BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (WIDTH1 - mandarine_logo.Width) >> 1, offset_y);
 }
 
@@ -54,6 +75,22 @@ void scrollLogoBackground(void)
     view_port1.RasInfo->RxOffset = (WIDTH1 - DISPL_WIDTH1) + ((tcos[bg_scroll_phase] + 512) * (WIDTH1 - DISPL_WIDTH1)) >> 10;
     view_port1.RasInfo->RyOffset = 0;
     ScrollVPort(&view_port1);
+}
+
+void setLogoCopperlist(struct ViewPort *vp)
+{
+    copper = (struct UCopList *)
+    AllocMem( sizeof(struct UCopList), MEMF_PUBLIC|MEMF_CHIP|MEMF_CLEAR );
+
+    CINIT(copper, 1);
+    CWAIT(copper, 0, 0);
+
+    CMOVE(copper, *((UWORD *)SPR0PTH_ADDR), (LONG)&blank_pointer);
+    CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
+
+    CEND(copper);
+
+    vp->UCopIns = copper;
 }
 
 /*	
@@ -86,11 +123,20 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     for(i = 0; i < DISPL_HEIGHT2; i++)
     {
         CWAIT(copper, i, 0);
+        CMOVE(copper, custom.color[0], 0x0);
+        CWAIT(copper, i, 48);
         CMOVE(copper, custom.color[1], vcopperlist_checker_0[i]);
         CMOVE(copper, custom.color[0], vcopperlist_checker_1[i]);
+
+        if (i == 0)
+        {
+            CMOVE(copper, *((UWORD *)SPR0PTH_ADDR), (LONG)&blank_pointer);
+            CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
+        }
+
         if (i < 4)
             for(j = 0; j < 4; j++)
-                CMOVE(copper, custom.color[16 + i * 4 + j], ruby_stripe_palRGB4[j]);            
+                CMOVE(copper, custom.color[16 + i * 4 + j], ruby_stripe_palRGB4[j]);         
     }
 
     CEND(copper);
@@ -130,7 +176,7 @@ void updateSpritesChain(struct ViewPort *vp)
     	if (sprite_phase2 >= COSINE_TABLE_LEN)
     	    sprite_phase2 -= COSINE_TABLE_LEN;
 
-      	x = 4 + ((tcos[sprite_phase] + 512) * (WIDTH2 - 8)) >> 10;
+      	x = 8 + ((tcos[sprite_phase] + 512) * (WIDTH2 - 8 - 16)) >> 10;
       	y = 4 + ((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 32)) >> 10;
 
       	MoveSprite(vp, my_sprite[i], x, y );

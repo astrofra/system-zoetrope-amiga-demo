@@ -177,9 +177,9 @@ void main()
 
 	/* ViewPort 2 */
 	InitVPort( &view_port2 );
-	view_port2.DWidth = WIDTH2;      /* Set the width.                */
+	view_port2.DWidth = DISPL_WIDTH2;      /* Set the width.                */
 	view_port2.DHeight = DISPL_HEIGHT2;    /* Set the height.               */
-	view_port2.DxOffset = 0;         /* X position.                   */
+	view_port2.DxOffset = WIDTH2 - DISPL_WIDTH2;         /* X position.                   */
 	view_port2.DyOffset = HEIGHT1+2; /* Y position (5 lines under).   */
 	view_port2.RasInfo = &ras_info2; /* Give it a pointer to RasInfo. */
 	view_port2.Modes = NULL;        /* High resolution.              */

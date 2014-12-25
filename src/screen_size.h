@@ -11,6 +11,7 @@
 /* ViewPort 2 */
 #define ANIM_STRIPE 10
 #define WIDTH2   320 /* 640 pixels wide.                             */
+#define DISPL_WIDTH2   (320 - 16)
 #define DISPL_HEIGHT2   160
 #define HEIGHT2 (DISPL_HEIGHT2 * ANIM_STRIPE)                        
 #define DEPTH2     1 /* 1 BitPlanes should be used, gives 2 colours. */

@@ -5,7 +5,7 @@
 #include <intuition/intuition.h>
 #include <graphics/gfxbase.h>
 
-#define MAX_SPRITES 7
+#define MAX_SPRITES 6
 #define SPR_H 28
 
 // extern UWORD chip ball_data[28];

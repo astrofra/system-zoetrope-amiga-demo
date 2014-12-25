@@ -51,6 +51,34 @@ UWORD chip blank_pointer[32]=
     0x0000, 0x0000,
 };
 
+UWORD mixRGB4Colors(UWORD A, UWORD B)
+{
+    UWORD r,g,b;
+
+    r = (A & 0x0f00) >> 8;
+    g = (A & 0x00f0) >> 4;
+    b = A & 0x000f;
+
+    r += (B & 0x0f00) >> 8;
+    g += (B & 0x00f0) >> 4;
+    b += B & 0x000f;
+
+    r = r >> 1;
+    g = g >> 1;
+    b = b >> 1;
+
+    if (r > 0xf) r = 0xf;
+    if (g > 0xf) g = 0xf;
+    if (b > 0xf) b = 0xf;
+
+    r = r & 0xf;
+    g = g & 0xf;
+    b = b & 0xf;
+
+    return (UWORD)((r << 8) | (g << 4) | b);
+    //(image_bg_fishPaletteRGB4[c] & 0x0f00) >> 8, (image_bg_fishPaletteRGB4[c] & 0x00f0) >> 4, (image_bg_fishPaletteRGB4[c] & 0x000f));
+}
+
 
 /*	
 	Viewport 1, 
@@ -101,7 +129,7 @@ void drawCheckerboard(struct BitMap *dest_bitmap)
 {
     USHORT i;
 
-    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 20000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
+    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 19000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
 
     for(i = 0; i < ANIM_STRIPE; i++)
         BltBitMap(bitmap_checkerboard, 0, 100 * i,
@@ -123,8 +151,6 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     for(i = 0; i < DISPL_HEIGHT2; i++)
     {
         CWAIT(copper, i, 0);
-        CMOVE(copper, custom.color[0], 0x0);
-        CWAIT(copper, i, 48);
         CMOVE(copper, custom.color[1], vcopperlist_checker_0[i]);
         CMOVE(copper, custom.color[0], vcopperlist_checker_1[i]);
 
@@ -136,7 +162,7 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
 
         if (i < 4)
             for(j = 0; j < 4; j++)
-                CMOVE(copper, custom.color[16 + i * 4 + j], ruby_stripe_palRGB4[j]);         
+                CMOVE(copper, custom.color[16 + i * 4 + j], ruby_stripe_palRGB4[j]);
     }
 
     CEND(copper);
@@ -176,8 +202,8 @@ void updateSpritesChain(struct ViewPort *vp)
     	if (sprite_phase2 >= COSINE_TABLE_LEN)
     	    sprite_phase2 -= COSINE_TABLE_LEN;
 
-      	x = 8 + ((tcos[sprite_phase] + 512) * (WIDTH2 - 8 - 16)) >> 10;
-      	y = 4 + ((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 32)) >> 10;
+      	x = 16 + ((tcos[sprite_phase] + 512) * (DISPL_WIDTH2 - 8 - 16)) >> 10;
+      	y = 4 + ((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 16 - 32)) >> 10;
 
       	MoveSprite(vp, my_sprite[i], x, y );
         ChangeSprite(vp, my_sprite[i], (PLANEPTR)ruby_stripe_img[(sprite_chain_phase + i) & 0xF]);

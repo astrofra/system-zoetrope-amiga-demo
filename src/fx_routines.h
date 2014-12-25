@@ -5,8 +5,7 @@
 #include <intuition/intuition.h>
 #include <graphics/gfxbase.h>
 
-#define MIX_RGB4(A, B) ()
-
+extern UWORD mixRGB4Colors(UWORD a, UWORD b);
 extern void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y);
 extern void drawCheckerboard(struct BitMap *dest_bitmap);
 extern void setLogoCopperlist(struct ViewPort *vp);

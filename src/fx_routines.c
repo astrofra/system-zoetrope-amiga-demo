@@ -152,7 +152,7 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     for(i = 0; i < DISPL_HEIGHT2; i++)
     {
         CWAIT(copper, i, 0);
-        CMOVE(copper, custom.color[0], mixRGB4Colors(0x0, vcopperlist_checker_1[i]));
+        CMOVE(copper, custom.color[0], vcopperlist_checker_1[i]);
         CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], vcopperlist_checker_1[i]));
 
         if (i == 0)

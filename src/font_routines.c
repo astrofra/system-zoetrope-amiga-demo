@@ -40,21 +40,23 @@ void font_writer_blit(struct BitMap *font_BitMap, struct BitMap *font_BitMap_dar
 
 	struct BitMap *default_font;
 
+	// printf("%s\n", text_string);
+
 	cur_x = x;
 	glyph_h = font_BitMap->Rows;
 	default_font = font_BitMap;
 
 	while(text_string[i] != '\0')
 	{
-		WaitTOF();
+		// WaitTOF();
 		/*	Space */
 		switch(text_string[i])
 		{
 			/*	Space	*/
 			case ' ':
 				cur_x += 4;
-				WaitTOF();
-				WaitTOF();			
+				// WaitTOF();
+				// WaitTOF();			
 				break;
 
 			/*	Switch to the default font	*/
@@ -69,8 +71,8 @@ void font_writer_blit(struct BitMap *font_BitMap, struct BitMap *font_BitMap_dar
 
 			/*	Line feed + carriage return	*/
 			case '\n':
-				for(j = 0; j < 8; j++)
-					WaitTOF();
+				// for(j = 0; j < 8; j++)
+				// 	WaitTOF();
 	
 				line_feed++;		
 				if (line_feed == 1)
@@ -95,12 +97,15 @@ void font_writer_blit(struct BitMap *font_BitMap, struct BitMap *font_BitMap_dar
 					            dest_BitMap, cur_x, y,
 					            glyph_w, glyph_h,
 					            0xC0, 0xFF, NULL);
+					// printf("[c = %c,i = %d,x = %d],", text_string[i], glyph_index, x_pos_array[glyph_index]);
 
 					cur_x += (glyph_w);
 				}			
 				break;
 		};
 
-		i++;		
+		i++;
 	}
+
+	// printf("\n");
 }

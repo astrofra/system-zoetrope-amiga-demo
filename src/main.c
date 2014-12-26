@@ -153,6 +153,8 @@ void close_demo(STRPTR message)
 	exit(0);
 }
 
+const char *demo_test_string = "(BUDDHAMIGA INTRO 2015!)\0";
+
 void main()
 {
 	UWORD *pointer;
@@ -354,8 +356,8 @@ void main()
 
 	/* Print some text into the second ViewPort: */
 	Move( &rast_port3, 0, 8 );
-	Text( &rast_port3, "Line 1", 6);
-	// font_writer_blit(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)"(BUDDHAMIGA INTRO 2015)\0");
+	// Text( &rast_port3, "Line 1", 6);
+	font_writer_blit(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_test_string);
 
 	// Move( &rast_port2, 0, 20 );
 	// Text( &rast_port2, "Line 2", 6);

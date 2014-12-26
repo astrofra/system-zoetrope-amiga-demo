@@ -22,9 +22,10 @@ Common routines
 /*
 Graphic assets
 */
+#include "screen_size.h"
 #include "fx_routines.h"
 #include "mandarine_logo.h"
-#include "screen_size.h"
+#include "font_bitmap.h"
 
 // #define DEBUG_RASTER_LINE
 
@@ -62,6 +63,12 @@ struct BitMap bit_map2;
 struct RastPort rast_port2;
 UWORD color_table2[] = { 0x000, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF };
 
+/* ViewPort 3 */
+struct ViewPort view_port3;
+struct RasInfo ras_info3;
+struct BitMap bit_map3;
+struct RastPort rast_port3;
+
 struct  BitMap *bitmap_logo = NULL;
 struct  BitMap *bitmap_checkerboard = NULL;
 
@@ -93,6 +100,7 @@ void close_demo(STRPTR message)
 	/* Free automatically allocated display structures: */
 	FreeVPortCopLists( &view_port1 );
 	FreeVPortCopLists( &view_port2 );
+	FreeVPortCopLists( &view_port3 );
 	FreeCprList( my_view.LOFCprList );
 
 	/* Deallocate the display memory, BitPlane for BitPlane: */
@@ -101,11 +109,15 @@ void close_demo(STRPTR message)
 			FreeRaster( bit_map1.Planes[ loop ], WIDTH1, HEIGHT1 );
 	for( loop = 0; loop < DEPTH2; loop++ )
 		if( bit_map2.Planes[ loop ] )
-			FreeRaster( bit_map2.Planes[ loop ], WIDTH2, DISPL_HEIGHT2 );
+			FreeRaster( bit_map2.Planes[ loop ], WIDTH2, HEIGHT2 );
+	for( loop = 0; loop < DEPTH3; loop++ )
+		if( bit_map3.Planes[ loop ] )
+			FreeRaster( bit_map3.Planes[ loop ], WIDTH3, HEIGHT3 );
 
 	/* Deallocate the ColorMap: */
 	if( view_port1.ColorMap ) FreeColorMap( view_port1.ColorMap );
 	if( view_port2.ColorMap ) FreeColorMap( view_port2.ColorMap );
+	if( view_port3.ColorMap ) FreeColorMap( view_port3.ColorMap );
 
 	/*	Deallocate sprites */
 	closeSpriteDisplay();
@@ -158,8 +170,8 @@ void main()
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
 
-	/* 1. Prepare the View structure, and give it a pointer to */
-	/*    the first ViewPort:                                  */
+	/* Prepare the View structure, and give it a pointer to */
+	/* the first ViewPort:                                  */
 	InitView( &my_view );
 	my_view.ViewPort = &view_port1;
 
@@ -173,14 +185,24 @@ void main()
 	view_port1.DyOffset = 0;         /* Y position.                   */
 	view_port1.RasInfo = &ras_info1; /* Give it a pointer to RasInfo. */
 	view_port1.Modes = NULL;         /* Low resolution.               */
-	view_port1.Next = &view_port2;   /* Pointer to next ViewPort.     */
+	view_port1.Next = &view_port3;   /* Pointer to next ViewPort.     */
+
+	/* ViewPort 3 */
+	InitVPort( &view_port3 );
+	view_port3.DWidth = WIDTH3;      /* Set the width.                */
+	view_port3.DHeight = HEIGHT3;    /* Set the height.               */
+	view_port3.DxOffset = 0;         /* X position.                   */
+	view_port3.DyOffset = HEIGHT1 + 1; /* Y position (5 lines under).   */
+	view_port3.RasInfo = &ras_info3; /* Give it a pointer to RasInfo. */
+	view_port3.Modes = NULL;        /* High resolution.              */
+	view_port3.Next = &view_port2;          /* Last ViewPort in the list.    */
 
 	/* ViewPort 2 */
 	InitVPort( &view_port2 );
 	view_port2.DWidth = DISPL_WIDTH2;      /* Set the width.                */
 	view_port2.DHeight = DISPL_HEIGHT2;    /* Set the height.               */
 	view_port2.DxOffset = WIDTH2 - DISPL_WIDTH2;         /* X position.                   */
-	view_port2.DyOffset = HEIGHT1+2; /* Y position (5 lines under).   */
+	view_port2.DyOffset = HEIGHT1 + HEIGHT3 + 2; /* Y position (5 lines under).   */
 	view_port2.RasInfo = &ras_info2; /* Give it a pointer to RasInfo. */
 	view_port2.Modes = NULL;        /* High resolution.              */
 	view_port2.Next = NULL;          /* Last ViewPort in the list.    */
@@ -206,6 +228,16 @@ void main()
 	/* Set the colours: */
 	for( loop = 0; loop < COLOURS2; loop++ )
 		*pointer++ = color_table2[ loop ];
+
+	/* ViewPort 3 */
+	view_port3.ColorMap = (struct ColorMap *) GetColorMap( COLOURS3 );
+	if( view_port3.ColorMap == NULL )
+		close_demo( "Could NOT get a ColorMap!" );
+	/* Get a pointer to the colour map: */
+	pointer = (UWORD *) view_port3.ColorMap->ColorTable;
+	/* Set the colours: */
+	for( loop = 0; loop < COLOURS3; loop++ )
+		*pointer++ = font_palRGB4[ loop ];	
 
 	/* Prepare the BitMap */
 
@@ -233,6 +265,18 @@ void main()
 		BltClear( bit_map2.Planes[ loop ], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
 	}
 
+	/* ViewPort 3 */
+	InitBitMap( &bit_map3, DEPTH3, WIDTH3, HEIGHT3 );
+	/* Allocate memory for the Raster: */ 
+	for( loop = 0; loop < DEPTH3; loop++ )
+	{
+		bit_map3.Planes[ loop ] = (PLANEPTR) AllocRaster( WIDTH3, HEIGHT3 );
+		if( bit_map3.Planes[ loop ] == NULL )
+			close_demo( "Could NOT allocate enough memory for the raster!" );
+		/* Clear the display memory with help of the Blitter: */
+		BltClear( bit_map3.Planes[ loop ], RASSIZE( WIDTH3, HEIGHT3 ), 0 );
+	}	
+
 	/* Prepare the RasInfo structure */
 
 	/* ViewPort 1 */
@@ -251,12 +295,21 @@ void main()
 	ras_info2.Next = NULL;        /* Single playfield - only one       */
 	              /* RasInfo structure is necessary.   */
 
+	/* ViewPort 3 */
+	ras_info3.BitMap = &bit_map3; /* Pointer to the BitMap structure.  */
+	ras_info3.RxOffset = 0;       /* The top left corner of the Raster */
+	ras_info3.RyOffset = 0;       /* should be at the top left corner  */
+	              /* of the display.                   */
+	ras_info3.Next = NULL;        /* Single playfield - only one       */
+	              /* RasInfo structure is necessary.   */	
+
 	setLogoCopperlist(&view_port1);
 	setCheckerboardCopperlist(&view_port2);
 
 	/* Create the display */
 	MakeVPort(&my_view, &view_port1); /* Prepare ViewPort 1 */
 	MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
+	MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
 	MrgCop(&my_view);
 
 	/* Prepare the RastPort, and give it a pointer to the BitMap. */
@@ -268,6 +321,10 @@ void main()
 	/* ViewPort 2 */
 	InitRastPort( &rast_port2 );
 	rast_port2.BitMap = &bit_map2;
+
+	/* ViewPort 3 */
+	InitRastPort( &rast_port3 );
+	rast_port3.BitMap = &bit_map3;	
 
 	/* 8. Show the new View: */
 	LoadView( &my_view );
@@ -288,8 +345,8 @@ void main()
 	// 	WritePixel( &rast_port2, rand() % WIDTH2, loop); // rand() % WIDTH2, rand() % HEIGHT2 );
 
 	/* Print some text into the second ViewPort: */
-	// Move( &rast_port2, 0, 10 );
-	// Text( &rast_port2, "Line 1", 6);
+	Move( &rast_port3, 0, 8 );
+	Text( &rast_port3, "Line 1", 6);
 	// Move( &rast_port2, 0, 20 );
 	// Text( &rast_port2, "Line 2", 6);
 

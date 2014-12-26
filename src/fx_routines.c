@@ -13,6 +13,8 @@
 #include "mandarine_logo.h"
 #include "checkerboard_stripe.h"
 #include "vert_copper_palettes.h"
+#include "font_desc.h"
+#include "font_bitmap.h"
 
 extern struct GfxBase *GfxBase;
 extern struct ViewPort view_port1;

@@ -31,23 +31,23 @@ USHORT sprite_chain_phase = 0;
 USHORT checkerboard_scroll_offset = 0;
 struct UCopList *copper;
 
-UWORD chip blank_pointer[32]=
+UWORD chip blank_pointer[4]=
 {
     0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
+    // 0x0000, 0x0000,
     0x0000, 0x0000,
 };
 
@@ -113,6 +113,7 @@ void setLogoCopperlist(struct ViewPort *vp)
     CINIT(copper, 16);
     CWAIT(copper, 0, 0);
 
+    // CMOVE(copper, *((UWORD *)SPR0CTL_ADDR), (LONG)&blank_pointer);
     CMOVE(copper, *((UWORD *)SPR0PTH_ADDR), (LONG)&blank_pointer);
     CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
 
@@ -151,11 +152,12 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     for(i = 0; i < DISPL_HEIGHT2; i++)
     {
         CWAIT(copper, i, 0);
-        CMOVE(copper, custom.color[0], vcopperlist_checker_1[i]);
+        CMOVE(copper, custom.color[0], mixRGB4Colors(0x0, vcopperlist_checker_1[i]));
         CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], vcopperlist_checker_1[i]));
 
         if (i == 0)
         {
+            // CMOVE(copper, *((UWORD *)SPR0CTL_ADDR), (LONG)&blank_pointer);
             CMOVE(copper, *((UWORD *)SPR0PTH_ADDR), (LONG)&blank_pointer);
             CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
         }
@@ -193,7 +195,7 @@ void updateCheckerboard(void)
 
 void updateSpritesChain(struct ViewPort *vp)
 {
-	USHORT i, sprite_phase, sprite_phase2, x, y;
+	USHORT i, sprite_phase, sprite_phase2, x, y, sprite_index;
 	sprite_chain_phase++;
 
 	if (sprite_chain_phase >= COSINE_TABLE_LEN)
@@ -215,7 +217,11 @@ void updateSpritesChain(struct ViewPort *vp)
       	x = 16 + (((tcos[sprite_phase] + 512) * (DISPL_WIDTH2 - 8 - 32)) >> 10);
       	y = 4 + (((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 16 - 32)) >> 10);
 
+        sprite_index = sprite_chain_phase + i;
+        while(sprite_index >= 16)
+            sprite_index -= 16;
+
       	MoveSprite(vp, my_sprite[i], x, y );
-        ChangeSprite(vp, my_sprite[i], (PLANEPTR)ruby_stripe_img[(sprite_chain_phase + i) & 0xF]);
+        ChangeSprite(vp, my_sprite[i], (PLANEPTR)ruby_stripe_img[sprite_index]);
     }
 }

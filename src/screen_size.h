@@ -17,4 +17,10 @@
 #define DEPTH2     1 /* 1 BitPlanes should be used, gives 2 colours. */
 #define COLOURS2   (2 << DEPTH2)
 
+/* ViewPort 3 */
+#define WIDTH3   320 /* 320 pixels wide.                              */
+#define HEIGHT3  16 /* 150 lines high.                               */ 
+#define DEPTH3     1 /* 5 BitPlanes should be used, gives 32 colours. */
+#define COLOURS3  (2 << DEPTH3)
+
 #endif // #ifndef SCREEN_SIZE

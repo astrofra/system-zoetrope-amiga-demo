@@ -225,5 +225,26 @@ void updateSpritesChain(struct ViewPort *vp)
 
       	MoveSprite(vp, my_sprite[i], x, y );
         ChangeSprite(vp, my_sprite[i], (PLANEPTR)ruby_stripe_img[sprite_index]);
-    }
+    }  
 }
+
+/*  
+    Viewport 3, 
+    text liner
+*/
+void setTextLinerCopperlist(struct ViewPort *vp)
+{
+    copper = (struct UCopList *)
+    AllocMem( sizeof(struct UCopList), MEMF_PUBLIC|MEMF_CHIP|MEMF_CLEAR );
+
+    CINIT(copper, 16);
+    CWAIT(copper, 0, 0);
+
+    // CMOVE(copper, *((UWORD *)SPR0CTL_ADDR), (LONG)&blank_pointer);
+    CMOVE(copper, *((UWORD *)SPR0PTH_ADDR), (LONG)&blank_pointer);
+    CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
+
+    CEND(copper);
+
+    vp->UCopIns = copper;
+}  

@@ -19,7 +19,7 @@
 
 /* ViewPort 3 */
 #define WIDTH3   320 /* 320 pixels wide.                              */
-#define HEIGHT3  16 /* 150 lines high.                               */ 
+#define HEIGHT3  12 /* 150 lines high.                               */ 
 #define DEPTH3     1 /* 5 BitPlanes should be used, gives 32 colours. */
 #define COLOURS3  (2 << DEPTH3)
 

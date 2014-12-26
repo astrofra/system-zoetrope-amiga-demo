@@ -13,5 +13,6 @@ extern void setCheckerboardCopperlist(struct ViewPort *vp);
 extern void scrollLogoBackground(void);
 extern void updateCheckerboard(void);
 extern void updateSpritesChain(struct ViewPort *vp);
+extern void setTextLinerCopperlist(struct ViewPort *vp);
 
 #endif // #ifndef FX_ROUTINES

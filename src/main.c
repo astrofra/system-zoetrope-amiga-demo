@@ -19,12 +19,15 @@ Common routines
 #include "ptreplay_pragmas.h"
 #include "bitmap_routines.h"
 #include "sprites_routines.h"
+#include "font_routines.h"
+
 /*
 Graphic assets
 */
 #include "screen_size.h"
 #include "fx_routines.h"
 #include "mandarine_logo.h"
+#include "font_desc.h"
 #include "font_bitmap.h"
 
 // #define DEBUG_RASTER_LINE
@@ -69,8 +72,9 @@ struct RasInfo ras_info3;
 struct BitMap bit_map3;
 struct RastPort rast_port3;
 
-struct  BitMap *bitmap_logo = NULL;
-struct  BitMap *bitmap_checkerboard = NULL;
+struct BitMap *bitmap_logo = NULL;
+struct BitMap *bitmap_checkerboard = NULL;
+struct BitMap *bitmap_font = NULL;
 
 void initMusic(void)
 {
@@ -125,6 +129,7 @@ void close_demo(STRPTR message)
 	/* Deallocate various bitmaps */
 	free_allocated_bitmap(bitmap_logo);
 	free_allocated_bitmap(bitmap_checkerboard);
+	free_allocated_bitmap(bitmap_font);
 
 	/*	Stop music */
 	PTStop(theMod);
@@ -164,6 +169,8 @@ void main()
 	OpenLibrary( "graphics.library", 0 );
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
+
+	bitmap_font = load_array_as_bitmap(font_data, 320 << 1, font_image.Width, font_image.Height, font_image.Depth);
 
 	initMusic();
 
@@ -305,6 +312,7 @@ void main()
 
 	setLogoCopperlist(&view_port1);
 	setCheckerboardCopperlist(&view_port2);
+	setTextLinerCopperlist(&view_port3);
 
 	/* Create the display */
 	MakeVPort(&my_view, &view_port1); /* Prepare ViewPort 1 */
@@ -347,6 +355,8 @@ void main()
 	/* Print some text into the second ViewPort: */
 	Move( &rast_port3, 0, 8 );
 	Text( &rast_port3, "Line 1", 6);
+	// font_writer_blit(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)"(BUDDHAMIGA INTRO 2015)\0");
+
 	// Move( &rast_port2, 0, 20 );
 	// Text( &rast_port2, "Line 2", 6);
 

@@ -172,8 +172,7 @@ void main()
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
 
-	bitmap_font = load_array_as_bitmap(font_data, 320 << 1, font_image.Width, font_image.Height, font_image.Depth);
-
+	loadTextWriterFont();
 	initMusic();
 
 	/* Save the current View, so we can restore it later: */
@@ -344,15 +343,15 @@ void main()
 	drawMandarineLogo(&bit_map1, 0);
 	drawCheckerboard(&bit_map2);
 
-	/* Set the draw mode to JAM1. FgPen's colour will be used. */
-	SetDrMd( &rast_port1, JAM1 );
-	SetDrMd( &rast_port2, JAM1 );
+	// /* Set the draw mode to JAM1. FgPen's colour will be used. */
+	// SetDrMd( &rast_port1, JAM1 );
+	// SetDrMd( &rast_port2, JAM1 );
 
-	/* Set FgPen's colour to 1 (white). */
-	SetAPen( &rast_port2, 1 );
-	/* Draw some pixels in the second ViewPort: */
-	// for( loop = 0; loop < DISPL_HEIGHT2; loop++ )
-	// 	WritePixel( &rast_port2, rand() % WIDTH2, loop); // rand() % WIDTH2, rand() % HEIGHT2 );
+	// /* Set FgPen's colour to 1 (white). */
+	// SetAPen( &rast_port2, 1 );
+	// /* Draw some pixels in the second ViewPort: */
+	// // for( loop = 0; loop < DISPL_HEIGHT2; loop++ )
+	// // 	WritePixel( &rast_port2, rand() % WIDTH2, loop); // rand() % WIDTH2, rand() % HEIGHT2 );
 
 	/* Print some text into the second ViewPort: */
 	Move( &rast_port3, 0, 8 );

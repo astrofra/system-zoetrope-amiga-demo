@@ -25,6 +25,8 @@ extern struct  BitMap *bitmap_checkerboard;
 
 extern struct Custom far custom;
 
+extern struct BitMap *bitmap_font;
+
 /*	Viewport 1, Mandarine Logo */
 USHORT bg_scroll_phase = 0;
 
@@ -36,21 +38,7 @@ struct UCopList *copper;
 UWORD chip blank_pointer[4]=
 {
     0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    // 0x0000, 0x0000,
-    0x0000, 0x0000,
+    0x0000, 0x0000
 };
 
 UWORD mixRGB4Colors(UWORD A, UWORD B)
@@ -78,7 +66,6 @@ UWORD mixRGB4Colors(UWORD A, UWORD B)
     b = b & 0xf;
 
     return (UWORD)((r << 8) | (g << 4) | b);
-    //(image_bg_fishPaletteRGB4[c] & 0x0f00) >> 8, (image_bg_fishPaletteRGB4[c] & 0x00f0) >> 4, (image_bg_fishPaletteRGB4[c] & 0x000f));
 }
 
 
@@ -247,4 +234,9 @@ void setTextLinerCopperlist(struct ViewPort *vp)
     CEND(copper);
 
     vp->UCopIns = copper;
-}  
+}
+
+void loadTextWriterFont(void)
+{
+    bitmap_font = load_array_as_bitmap(font_data, 320 << 1, font_image.Width, font_image.Height, font_image.Depth);
+}

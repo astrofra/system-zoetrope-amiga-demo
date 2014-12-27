@@ -1,23 +1,13 @@
 #ifndef CHECKERBOARD_STRIPE
 #define CHECKERBOARD_STRIPE
-
 #include <exec/types.h>
 #include <intuition/intuition.h>
 
-/*
-	Data for "checkerboard_stripe" Image
-*/
 extern UWORD checkerboard_PaletteRGB4[2];
+extern UWORD checkerboard_Data[19000];
 
-extern UWORD checkerboard_Data[20000];
-
-struct Image checkerboard =
-{
-	0, 0,		/* LeftEdge, TopEdge */
-	320, 1000, 1,	/* Width, Height, Depth */
-	checkerboard_Data,	/* ImageData */
-	0x0001, 0x0000,	/* PlanePick, PlaneOnOff */
-	NULL		/* NextImage */
+struct Image checkerboard = {
+	0, 0, 292, 1000, 1, checkerboard_Data,
+	1, 0, NULL
 };
-
  #endif // #ifndef CHECKERBOARD_STRIPE

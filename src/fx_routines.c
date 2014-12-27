@@ -13,6 +13,8 @@
 #include "mandarine_logo.h"
 #include "checkerboard_stripe.h"
 #include "vert_copper_palettes.h"
+#include "font_desc.h"
+#include "font_bitmap.h"
 
 extern struct GfxBase *GfxBase;
 extern struct ViewPort view_port1;
@@ -23,6 +25,8 @@ extern struct  BitMap *bitmap_checkerboard;
 
 extern struct Custom far custom;
 
+extern struct BitMap *bitmap_font;
+
 /*	Viewport 1, Mandarine Logo */
 USHORT bg_scroll_phase = 0;
 
@@ -31,25 +35,38 @@ USHORT sprite_chain_phase = 0;
 USHORT checkerboard_scroll_offset = 0;
 struct UCopList *copper;
 
-UWORD chip blank_pointer[32]=
+UWORD chip blank_pointer[4]=
 {
     0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
-    0x0000, 0x0000,
+    0x0000, 0x0000
 };
+
+UWORD mixRGB4Colors(UWORD A, UWORD B)
+{
+    UWORD r,g,b;
+
+    r = (A & 0x0f00) >> 8;
+    g = (A & 0x00f0) >> 4;
+    b = A & 0x000f;
+
+    r += (B & 0x0f00) >> 8;
+    g += (B & 0x00f0) >> 4;
+    b += B & 0x000f;
+
+    r = r >> 1;
+    g = g >> 1;
+    b = b >> 1;
+
+    if (r > 0xf) r = 0xf;
+    if (g > 0xf) g = 0xf;
+    if (b > 0xf) b = 0xf;
+
+    r = r & 0xf;
+    g = g & 0xf;
+    b = b & 0xf;
+
+    return (UWORD)((r << 8) | (g << 4) | b);
+}
 
 
 /*	
@@ -82,9 +99,10 @@ void setLogoCopperlist(struct ViewPort *vp)
     copper = (struct UCopList *)
     AllocMem( sizeof(struct UCopList), MEMF_PUBLIC|MEMF_CHIP|MEMF_CLEAR );
 
-    CINIT(copper, 1);
+    CINIT(copper, 16);
     CWAIT(copper, 0, 0);
 
+    // CMOVE(copper, *((UWORD *)SPR0CTL_ADDR), (LONG)&blank_pointer);
     CMOVE(copper, *((UWORD *)SPR0PTH_ADDR), (LONG)&blank_pointer);
     CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
 
@@ -101,7 +119,7 @@ void drawCheckerboard(struct BitMap *dest_bitmap)
 {
     USHORT i;
 
-    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 20000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
+    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 19000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
 
     for(i = 0; i < ANIM_STRIPE; i++)
         BltBitMap(bitmap_checkerboard, 0, 100 * i,
@@ -118,25 +136,34 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     copper = (struct UCopList *)
     AllocMem( sizeof(struct UCopList), MEMF_PUBLIC|MEMF_CHIP|MEMF_CLEAR );
 
-    CINIT(copper, 1);
+    CINIT(copper, DISPL_HEIGHT2 * 10);
 
     for(i = 0; i < DISPL_HEIGHT2; i++)
     {
         CWAIT(copper, i, 0);
-        CMOVE(copper, custom.color[0], 0x0);
-        CWAIT(copper, i, 48);
-        CMOVE(copper, custom.color[1], vcopperlist_checker_0[i]);
         CMOVE(copper, custom.color[0], vcopperlist_checker_1[i]);
+        CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], vcopperlist_checker_1[i]));
 
         if (i == 0)
         {
+            // CMOVE(copper, *((UWORD *)SPR0CTL_ADDR), (LONG)&blank_pointer);
             CMOVE(copper, *((UWORD *)SPR0PTH_ADDR), (LONG)&blank_pointer);
             CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
         }
 
         if (i < 4)
             for(j = 0; j < 4; j++)
-                CMOVE(copper, custom.color[16 + i * 4 + j], ruby_stripe_palRGB4[j]);         
+                CMOVE(copper, custom.color[16 + i * 4 + j], ruby_stripe_palRGB4[j]);
+
+        CWAIT(copper, i, 74);
+        CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_1[i], vcopperlist_checker_0[i]))));
+        CWAIT(copper, i, 80);
+        CMOVE(copper, custom.color[1], vcopperlist_checker_0[i]);
+
+        CWAIT(copper, i, 200);
+        CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_1[i], vcopperlist_checker_0[i]))));
+        CWAIT(copper, i, 208);
+        CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], vcopperlist_checker_1[i]));
     }
 
     CEND(copper);
@@ -157,7 +184,7 @@ void updateCheckerboard(void)
 
 void updateSpritesChain(struct ViewPort *vp)
 {
-	USHORT i, sprite_phase, sprite_phase2, x, y;
+	USHORT i, sprite_phase, sprite_phase2, x, y, sprite_index;
 	sprite_chain_phase++;
 
 	if (sprite_chain_phase >= COSINE_TABLE_LEN)
@@ -176,10 +203,40 @@ void updateSpritesChain(struct ViewPort *vp)
     	if (sprite_phase2 >= COSINE_TABLE_LEN)
     	    sprite_phase2 -= COSINE_TABLE_LEN;
 
-      	x = 8 + ((tcos[sprite_phase] + 512) * (WIDTH2 - 8 - 16)) >> 10;
-      	y = 4 + ((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 32)) >> 10;
+      	x = 16 + (((tcos[sprite_phase] + 512) * (DISPL_WIDTH2 - 8 - 32)) >> 10);
+      	y = 4 + (((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 16 - 32)) >> 10);
+
+        sprite_index = sprite_chain_phase + i;
+        while(sprite_index >= 16)
+            sprite_index -= 16;
 
       	MoveSprite(vp, my_sprite[i], x, y );
-        ChangeSprite(vp, my_sprite[i], (PLANEPTR)ruby_stripe_img[(sprite_chain_phase + i) & 0xF]);
-    }
+        ChangeSprite(vp, my_sprite[i], (PLANEPTR)ruby_stripe_img[sprite_index]);
+    }  
+}
+
+/*  
+    Viewport 3, 
+    text liner
+*/
+void setTextLinerCopperlist(struct ViewPort *vp)
+{
+    copper = (struct UCopList *)
+    AllocMem( sizeof(struct UCopList), MEMF_PUBLIC|MEMF_CHIP|MEMF_CLEAR );
+
+    CINIT(copper, 16);
+    CWAIT(copper, 0, 0);
+
+    // CMOVE(copper, *((UWORD *)SPR0CTL_ADDR), (LONG)&blank_pointer);
+    CMOVE(copper, *((UWORD *)SPR0PTH_ADDR), (LONG)&blank_pointer);
+    CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
+
+    CEND(copper);
+
+    vp->UCopIns = copper;
+}
+
+void loadTextWriterFont(void)
+{
+    bitmap_font = load_array_as_bitmap(font_data, 320 << 1, font_image.Width, font_image.Height, font_image.Depth);
 }

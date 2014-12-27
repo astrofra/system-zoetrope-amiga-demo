@@ -42,3 +42,9 @@ void closeSpriteDisplay(void)
     free(my_sprite[i]);
   }
 }
+
+// /*
+//   VSprites
+// */
+
+// void initVSpriteDisplay(struct RastPort* rast_port);

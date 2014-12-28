@@ -338,7 +338,7 @@ void main()
 	/* 8. Show the new View: */
 	LoadView( &my_view );
 
-	initSpriteDisplay(&rast_port1);
+	initSpriteDisplay();
 
 	drawMandarineLogo(&bit_map1, 0);
 	drawCheckerboard(&bit_map2);

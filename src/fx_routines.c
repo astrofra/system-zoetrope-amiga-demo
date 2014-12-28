@@ -211,8 +211,46 @@ void updateSpritesChain(struct ViewPort *vp)
             sprite_index -= 16;
 
       	MoveSprite(vp, my_sprite[i], x, y );
-        ChangeSprite(vp, my_sprite[i], (PLANEPTR)ruby_stripe_img[sprite_index]);
+        ChangeSprite(vp, my_sprite[i], (PLANEPTR)ruby_stripe_img[sprite_index]);      
     }  
+}
+
+void updateVSpritesChain(struct RastPort* rp, struct ViewPort *vp, struct View *vw)
+{
+    USHORT i, sprite_phase, sprite_phase2, x, y, sprite_index;
+    sprite_chain_phase++;
+
+    if (sprite_chain_phase >= COSINE_TABLE_LEN)
+        sprite_chain_phase -= COSINE_TABLE_LEN;
+
+    sprite_phase = sprite_chain_phase;
+    for(i = 0; i < MAX_SPRITES; i++)
+    {
+        sprite_phase += 32;
+
+        if (sprite_phase >= COSINE_TABLE_LEN)
+            sprite_phase -= COSINE_TABLE_LEN;
+
+        sprite_phase2 = sprite_phase << 1;
+
+        if (sprite_phase2 >= COSINE_TABLE_LEN)
+            sprite_phase2 -= COSINE_TABLE_LEN;
+
+        x = 16 + (((tcos[sprite_phase] + 512) * (DISPL_WIDTH1 - 8 - 32)) >> 10);
+        y = 4 + (((tsin[sprite_phase2] + 512) * (HEIGHT1 - 16 - 32)) >> 10);
+
+        sprite_index = sprite_chain_phase + i;
+        while(sprite_index >= 16)
+            sprite_index -= 16;
+
+        vsprite[i].X = x;
+        vsprite[i].Y = y;
+    }
+
+    SortGList(rp);
+    DrawGList(rp, vp);
+    MrgCop(vw);
+    LoadView(vw);         
 }
 
 /*  

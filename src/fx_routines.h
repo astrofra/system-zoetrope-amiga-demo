@@ -13,6 +13,7 @@ extern void setCheckerboardCopperlist(struct ViewPort *vp);
 extern void scrollLogoBackground(void);
 extern void updateCheckerboard(void);
 extern void updateSpritesChain(struct ViewPort *vp);
+extern void updateVSpritesChain(struct RastPort* rp, struct ViewPort *vp, struct View *v);
 extern void setTextLinerCopperlist(struct ViewPort *vp);
 extern void loadTextWriterFont(void);
 

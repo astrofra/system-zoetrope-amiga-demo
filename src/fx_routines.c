@@ -123,7 +123,7 @@ void drawCheckerboard(struct BitMap *dest_bitmap)
 
     for(i = 0; i < ANIM_STRIPE; i++)
         BltBitMap(bitmap_checkerboard, 0, 100 * i,
-            dest_bitmap, 0, DISPL_HEIGHT2 * i + 60,
+            dest_bitmap, 0, DISPL_HEIGHT2 * i + (DISPL_HEIGHT2 - 100),
             checkerboard.Width, 100,
             0xC0, 0xFF, NULL);
         // BLIT_BITMAP_S(bitmap_checkerboard, dest_bitmap, checkerboard.Width, 100, 0, DISPL_HEIGHT2 * i + 60);
@@ -142,7 +142,7 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     {
         CWAIT(copper, i, 0);
         CMOVE(copper, custom.color[0], vcopperlist_checker_1[i]);
-        CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], vcopperlist_checker_1[i]));
+        // CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], vcopperlist_checker_1[i]));
 
         if (i == 0)
         {
@@ -155,15 +155,15 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
             for(j = 0; j < 4; j++)
                 CMOVE(copper, custom.color[16 + i * 4 + j], ruby_stripe_palRGB4[j]);
 
-        CWAIT(copper, i, 74);
-        CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_1[i], vcopperlist_checker_0[i]))));
-        CWAIT(copper, i, 80);
+        // CWAIT(copper, i, 74);
+        // CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_1[i], vcopperlist_checker_0[i]))));
+        // CWAIT(copper, i, 80);
         CMOVE(copper, custom.color[1], vcopperlist_checker_0[i]);
 
-        CWAIT(copper, i, 200);
-        CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_1[i], vcopperlist_checker_0[i]))));
-        CWAIT(copper, i, 208);
-        CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], vcopperlist_checker_1[i]));
+        // CWAIT(copper, i, 200);
+        // CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_1[i], vcopperlist_checker_0[i]))));
+        // CWAIT(copper, i, 208);
+        // CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], vcopperlist_checker_1[i]));
     }
 
     CEND(copper);

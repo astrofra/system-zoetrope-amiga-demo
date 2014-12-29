@@ -11,12 +11,16 @@
 #include <graphics/gfxmacros.h>
 
 /*
-Common routines
+Common
 */
-#include "board.h"
-#include "ptreplay.h"
-#include "ptreplay_protos.h"
-#include "ptreplay_pragmas.h"
+#include <board.h>
+#include <ptreplay.h>
+#include <ptreplay_protos.h>
+#include <ptreplay_pragmas.h>
+
+/*
+Routines
+*/
 #include "bitmap_routines.h"
 #include "sprites_routines.h"
 #include "font_routines.h"
@@ -29,6 +33,7 @@ Graphic assets
 #include "mandarine_logo.h"
 #include "font_desc.h"
 #include "font_bitmap.h"
+#include "demo_strings.h"
 
 // #define DEBUG_RASTER_LINE
 
@@ -153,12 +158,10 @@ void close_demo(STRPTR message)
 	exit(0);
 }
 
-const char *demo_test_string = "(BUDDHAMIGA INTRO 2015!)\0";
-
 void main()
 {
 	UWORD *pointer;
-	int loop;
+	int loop, demo_string_index;
 
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
@@ -356,7 +359,7 @@ void main()
 	/* Print some text into the second ViewPort: */
 	Move( &rast_port3, 0, 8 );
 	// Text( &rast_port3, "Line 1", 6);
-	blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_test_string);
+	// blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_test_string);
 
 	// Move( &rast_port2, 0, 20 );
 	// Text( &rast_port2, "Line 2", 6);
@@ -371,6 +374,9 @@ void main()
 	Forbid();
 	Disable();
 
+	loop = 0;
+	demo_string_index = 0;
+
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
 		WaitTOF();
@@ -380,6 +386,16 @@ void main()
 		scrollLogoBackground();
 		updateCheckerboard();
 		updateSpritesChain(&view_port2);
+
+		loop++;
+		if (loop > 150)
+		{
+			SetRast(&rast_port3, 0);
+			blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_string[demo_string_index%DEMO_STRINGS_MAX_INDEX]);
+			demo_string_index++;
+			loop = 0;
+		}
+
 	}
 
 	Enable();

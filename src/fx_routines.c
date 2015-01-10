@@ -82,7 +82,7 @@ void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y)
 }
 
 /*	Scrolls the Mandarine Logo, ping pong from left to right */
-void scrollLogoBackground(void)
+__inline void scrollLogoBackground(void)
 {
     bg_scroll_phase += 4;
 
@@ -103,6 +103,7 @@ void setLogoCopperlist(struct ViewPort *vp)
     CWAIT(copper, 0, 0);
 
     // CMOVE(copper, *((UWORD *)SPR0CTL_ADDR), (LONG)&blank_pointer);
+    CMOVE(copper, *((UWORD *)FMODE_ADDR), (LONG)&blank_pointer);
     CMOVE(copper, *((UWORD *)SPR0PTH_ADDR), (LONG)&blank_pointer);
     CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
 
@@ -115,7 +116,7 @@ void setLogoCopperlist(struct ViewPort *vp)
 	Viewport 2, 
 	checkerboard and sprites animation
 */
-void drawCheckerboard(struct BitMap *dest_bitmap)
+__inline void drawCheckerboard(struct BitMap *dest_bitmap)
 {
     USHORT i;
 
@@ -141,7 +142,7 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     for(i = 0; i < DISPL_HEIGHT2; i++)
     {
         CWAIT(copper, i, 0);
-        CMOVE(copper, custom.color[0], vcopperlist_checker_1[i]);
+        CMOVE(copper, custom.color[0], vcopperlist_checker_1[i + 5]);
         // CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], vcopperlist_checker_1[i]));
 
         if (i == 0)
@@ -158,7 +159,7 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
         // CWAIT(copper, i, 74);
         // CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_1[i], vcopperlist_checker_0[i]))));
         // CWAIT(copper, i, 80);
-        CMOVE(copper, custom.color[1], vcopperlist_checker_0[i]);
+        CMOVE(copper, custom.color[1], vcopperlist_checker_0[i + 5]);
 
         // CWAIT(copper, i, 200);
         // CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_1[i], vcopperlist_checker_0[i]))));
@@ -182,75 +183,80 @@ void updateCheckerboard(void)
     ScrollVPort(&view_port2);
 }
 
-void updateSpritesChain(struct ViewPort *vp)
+__inline void updateSpritesChain(struct ViewPort *vp, USHORT sprite_to_update)
 {
-	USHORT i, sprite_phase, sprite_phase2, x, y, sprite_index;
+	USHORT i, j, sprite_phase, sprite_phase2, x, y, sprite_index;
 	sprite_chain_phase++;
 
 	if (sprite_chain_phase >= COSINE_TABLE_LEN)
         sprite_chain_phase -= COSINE_TABLE_LEN;
 
     sprite_phase = sprite_chain_phase;
-    for(i = 0; i < MAX_SPRITES; i++)
+    for(i = 0, j = 0; i < MAX_SPRITES; i++, j += 32)
+    // i = sprite_to_update;
     {
-    	sprite_phase += 32;
+    	sprite_phase += j;
 
-    	if (sprite_phase >= COSINE_TABLE_LEN)
-    	    sprite_phase -= COSINE_TABLE_LEN;
+    	// if (sprite_phase >= COSINE_TABLE_LEN)
+    	//     sprite_phase -= COSINE_TABLE_LEN;
 
     	sprite_phase2 = sprite_phase << 1;
 
-    	if (sprite_phase2 >= COSINE_TABLE_LEN)
-    	    sprite_phase2 -= COSINE_TABLE_LEN;
+    	// if (sprite_phase2 >= COSINE_TABLE_LEN)
+    	//     sprite_phase2 -= COSINE_TABLE_LEN;
+
+    	sprite_phase = sprite_phase & 0x1FF;
+    	sprite_phase2 = sprite_phase2 & 0x1FF;
 
       	x = 16 + (((tcos[sprite_phase] + 512) * (DISPL_WIDTH2 - 8 - 32)) >> 10);
       	y = 4 + (((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 16 - 32)) >> 10);
 
         sprite_index = sprite_chain_phase + i;
-        while(sprite_index >= 16)
-            sprite_index -= 16;
+        sprite_index = sprite_index & 0xF;
+        // while(sprite_index >= 16)
+        //     sprite_index -= 16;
 
       	MoveSprite(vp, my_sprite[i], x, y );
         ChangeSprite(vp, my_sprite[i], (PLANEPTR)ruby_stripe_img[sprite_index]);      
     }  
 }
 
-void updateVSpritesChain(struct RastPort* rp, struct ViewPort *vp, struct View *vw)
+__inline void updateVSpritesChain(struct RastPort* rp, struct ViewPort *vp, struct View *vw)
 {
-    USHORT i, sprite_phase, sprite_phase2, x, y, sprite_index;
-    sprite_chain_phase++;
+    // USHORT i, sprite_phase, sprite_phase2, x, y, sprite_index;
+    // sprite_chain_phase++;
 
-    if (sprite_chain_phase >= COSINE_TABLE_LEN)
-        sprite_chain_phase -= COSINE_TABLE_LEN;
+    // if (sprite_chain_phase >= COSINE_TABLE_LEN)
+    //     sprite_chain_phase -= COSINE_TABLE_LEN;
 
-    sprite_phase = sprite_chain_phase;
-    for(i = 0; i < MAX_SPRITES; i++)
-    {
-        sprite_phase += 32;
+    // sprite_phase = sprite_chain_phase;
+    // for(i = 0; i < MAX_SPRITES; i++)
+    // {
+    //     sprite_phase += 32;
 
-        if (sprite_phase >= COSINE_TABLE_LEN)
-            sprite_phase -= COSINE_TABLE_LEN;
+    //     if (sprite_phase >= COSINE_TABLE_LEN)
+    //         sprite_phase -= COSINE_TABLE_LEN;
 
-        sprite_phase2 = sprite_phase << 1;
+    //     sprite_phase2 = sprite_phase << 1;
 
-        if (sprite_phase2 >= COSINE_TABLE_LEN)
-            sprite_phase2 -= COSINE_TABLE_LEN;
+    //     if (sprite_phase2 >= COSINE_TABLE_LEN)
+    //         sprite_phase2 -= COSINE_TABLE_LEN;
 
-        x = 16 + (((tcos[sprite_phase] + 512) * (DISPL_WIDTH1 - 8 - 32)) >> 10);
-        y = 4 + (((tsin[sprite_phase2] + 512) * (HEIGHT1 - 16 - 32)) >> 10);
+    //     x = 16 + (((tcos[sprite_phase] + 512) * (DISPL_WIDTH1 - 8 - 32)) >> 10);
+    //     y = 4 + (((tsin[sprite_phase2] + 512) * (HEIGHT1 - 16 - 32)) >> 10);
 
-        sprite_index = sprite_chain_phase + i;
-        while(sprite_index >= 16)
-            sprite_index -= 16;
+    //     sprite_index = sprite_chain_phase + i;
+    //     while(sprite_index >= 16)
+    //         sprite_index -= 16;
 
-        vsprite[i].X = x;
-        vsprite[i].Y = y;
-    }
+    //     vsprite[i].X = x;
+    //     vsprite[i].Y = y;
+    // }
 
-    SortGList(rp);
-    DrawGList(rp, vp);
-    MrgCop(vw);
-    LoadView(vw);         
+    // SortGList(rp);
+    // DrawGList(rp, vp);
+    // MrgCop(vw);
+    // LoadView(vw);         
 }
 
 /*  

@@ -341,25 +341,15 @@ void main()
 	/* 8. Show the new View: */
 	LoadView( &my_view );
 
-	initSpriteDisplay();
+	// initSpriteDisplay();
 
 	drawMandarineLogo(&bit_map1, 0);
 	drawCheckerboard(&bit_map2);
 
-	// /* Set the draw mode to JAM1. FgPen's colour will be used. */
-	// SetDrMd( &rast_port1, JAM1 );
-	// SetDrMd( &rast_port2, JAM1 );
-
-	// /* Set FgPen's colour to 1 (white). */
-	// SetAPen( &rast_port2, 1 );
-	// /* Draw some pixels in the second ViewPort: */
-	// // for( loop = 0; loop < DISPL_HEIGHT2; loop++ )
-	// // 	WritePixel( &rast_port2, rand() % WIDTH2, loop); // rand() % WIDTH2, rand() % HEIGHT2 );
-
 	/* Print some text into the second ViewPort: */
 	Move( &rast_port3, 0, 8 );
 	// Text( &rast_port3, "Line 1", 6);
-	// blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_test_string);
+	blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_string[0]);
 
 	// Move( &rast_port2, 0, 20 );
 	// Text( &rast_port2, "Line 2", 6);
@@ -369,7 +359,7 @@ void main()
 
 	playMusic();
 
-	// OFF_SPRITE;
+	OFF_SPRITE;
 
 	Forbid();
 	Disable();
@@ -383,25 +373,26 @@ void main()
 		#ifdef DEBUG_RASTER_LINE
 		*((short *)COLOR00_ADDR) = 0xF0F;
 		#endif
+		// updateSpritesChain(&view_port2, (USHORT)loop);
 		scrollLogoBackground();
 		updateCheckerboard();
-		updateSpritesChain(&view_port2);
 
-		loop++;
-		if (loop > 150)
-		{
-			SetRast(&rast_port3, 0);
-			blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_string[demo_string_index%DEMO_STRINGS_MAX_INDEX]);
-			demo_string_index++;
-			loop = 0;
-		}
+		// loop++;
+
+		// if (loop > 150)
+		// {
+		// 	SetRast(&rast_port3, 0);
+		// 	blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_string[demo_string_index%DEMO_STRINGS_MAX_INDEX]);
+		// 	demo_string_index++;
+		// 	loop = 0;
+		// }
 
 	}
 
 	Enable();
 	Permit();
 
-	// ON_SPRITE;
+	ON_SPRITE;
 
 	close_demo("My friend the end!");
 }

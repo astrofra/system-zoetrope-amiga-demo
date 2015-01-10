@@ -39,9 +39,9 @@ void initSpriteDisplay(void)
 
   for(i = 0; i < MAX_SPRITES; i++)
   {
-      spr_want = i + 1;
+      spr_want = 7 - i;
       spr_got = GetSprite(my_sprite[i], spr_want);
-      // printf("Asked for sprite #%d, got sprite #%d\n", spr_want, spr_got);
+      printf("Asked for sprite #%d, got sprite #%d\n", spr_want, spr_got);
   }
 }
 
@@ -61,55 +61,55 @@ void closeSpriteDisplay(void)
 
 void initVSpriteDisplay(struct RastPort* rast_port)
 {
-	int i;
+	// int i;
 
-	/* All sprites except the first two may be used to draw */
-	/* the VSprites: ( 11111100 = 0xFC ) */
-	ginfo.sprRsrvd = 0xFC;
-	/* If we do not exclude the first two sprites, the mouse */
-	/* pointer's colours may be affected. */
-
-
-	/* Give the GelsInfo structure some memory: */
-	ginfo.nextLine = nextline;
-	ginfo.lastColor = lastcolor;
+	// /* All sprites except the first two may be used to draw */
+	// /* the VSprites: ( 11111100 = 0xFC ) */
+	// ginfo.sprRsrvd = 0xFC;
+	// /* If we do not exclude the first two sprites, the mouse */
+	// /* pointer's colours may be affected. */
 
 
-	/* Give the Rastport a pointer to the GelsInfo structure: */
-	rast_port->GelsInfo = &ginfo;
+	// /* Give the GelsInfo structure some memory: */
+	// ginfo.nextLine = nextline;
+	// ginfo.lastColor = lastcolor;
 
 
-	/* Give the GelsInfo structure to the system: */
-	InitGels( &head, &tail, &ginfo );
-
-	for(i = 0; i < MAX_SPRITES; i++)
-	{
-		/* Set the VSprite's colours: */
-		// colour_table[i][0] = i; /* Blue */
-		// colour_table[i][1] = i << 4; /* Green */
-		// colour_table[i][2] = i << 8; /* Red */
-
-		vsprite[i].Flags = VSPRITE; /* It is a VSprite. */
-		vsprite[i].X = 0; /* X position. */
-		vsprite[i].Y = 0; /* Y position. */
-		vsprite[i].Height = SPR_H; /* 16 lines tall. */
-		vsprite[i].Width = 2; /* 2 words wide. */
-		vsprite[i].Depth = 2; /* 2 bitpl, 4 colours. */
-
-		/* Pointer to the sprite data: */
-		vsprite[i].ImageData = (USHORT *)&ruby_stripe_img[i]; // vsprite_data;
-
-		/* Pointer to the colour table: */
-		// vsprite[i].SprColors = colour_table[ i ];
+	// /* Give the Rastport a pointer to the GelsInfo structure: */
+	// rast_port->GelsInfo = &ginfo;
 
 
-		/* 8. Add the VSprites to the VSprite list: */
-		AddVSprite(&vsprite[i], rast_port);
-	}
+	// /* Give the GelsInfo structure to the system: */
+	// InitGels( &head, &tail, &ginfo );
+
+	// for(i = 0; i < MAX_SPRITES; i++)
+	// {
+	// 	/* Set the VSprite's colours: */
+	// 	// colour_table[i][0] = i; /* Blue */
+	// 	// colour_table[i][1] = i << 4; /* Green */
+	// 	// colour_table[i][2] = i << 8; /* Red */
+
+	// 	vsprite[i].Flags = VSPRITE; /* It is a VSprite. */
+	// 	vsprite[i].X = 0; /* X position. */
+	// 	vsprite[i].Y = 0; /* Y position. */
+	// 	vsprite[i].Height = SPR_H; /* 16 lines tall. */
+	// 	vsprite[i].Width = 2; /* 2 words wide. */
+	// 	vsprite[i].Depth = 2; /* 2 bitpl, 4 colours. */
+
+	// 	/* Pointer to the sprite data: */
+	// 	vsprite[i].ImageData = (USHORT *)&ruby_stripe_img[i]; // vsprite_data;
+
+	// 	/* Pointer to the colour table: */
+	// 	// vsprite[i].SprColors = colour_table[ i ];
 
 
-	/* The VSprites are in the list. */
-	vsprite_on = TRUE;
+	// 	/* 8. Add the VSprites to the VSprite list: */
+	// 	AddVSprite(&vsprite[i], rast_port);
+	// }
+
+
+	// /* The VSprites are in the list. */
+	// vsprite_on = TRUE;
 }
 
 void closeVSpriteDisplay(void)

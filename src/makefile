@@ -17,9 +17,9 @@ ruby_stripe.o: ruby_stripe.c
 font_bitmap.o: font_bitmap.c 
 font_desc.o: font_desc.c
 vert_copper_palettes.o: vert_copper_palettes.c
-fx_routines.o: fx_routines.c screen_size.h
+fx_routines.o: fx_routines.c fx_routines.h screen_size.h sprites_routines.h
 bitmap_routines.o: bitmap_routines.c
-sprites_routines.o: sprites_routines.c
+sprites_routines.o: sprites_routines.c sprites_routines.h
 font_routines.o: font_routines.c
 cosine_table.o: cosine_table.c
 demo_strings.o: demo_strings.c

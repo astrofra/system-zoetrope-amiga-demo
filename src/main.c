@@ -95,7 +95,8 @@ void initMusic(void)
 		exit(0); //FIXME
 	}
 
-	mod = load_getchipmem((UBYTE *)"JAZZY94.MOD", 99182);
+	// mod = load_getchipmem((UBYTE *)"JAZZY94.MOD", 99182);
+	mod = load_getchipmem((UBYTE *)"95_02_21_SKULL.mod", 24838);
 }
 
 void playMusic(void)
@@ -145,7 +146,7 @@ void close_demo(STRPTR message)
 	/*	Stop music */
 	PTStop(theMod);
 	PTFreeMod(theMod);
-	FreeMem(mod, 99182);
+	FreeMem(mod, 24838);
 	if (PTReplayBase) CloseLibrary(PTReplayBase);
 
 	/* Close the Graphics library: */
@@ -271,9 +272,9 @@ void main()
 	}
 
 	/* ViewPort 2 */
-	InitBitMap( &bit_map2, DEPTH2b, WIDTH2, HEIGHT2 );
+	InitBitMap( &bit_map2, DEPTH2, WIDTH2, HEIGHT2 );
 	/* Allocate memory for the Raster: */ 
-	for( loop = 0; loop < DEPTH2b; loop++ )
+	for( loop = 0; loop < DEPTH2; loop++ )
 	{
 		bit_map2.Planes[ loop ] = (PLANEPTR) AllocRaster( WIDTH2, HEIGHT2 );
 		if( bit_map2.Planes[ loop ] == NULL )
@@ -390,6 +391,8 @@ void main()
 
 	Forbid();
 	Disable();
+	WaitBlit();
+	OwnBlitter();	
 
 	loop = 0;
 	demo_string_index = 0;
@@ -416,6 +419,7 @@ void main()
 
 	}
 
+	DisownBlitter();
 	Enable();
 	Permit();
 

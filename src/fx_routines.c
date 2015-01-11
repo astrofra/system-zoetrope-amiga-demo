@@ -86,8 +86,9 @@ __inline void scrollLogoBackground(void)
 {
     bg_scroll_phase += 4;
 
-    if (bg_scroll_phase >= COSINE_TABLE_LEN)
-        bg_scroll_phase -= COSINE_TABLE_LEN;
+    // if (bg_scroll_phase >= COSINE_TABLE_LEN)
+    //     bg_scroll_phase -= COSINE_TABLE_LEN;
+    bg_scroll_phase &= 0x1FF;
 
     view_port1.RasInfo->RxOffset = (WIDTH1 - DISPL_WIDTH1) + ((tcos[bg_scroll_phase] + 512) * (WIDTH1 - DISPL_WIDTH1)) >> 10;
     view_port1.RasInfo->RyOffset = 0;
@@ -179,7 +180,7 @@ void updateCheckerboard(void)
         checkerboard_scroll_offset = 0;
 
     view_port2.RasInfo->RyOffset = checkerboard_scroll_offset;
-    // view_port2.RasInfo->Next->RyOffset = checkerboard_scroll_offset;
+    view_port2.RasInfo->Next->RyOffset = (view_port1.RasInfo->RxOffset) << 1;
 
     ScrollVPort(&view_port2);
 }

@@ -2,7 +2,7 @@
 
 /* Image palette, RGB4 format (OCS/ECS machines) */
 UWORD font_palRGB4[4] = {
-	0x444,0xfff,0x0,0x444
+	0x444,0xfff,0x444,0x0
 };
 
 /* Ensure that this data is within chip memory or you'll see nothing !!! */

@@ -69,7 +69,10 @@ struct ViewPort view_port2;
 struct RasInfo ras_info2;
 struct BitMap bit_map2;
 struct RastPort rast_port2;
-UWORD color_table2[] = { 0x000, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF, 0xFFF };
+
+struct RasInfo ras_info2b;
+struct BitMap bit_map2b;
+struct RastPort rast_port2b;
 
 /* ViewPort 3 */
 struct ViewPort view_port3;
@@ -119,6 +122,9 @@ void close_demo(STRPTR message)
 	for( loop = 0; loop < DEPTH2; loop++ )
 		if( bit_map2.Planes[ loop ] )
 			FreeRaster( bit_map2.Planes[ loop ], WIDTH2, HEIGHT2 );
+	for( loop = 0; loop < DEPTH2b; loop++ )
+		if( bit_map2b.Planes[ loop ] )
+			FreeRaster( bit_map2b.Planes[ loop ], WIDTH2b, HEIGHT2b );		
 	for( loop = 0; loop < DEPTH3; loop++ )
 		if( bit_map3.Planes[ loop ] )
 			FreeRaster( bit_map3.Planes[ loop ], WIDTH3, HEIGHT3 );
@@ -215,7 +221,7 @@ void main()
 	view_port2.DxOffset = WIDTH2 - DISPL_WIDTH2;         /* X position.                   */
 	view_port2.DyOffset = HEIGHT1 + HEIGHT3 + 2; /* Y position (5 lines under).   */
 	view_port2.RasInfo = &ras_info2; /* Give it a pointer to RasInfo. */
-	view_port2.Modes = NULL;        /* High resolution.              */
+	view_port2.Modes = DUALPF|PFBA; 
 	view_port2.Next = NULL;          /* Last ViewPort in the list.    */
 
 	/* 3. Get a colour map, link it to the ViewPort, and prepare it: */
@@ -237,8 +243,8 @@ void main()
 	/* Get a pointer to the colour map: */
 	pointer = (UWORD *) view_port2.ColorMap->ColorTable;
 	/* Set the colours: */
-	for( loop = 0; loop < COLOURS2; loop++ )
-		*pointer++ = color_table2[ loop ];
+	// for( loop = 0; loop < COLOURS2; loop++ )
+	// 	*pointer++ = color_table2[ loop ];
 
 	/* ViewPort 3 */
 	view_port3.ColorMap = (struct ColorMap *) GetColorMap( COLOURS3 );
@@ -265,9 +271,9 @@ void main()
 	}
 
 	/* ViewPort 2 */
-	InitBitMap( &bit_map2, DEPTH2, WIDTH2, HEIGHT2 );
+	InitBitMap( &bit_map2, DEPTH2b, WIDTH2, HEIGHT2 );
 	/* Allocate memory for the Raster: */ 
-	for( loop = 0; loop < DEPTH2; loop++ )
+	for( loop = 0; loop < DEPTH2b; loop++ )
 	{
 		bit_map2.Planes[ loop ] = (PLANEPTR) AllocRaster( WIDTH2, HEIGHT2 );
 		if( bit_map2.Planes[ loop ] == NULL )
@@ -275,6 +281,17 @@ void main()
 		/* Clear the display memory with help of the Blitter: */
 		BltClear( bit_map2.Planes[ loop ], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
 	}
+
+	InitBitMap( &bit_map2b, DEPTH2b, WIDTH2b, HEIGHT2b );
+	/* Allocate memory for the Raster: */ 
+	for( loop = 0; loop < DEPTH2b; loop++ )
+	{
+		bit_map2b.Planes[ loop ] = (PLANEPTR) AllocRaster( WIDTH2b, HEIGHT2b );
+		if( bit_map2b.Planes[ loop ] == NULL )
+			close_demo( "Could NOT allocate enough memory for the raster!" );
+		/* Clear the display memory with help of the Blitter: */
+		BltClear( bit_map2b.Planes[ loop ], RASSIZE( WIDTH2b, HEIGHT2b ), 0 );
+	}	
 
 	/* ViewPort 3 */
 	InitBitMap( &bit_map3, DEPTH3, WIDTH3, HEIGHT3 );
@@ -301,10 +318,13 @@ void main()
 	/* ViewPort 2 */
 	ras_info2.BitMap = &bit_map2; /* Pointer to the BitMap structure.  */
 	ras_info2.RxOffset = 0;       /* The top left corner of the Raster */
-	ras_info2.RyOffset = 0;       /* should be at the top left corner  */
-	              /* of the display.                   */
-	ras_info2.Next = NULL;        /* Single playfield - only one       */
-	              /* RasInfo structure is necessary.   */
+	ras_info2.RyOffset = 0;       /* should be at the top left corner of the display.                   */
+	ras_info2.Next = &ras_info2b;        /* Dual playfield  */
+
+	ras_info2b.BitMap = &bit_map2b; /* Pointer to the BitMap structure.  */
+	ras_info2b.RxOffset = 0;       /* The top left corner of the Raster */
+	ras_info2b.RyOffset = 0;       /* should be at the top left corner of the display.                   */
+	ras_info2b.Next = NULL;        /* Dual playfield  */	
 
 	/* ViewPort 3 */
 	ras_info3.BitMap = &bit_map3; /* Pointer to the BitMap structure.  */
@@ -333,6 +353,8 @@ void main()
 	/* ViewPort 2 */
 	InitRastPort( &rast_port2 );
 	rast_port2.BitMap = &bit_map2;
+	InitRastPort( &rast_port2b );
+	rast_port2b.BitMap = &bit_map2b;	
 
 	/* ViewPort 3 */
 	InitRastPort( &rast_port3 );
@@ -347,8 +369,13 @@ void main()
 	drawCheckerboard(&bit_map2);
 
 	/* Print some text into the second ViewPort: */
-	Move( &rast_port3, 0, 8 );
-	// Text( &rast_port3, "Line 1", 6);
+	for (loop = 0; loop < 6; loop++)
+	{
+		Move( &rast_port2b, 16 + loop * 4, 16 + loop * 8 );
+		SetAPen( &rast_port2b, 1 + loop );
+		Text( &rast_port2b, "Dual Playfield!", 16);
+	}
+
 	blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_string[0]);
 
 	// Move( &rast_port2, 0, 20 );

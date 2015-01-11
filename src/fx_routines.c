@@ -179,6 +179,7 @@ void updateCheckerboard(void)
         checkerboard_scroll_offset = 0;
 
     view_port2.RasInfo->RyOffset = checkerboard_scroll_offset;
+    // view_port2.RasInfo->Next->RyOffset = checkerboard_scroll_offset;
 
     ScrollVPort(&view_port2);
 }

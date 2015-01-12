@@ -95,6 +95,12 @@ __inline void scrollLogoBackground(void)
     ScrollVPort(&view_port1);
 }
 
+__inline void scrollTextViewport(void)
+{
+    view_port3.RasInfo->RyOffset = 0;
+    ScrollVPort(&view_port3);
+}
+
 void setLogoCopperlist(struct ViewPort *vp)
 {
     copper = (struct UCopList *)

@@ -8,5 +8,6 @@
 
 extern UWORD vcopperlist_checker_0[160];
 extern UWORD vcopperlist_checker_1[160];
+extern UWORD vcopperlist_toppf[160];
 
 #endif // #ifndef VERT_COPPER_PAL

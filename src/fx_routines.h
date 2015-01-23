@@ -5,16 +5,17 @@
 #include <intuition/intuition.h>
 #include <graphics/gfxbase.h>
 
-extern UWORD mixRGB4Colors(UWORD a, UWORD b);
-extern void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y);
-extern void drawCheckerboard(struct BitMap *dest_bitmap);
-extern void setLogoCopperlist(struct ViewPort *vp);
-extern void setCheckerboardCopperlist(struct ViewPort *vp);
-extern void scrollLogoBackground(void);
-extern void updateCheckerboard(void);
-extern void updateSpritesChain(struct ViewPort *vp, USHORT sprite_to_update);
-extern void updateVSpritesChain(struct RastPort* rp, struct ViewPort *vp, struct View *v);
-extern void setTextLinerCopperlist(struct ViewPort *vp);
-extern void loadTextWriterFont(void);
+UWORD mixRGB4Colors(UWORD a, UWORD b);
+void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y);
+void drawCheckerboard(struct BitMap *dest_bitmap);
+void setLogoCopperlist(struct ViewPort *vp);
+void setCheckerboardCopperlist(struct ViewPort *vp);
+void scrollLogoBackground(void);
+void scrollTextViewport(void);
+void updateCheckerboard(void);
+void updateSpritesChain(struct ViewPort *vp, USHORT sprite_to_update);
+void updateVSpritesChain(struct RastPort* rp, struct ViewPort *vp, struct View *v);
+void setTextLinerCopperlist(struct ViewPort *vp);
+void loadTextWriterFont(void);
 
 #endif // #ifndef FX_ROUTINES

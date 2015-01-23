@@ -70,10 +70,6 @@ struct RasInfo ras_info2;
 struct BitMap bit_map2;
 struct RastPort rast_port2;
 
-struct RasInfo ras_info2b;
-struct BitMap bit_map2b;
-struct RastPort rast_port2b;
-
 /* ViewPort 3 */
 struct ViewPort view_port3;
 struct RasInfo ras_info3;
@@ -122,10 +118,7 @@ void close_demo(STRPTR message)
 			FreeRaster( bit_map1.Planes[ loop ], WIDTH1, HEIGHT1 );
 	for( loop = 0; loop < DEPTH2; loop++ )
 		if( bit_map2.Planes[ loop ] )
-			FreeRaster( bit_map2.Planes[ loop ], WIDTH2, HEIGHT2 );
-	for( loop = 0; loop < DEPTH2b; loop++ )
-		if( bit_map2b.Planes[ loop ] )
-			FreeRaster( bit_map2b.Planes[ loop ], WIDTH2b, HEIGHT2b );		
+			FreeRaster( bit_map2.Planes[ loop ], WIDTH2, HEIGHT2 );	
 	for( loop = 0; loop < DEPTH3; loop++ )
 		if( bit_map3.Planes[ loop ] )
 			FreeRaster( bit_map3.Planes[ loop ], WIDTH3, HEIGHT3 );
@@ -281,17 +274,6 @@ void main()
 			close_demo( "Could NOT allocate enough memory for the raster!" );
 		/* Clear the display memory with help of the Blitter: */
 		BltClear( bit_map2.Planes[ loop ], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
-	}
-
-	InitBitMap( &bit_map2b, DEPTH2b, WIDTH2b, HEIGHT2b );
-	/* Allocate memory for the Raster: */ 
-	for( loop = 0; loop < DEPTH2b; loop++ )
-	{
-		bit_map2b.Planes[ loop ] = (PLANEPTR) AllocRaster( WIDTH2b, HEIGHT2b );
-		if( bit_map2b.Planes[ loop ] == NULL )
-			close_demo( "Could NOT allocate enough memory for the raster!" );
-		/* Clear the display memory with help of the Blitter: */
-		BltClear( bit_map2b.Planes[ loop ], RASSIZE( WIDTH2b, HEIGHT2b ), 0 );
 	}	
 
 	/* ViewPort 3 */
@@ -320,12 +302,7 @@ void main()
 	ras_info2.BitMap = &bit_map2; /* Pointer to the BitMap structure.  */
 	ras_info2.RxOffset = 0;       /* The top left corner of the Raster */
 	ras_info2.RyOffset = 0;       /* should be at the top left corner of the display.                   */
-	ras_info2.Next = &ras_info2b;        /* Dual playfield  */
-
-	ras_info2b.BitMap = &bit_map2b; /* Pointer to the BitMap structure.  */
-	ras_info2b.RxOffset = 0;       /* The top left corner of the Raster */
-	ras_info2b.RyOffset = 0;       /* should be at the top left corner of the display.                   */
-	ras_info2b.Next = NULL;        /* Dual playfield  */	
+	ras_info2.Next = NULL;        /* Dual playfield  */	
 
 	/* ViewPort 3 */
 	ras_info3.BitMap = &bit_map3; /* Pointer to the BitMap structure.  */
@@ -354,8 +331,6 @@ void main()
 	/* ViewPort 2 */
 	InitRastPort( &rast_port2 );
 	rast_port2.BitMap = &bit_map2;
-	InitRastPort( &rast_port2b );
-	rast_port2b.BitMap = &bit_map2b;	
 
 	/* ViewPort 3 */
 	InitRastPort( &rast_port3 );
@@ -364,18 +339,18 @@ void main()
 	/* 8. Show the new View: */
 	LoadView( &my_view );
 
-	// initSpriteDisplay();
+	initSpriteDisplay();
 
 	drawMandarineLogo(&bit_map1, 0);
 	drawCheckerboard(&bit_map2);
 
-	/* Print some text into the second ViewPort: */
-	for (loop = 0; loop < 6; loop++)
-	{
-		Move( &rast_port2b, 16 + loop * 4, 16 + loop * 8 );
-		SetAPen( &rast_port2b, 1 + loop );
-		Text( &rast_port2b, "Dual Playfield!", 16);
-	}
+	// /* Print some text into the second ViewPort: */
+	// for (loop = 0; loop < 6; loop++)
+	// {
+	// 	Move( &rast_port2b, 16 + loop * 4, 16 + loop * 8 );
+	// 	SetAPen( &rast_port2b, 1 + loop );
+	// 	Text( &rast_port2b, "Dual Playfield!", 16);
+	// }
 
 	blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_string[0]);
 
@@ -387,7 +362,7 @@ void main()
 
 	playMusic();
 
-	OFF_SPRITE;
+	// OFF_SPRITE;
 
 	Forbid();
 	Disable();
@@ -400,12 +375,13 @@ void main()
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
 		WaitTOF();
+
 		#ifdef DEBUG_RASTER_LINE
 		*((short *)COLOR00_ADDR) = 0xF0F;
 		#endif
-		// updateSpritesChain(&view_port2, (USHORT)loop);
+		updateSpritesChain(&view_port2, (USHORT)loop);
 		scrollLogoBackground();
-		scrollTextViewport(void);
+		scrollTextViewport();
 		updateCheckerboard();
 
 		// loop++;
@@ -424,7 +400,7 @@ void main()
 	Enable();
 	Permit();
 
-	ON_SPRITE;
+	// ON_SPRITE;
 
 	close_demo("My friend the end!");
 }

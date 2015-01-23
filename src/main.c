@@ -96,7 +96,7 @@ void initMusic(void)
 	}
 
 	// mod = load_getchipmem((UBYTE *)"JAZZY94.MOD", 99182);
-	mod = load_getchipmem((UBYTE *)"95_02_21_SKULL.mod", 24838);
+	mod = load_getchipmem((UBYTE *)"brazil-by-med.mod", 409462);
 }
 
 void playMusic(void)
@@ -146,7 +146,7 @@ void close_demo(STRPTR message)
 	/*	Stop music */
 	PTStop(theMod);
 	PTFreeMod(theMod);
-	FreeMem(mod, 24838);
+	FreeMem(mod, 409462);
 	if (PTReplayBase) CloseLibrary(PTReplayBase);
 
 	/* Close the Graphics library: */

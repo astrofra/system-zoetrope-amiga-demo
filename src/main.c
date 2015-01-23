@@ -405,7 +405,7 @@ void main()
 		#endif
 		// updateSpritesChain(&view_port2, (USHORT)loop);
 		scrollLogoBackground();
-		scrollTextViewport(void);
+		scrollTextViewport();
 		updateCheckerboard();
 
 		// loop++;

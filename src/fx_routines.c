@@ -19,6 +19,7 @@
 extern struct GfxBase *GfxBase;
 extern struct ViewPort view_port1;
 extern struct ViewPort view_port2;
+extern struct ViewPort view_port3;
 
 extern struct  BitMap *bitmap_logo;
 extern struct  BitMap *bitmap_checkerboard;

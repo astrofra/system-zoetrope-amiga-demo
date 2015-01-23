@@ -364,8 +364,6 @@ void main()
 	/* 8. Show the new View: */
 	LoadView( &my_view );
 
-	// initSpriteDisplay();
-
 	drawMandarineLogo(&bit_map1, 0);
 	drawCheckerboard(&bit_map2);
 
@@ -405,7 +403,7 @@ void main()
 		#endif
 		// updateSpritesChain(&view_port2, (USHORT)loop);
 		scrollLogoBackground();
-		scrollTextViewport(void);
+		scrollTextViewport();
 		updateCheckerboard();
 
 		// loop++;

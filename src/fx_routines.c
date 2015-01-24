@@ -98,6 +98,7 @@ __inline void scrollLogoBackground(void)
 
 __inline void scrollTextViewport(void)
 {
+    view_port3.RasInfo->RxOffset = 0;
     view_port3.RasInfo->RyOffset = 0;
     ScrollVPort(&view_port3);
 }
@@ -186,7 +187,9 @@ void updateCheckerboard(void)
     if (checkerboard_scroll_offset >= HEIGHT2)
         checkerboard_scroll_offset = 0;
 
+    view_port2.RasInfo->RxOffset = 0;
     view_port2.RasInfo->RyOffset = checkerboard_scroll_offset;
+    view_port2.RasInfo->Next->RxOffset = 0;
     view_port2.RasInfo->Next->RyOffset = (view_port1.RasInfo->RxOffset) << 1;
 
     ScrollVPort(&view_port2);

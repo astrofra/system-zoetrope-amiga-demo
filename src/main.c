@@ -96,7 +96,7 @@ void initMusic(void)
 	}
 
 	// mod = load_getchipmem((UBYTE *)"JAZZY94.MOD", 99182);
-	mod = load_getchipmem((UBYTE *)"brazil-by-med.mod", 409462);
+	mod = load_getchipmem((UBYTE *)"brazil-by-med.mod", 413506);
 }
 
 void playMusic(void)
@@ -146,7 +146,7 @@ void close_demo(STRPTR message)
 	/*	Stop music */
 	PTStop(theMod);
 	PTFreeMod(theMod);
-	FreeMem(mod, 409462);
+	FreeMem(mod, 413506);
 	if (PTReplayBase) CloseLibrary(PTReplayBase);
 
 	/* Close the Graphics library: */
@@ -181,6 +181,8 @@ void main()
 	OpenLibrary( "graphics.library", 0 );
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
+
+	SetChipRev(SETCHIPREV_BEST);
 
 	loadTextWriterFont();
 	initMusic();

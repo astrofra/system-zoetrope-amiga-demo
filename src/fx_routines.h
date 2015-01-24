@@ -13,8 +13,8 @@ void setCheckerboardCopperlist(struct ViewPort *vp);
 void scrollLogoBackground(void);
 void scrollTextViewport(void);
 void updateCheckerboard(void);
-void updateSpritesChain(struct ViewPort *vp, USHORT sprite_to_update);
-void updateVSpritesChain(struct RastPort* rp, struct ViewPort *vp, struct View *v);
+void loadBobBitmaps(void);
+void drawUnlimitedBobs(struct BitMap* dest_bitmap);
 void setTextLinerCopperlist(struct ViewPort *vp);
 void loadTextWriterFont(void);
 

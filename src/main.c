@@ -36,6 +36,7 @@ Graphic assets
 #include "demo_strings.h"
 
 extern UWORD checkerboard_PaletteRGB4[8];
+extern UWORD bob_32PaletteRGB4[8];
 
 /* Music */
 struct Library *PTReplayBase;
@@ -83,6 +84,7 @@ struct RastPort rast_port3;
 struct BitMap *bitmap_logo = NULL;
 struct BitMap *bitmap_checkerboard = NULL;
 struct BitMap *bitmap_font = NULL;
+struct BitMap *bitmap_bob = NULL;
 
 void initMusic(void)
 {
@@ -141,6 +143,7 @@ void close_demo(STRPTR message)
 	free_allocated_bitmap(bitmap_logo);
 	free_allocated_bitmap(bitmap_checkerboard);
 	free_allocated_bitmap(bitmap_font);
+	free_allocated_bitmap(bitmap_bob);
 
 	/*	Stop music */
 	if (mod != NULL)
@@ -189,6 +192,8 @@ void main()
 	SetChipRev(SETCHIPREV_BEST);
 
 	loadTextWriterFont();
+	loadBobBitmaps();
+
 	initMusic();
 
 	/* Save the current View, so we can restore it later: */
@@ -299,7 +304,11 @@ void main()
 			close_demo( "Could NOT allocate enough memory for the raster!" );
 		/* Clear the display memory with help of the Blitter: */
 		BltClear( bit_map2b.Planes[ loop ], RASSIZE( WIDTH2b, HEIGHT2b ), 0 );
-	}	
+	}
+	for( loop = 0; loop < COLOURS3; loop++ )
+	{
+		SetRGB4(&view_port2, loop + 8, (bob_32PaletteRGB4[loop] & 0x0f00) >> 8, (bob_32PaletteRGB4[loop] & 0x00f0) >> 4, bob_32PaletteRGB4[loop] & 0x000f);
+	}
 
 	/* ViewPort 3 */
 	InitBitMap( &bit_map3, DEPTH3, WIDTH3, HEIGHT3 );
@@ -381,12 +390,12 @@ void main()
 	LoadView( &my_view );
 
 	/* Print some text into the second ViewPort: */
-	for (loop = 0; loop < 6; loop++)
-	{
-		Move( &rast_port2b, 16 + loop * 4, 16 + loop * 8 );
-		SetAPen( &rast_port2b, 1 + loop );
-		Text( &rast_port2b, "Dual Playfield!", 16);	
-	}
+	// for (loop = 0; loop < 6; loop++)
+	// {
+	// 	Move( &rast_port2b, 16 + loop * 4, 16 + loop * 8 );
+	// 	SetAPen( &rast_port2b, 1 + loop );
+	// 	Text( &rast_port2b, "Dual Playfield!", 16);	
+	// }
 
 	blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_string[0]);
 
@@ -397,7 +406,7 @@ void main()
 	Forbid();
 	Disable();
 	WaitBlit();
-	OwnBlitter();	
+	// OwnBlitter();	
 
 	loop = 0;
 	demo_string_index = 0;
@@ -412,9 +421,10 @@ void main()
 		scrollLogoBackground();
 		scrollTextViewport();
 		updateCheckerboard();
+		drawUnlimitedBobs(&bit_map2b);
 	}
 
-	DisownBlitter();
+	// DisownBlitter();
 	Enable();
 	Permit();
 

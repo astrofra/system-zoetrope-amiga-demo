@@ -8,9 +8,9 @@
 #include "screen_size.h"
 #include "bitmap_routines.h"
 #include "cosine_table.h"
-#include "ruby_stripe.h"
 #include "mandarine_logo.h"
 #include "checkerboard_strip.h"
+#include "bob_bitmaps.h"
 #include "vert_copper_palettes.h"
 #include "font_desc.h"
 #include "font_bitmap.h"
@@ -22,6 +22,7 @@ extern struct ViewPort view_port3;
 
 extern struct  BitMap *bitmap_logo;
 extern struct  BitMap *bitmap_checkerboard;
+extern struct  BitMap *bitmap_bob;
 
 extern struct Custom far custom;
 
@@ -30,8 +31,10 @@ extern struct BitMap *bitmap_font;
 /*	Viewport 1, Mandarine Logo */
 USHORT bg_scroll_phase = 0;
 
-/*	Viewport 2, checkerboard and sprites animation */
-USHORT sprite_chain_phase = 0;
+/*  Viewport 2, checkerboard and sprites animation */
+USHORT ubob_phase = 0;
+USHORT ubob_vscroll = 0;
+USHORT ubob_hscroll_phase = 0;
 USHORT checkerboard_scroll_offset = 0;
 struct UCopList *copper;
 
@@ -172,18 +175,44 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     vp->UCopIns = copper;
 }
 
-void updateCheckerboard(void)
+__inline void updateCheckerboard(void)
 {
     checkerboard_scroll_offset += DISPL_HEIGHT2;
     if (checkerboard_scroll_offset >= HEIGHT2)
         checkerboard_scroll_offset = 0;
 
+    ubob_hscroll_phase += 3;
+    ubob_hscroll_phase &= 0x1FF;
+
     view_port2.RasInfo->RxOffset = 0;
     view_port2.RasInfo->RyOffset = checkerboard_scroll_offset;
-    view_port2.RasInfo->Next->RxOffset = 0;
-    view_port2.RasInfo->Next->RyOffset = (view_port1.RasInfo->RxOffset) << 1;
+    view_port2.RasInfo->Next->RxOffset = (WIDTH2b - DISPL_WIDTH2b) + ((tsin[ubob_hscroll_phase] + 512) * (WIDTH2b - DISPL_WIDTH2b)) >> 10;
+    view_port2.RasInfo->Next->RyOffset = ubob_vscroll;
 
     ScrollVPort(&view_port2);
+
+    ubob_vscroll += DISPL_HEIGHT2b;
+    if (ubob_vscroll >= HEIGHT2b)
+        ubob_vscroll = 0;    
+}
+
+void loadBobBitmaps(void)
+{   bitmap_bob = load_array_as_bitmap(bob_32Data, 192 << 1, bob_32.Width, bob_32.Height, bob_32.Depth); }
+
+__inline void drawUnlimitedBobs(struct BitMap* dest_bitmap)
+{
+    USHORT x, y;
+
+    ubob_phase += 30;
+    ubob_phase &= 0x1FF;
+
+    x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 16 + (((tcos[ubob_phase] + 512) * (DISPL_WIDTH2b - 8 - 64)) >> 10);
+    y = ubob_vscroll + 8 + (((tsin[ubob_phase] + 512) * (DISPL_HEIGHT2b - 16 - 32)) >> 10);    
+
+    BltBitMap(bitmap_bob, 0, 0,
+        dest_bitmap, x, y,
+        bob_32.Width, bob_32.Height,
+        0xC0, 0xFF, NULL);
 }
 
 __inline void updateSpritesChain(struct ViewPort *vp, USHORT sprite_to_update)

@@ -4,16 +4,16 @@
 .c.o:
 	sc NOLINK CODE=F DATA=F OPTI TO $@ $*.c
 
-OBJ = main.o mandarine_logo.o checkerboard_strip.o ruby_stripe.o font_bitmap.o font_desc.o vert_copper_palettes.o fx_routines.o bitmap_routines.o font_routines.o cosine_table.o demo_strings.o
+OBJ = main.o mandarine_logo.o checkerboard_strip.o bob_bitmaps.o font_bitmap.o font_desc.o vert_copper_palettes.o fx_routines.o bitmap_routines.o font_routines.o cosine_table.o demo_strings.o
 
 main.exe: $(OBJ) includes.gst
 	sc LINK CODE=F DATA=F OBJ $(OBJ) TO commonbin:main.exe
 
 includes.gst: includes.prl
-main.o: main.c screen_size.h mandarine_logo.h checkerboard_strip.h ruby_stripe.h font_bitmap.h font_desc.h vert_copper_palettes.h fx_routines.h bitmap_routines.h font_routines.h cosine_table.h demo_strings.h includes.gst
+main.o: main.c screen_size.h mandarine_logo.h checkerboard_strip.h font_bitmap.h font_desc.h vert_copper_palettes.h fx_routines.h bitmap_routines.h font_routines.h cosine_table.h demo_strings.h includes.gst
 mandarine_logo.o: mandarine_logo.c
 checkerboard_strip.o: checkerboard_strip.c
-ruby_stripe.o: ruby_stripe.c
+bob_bitmaps.o: bob_bitmaps.c
 font_bitmap.o: font_bitmap.c screen_size.h
 font_desc.o: font_desc.c
 vert_copper_palettes.o: vert_copper_palettes.c

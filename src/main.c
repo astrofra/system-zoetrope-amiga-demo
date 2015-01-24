@@ -35,7 +35,7 @@ Graphic assets
 #include "font_routines.h"
 #include "demo_strings.h"
 
-// #define DEBUG_RASTER_LINE
+extern UWORD checkerboard_PaletteRGB4[8];
 
 /* Music */
 struct Library *PTReplayBase;
@@ -285,6 +285,10 @@ void main()
 		/* Clear the display memory with help of the Blitter: */
 		BltClear( bit_map2.Planes[ loop ], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
 	}
+	/* Set the colours: */
+	pointer = (UWORD *) view_port2.ColorMap->ColorTable;
+	for( loop = 0; loop < COLOURS2; loop++ )
+		*pointer++ = checkerboard_PaletteRGB4[ loop ];		
 
 	InitBitMap( &bit_map2b, DEPTH2b, WIDTH2b, HEIGHT2b );
 	/* Allocate memory for the Raster: */ 

@@ -26,7 +26,7 @@
 PLANEPTR load_getmem(UBYTE *name, ULONG size);
 PLANEPTR load_getchipmem(UBYTE *name, ULONG size);
 struct BitMap *load_file_as_bitmap(UBYTE *name, ULONG byte_size, UWORD width, UWORD height, UWORD depth);
-struct BitMap *load_array_as_bitmap(UWORD *bitmap_array, UWORD array_size, UWORD width, UWORD height, UWORD depth);
+struct BitMap *load_array_as_bitmap(UWORD *bitmap_array, ULONG array_size, UWORD width, UWORD height, UWORD depth);
 void load_into_existing_bitmap(struct BitMap *new_bitmap, BYTE *name, ULONG byte_size, UWORD depth);
 void free_allocated_bitmap(struct BitMap *allocated_bitmap);
 

@@ -10,7 +10,7 @@
 #include "cosine_table.h"
 #include "ruby_stripe.h"
 #include "mandarine_logo.h"
-#include "checkerboard_stripe.h"
+#include "checkerboard_strip.h"
 #include "vert_copper_palettes.h"
 #include "font_desc.h"
 #include "font_bitmap.h"
@@ -126,11 +126,11 @@ __inline void drawCheckerboard(struct BitMap *dest_bitmap)
 {
     USHORT i;
 
-    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 19000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
+    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 60000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
 
     for(i = 0; i < ANIM_STRIPE; i++)
         BltBitMap(bitmap_checkerboard, 0, 100 * i,
-            dest_bitmap, 0, DISPL_HEIGHT2 * i + (DISPL_HEIGHT2 - 100),
+            dest_bitmap, 0, DISPL_HEIGHT2 * i + (DISPL_HEIGHT2 - (100)),
             checkerboard.Width, 100,
             0xC0, 0xFF, NULL);
         // BLIT_BITMAP_S(bitmap_checkerboard, dest_bitmap, checkerboard.Width, 100, 0, DISPL_HEIGHT2 * i + 60);
@@ -156,11 +156,7 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
             CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
         }
 
-        if (i < 4)
-            for(j = 0; j < 4; j++)
-                CMOVE(copper, custom.color[16 + i * 4 + j], ruby_stripe_palRGB4[j]);
-
-        CMOVE(copper, custom.color[1], vcopperlist_checker_0[i + 5]);
+        // CMOVE(copper, custom.color[1], vcopperlist_checker_0[i + 5]);
     }
 
     CEND(copper);

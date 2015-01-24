@@ -3,10 +3,10 @@
 
 #define DEFAULT_DISP_WIDTH 320
 /* ViewPort 1 */
-#define WIDTH1   380
+#define WIDTH1   384
 #define DISPL_WIDTH1   DEFAULT_DISP_WIDTH
 #define HEIGHT1  80
-#define DEPTH1     4
+#define DEPTH1     5
 #define COLOURS1  (2 << DEPTH1)
 
 /* ViewPort 2 */
@@ -20,7 +20,7 @@
 
 /* ViewPort 2b */
 #define ANIM_STRIPEb 8
-#define WIDTH2b   320
+#define WIDTH2b   384
 #define DISPL_WIDTH2b   DEFAULT_DISP_WIDTH
 #define DISPL_HEIGHT2b   150
 #define HEIGHT2b (DISPL_HEIGHT2b * ANIM_STRIPEb)                        
@@ -30,7 +30,7 @@
 /* ViewPort 3 */
 #define WIDTH3   DEFAULT_DISP_WIDTH
 #define HEIGHT3  12
-#define DEPTH3     1
+#define DEPTH3     2
 #define COLOURS3  (2 << DEPTH3)
 
 #endif // #ifndef SCREEN_SIZE

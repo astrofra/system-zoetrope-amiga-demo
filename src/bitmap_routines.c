@@ -74,7 +74,7 @@ struct BitMap *load_file_as_bitmap(UBYTE *name, ULONG byte_size, UWORD width, UW
   return new_bitmap;
 }
 
-struct BitMap *load_array_as_bitmap(UWORD *bitmap_array, UWORD array_size, UWORD width, UWORD height, UWORD depth)
+struct BitMap *load_array_as_bitmap(UWORD *bitmap_array, ULONG array_size, UWORD width, UWORD height, UWORD depth)
 {
   struct BitMap *new_bitmap;
   // PLANEPTR new_plane_ptr;

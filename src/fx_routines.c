@@ -203,7 +203,7 @@ __inline void drawUnlimitedBobs(struct BitMap* dest_bitmap)
 {
     USHORT x, y;
 
-    ubob_phase += 30;
+    ubob_phase += 4;
     ubob_phase &= 0x1FF;
 
     x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 16 + (((tcos[ubob_phase] + 512) * (DISPL_WIDTH2b - 8 - 64)) >> 10);
@@ -213,44 +213,6 @@ __inline void drawUnlimitedBobs(struct BitMap* dest_bitmap)
         dest_bitmap, x, y,
         bob_32.Width, bob_32.Height,
         0xC0, 0xFF, NULL);
-}
-
-__inline void updateSpritesChain(struct ViewPort *vp, USHORT sprite_to_update)
-{
-	// USHORT i, j, sprite_phase, sprite_phase2, x, y, sprite_index;
-	// sprite_chain_phase++;
-
-	// if (sprite_chain_phase >= COSINE_TABLE_LEN)
- //        sprite_chain_phase -= COSINE_TABLE_LEN;
-
- //    sprite_phase = sprite_chain_phase;
- //    for(i = 0, j = 0; i < MAX_SPRITES; i++, j += 32)
- //    // i = sprite_to_update;
- //    {
- //    	sprite_phase += j;
-
- //    	// if (sprite_phase >= COSINE_TABLE_LEN)
- //    	//     sprite_phase -= COSINE_TABLE_LEN;
-
- //    	sprite_phase2 = sprite_phase << 1;
-
- //    	// if (sprite_phase2 >= COSINE_TABLE_LEN)
- //    	//     sprite_phase2 -= COSINE_TABLE_LEN;
-
- //    	sprite_phase = sprite_phase & 0x1FF;
- //    	sprite_phase2 = sprite_phase2 & 0x1FF;
-
- //      	x = 16 + (((tcos[sprite_phase] + 512) * (DISPL_WIDTH2 - 8 - 32)) >> 10);
- //      	y = 4 + (((tsin[sprite_phase2] + 512) * (DISPL_HEIGHT2 - 16 - 32)) >> 10);
-
- //        sprite_index = sprite_chain_phase + i;
- //        sprite_index = sprite_index & 0xF;
- //        // while(sprite_index >= 16)
- //        //     sprite_index -= 16;
-
- //      	MoveSprite(vp, my_sprite[i], x, y );
- //        ChangeSprite(vp, my_sprite[i], (PLANEPTR)ruby_stripe_img[sprite_index]);      
- //    }  
 }
 
 /*  

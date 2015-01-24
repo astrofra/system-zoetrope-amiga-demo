@@ -306,9 +306,7 @@ void main()
 		BltClear( bit_map2b.Planes[ loop ], RASSIZE( WIDTH2b, HEIGHT2b ), 0 );
 	}
 	for( loop = 0; loop < COLOURS3; loop++ )
-	{
 		SetRGB4(&view_port2, loop + 8, (bob_32PaletteRGB4[loop] & 0x0f00) >> 8, (bob_32PaletteRGB4[loop] & 0x00f0) >> 4, bob_32PaletteRGB4[loop] & 0x000f);
-	}
 
 	/* ViewPort 3 */
 	InitBitMap( &bit_map3, DEPTH3, WIDTH3, HEIGHT3 );

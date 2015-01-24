@@ -1,35 +1,36 @@
 #ifndef SCREEN_SIZE
 #define SCREEN_SIZE
 
+#define DEFAULT_DISP_WIDTH 320
 /* ViewPort 1 */
-#define WIDTH1   380 /* 320 pixels wide.                              */
-#define DISPL_WIDTH1   320 /* 320 pixels wide.                              */
-#define HEIGHT1  80 /* 150 lines high.                               */ 
-#define DEPTH1     4 /* 5 BitPlanes should be used, gives 32 colours. */
+#define WIDTH1   380
+#define DISPL_WIDTH1   DEFAULT_DISP_WIDTH
+#define HEIGHT1  80
+#define DEPTH1     4
 #define COLOURS1  (2 << DEPTH1)
 
 /* ViewPort 2 */
 #define ANIM_STRIPE 10
-#define WIDTH2   320 /* 640 pixels wide.                             */
-#define DISPL_WIDTH2   320
+#define WIDTH2   320
+#define DISPL_WIDTH2   DEFAULT_DISP_WIDTH
 #define DISPL_HEIGHT2   150
 #define HEIGHT2 (DISPL_HEIGHT2 * ANIM_STRIPE)                        
-#define DEPTH2     3 /* 1 BitPlanes should be used, gives 2 colours. */
+#define DEPTH2     3
 #define COLOURS2   (2 << DEPTH2)
 
 /* ViewPort 2b */
-#define ANIM_STRIPEb 10
-#define WIDTH2b   320 /* 640 pixels wide.                             */
-#define DISPL_WIDTH2b   320
+#define ANIM_STRIPEb 8
+#define WIDTH2b   320
+#define DISPL_WIDTH2b   DEFAULT_DISP_WIDTH
 #define DISPL_HEIGHT2b   150
 #define HEIGHT2b (DISPL_HEIGHT2b * ANIM_STRIPEb)                        
-#define DEPTH2b     3 /* 1 BitPlanes should be used, gives 2 colours. */
+#define DEPTH2b     3
 #define COLOURS2b   (2 << DEPTH2b)
 
 /* ViewPort 3 */
-#define WIDTH3   320 /* 320 pixels wide.                              */
-#define HEIGHT3  12 /* lines high.                               */ 
-#define DEPTH3     1 /* 5 BitPlanes should be used, gives 32 colours. */
+#define WIDTH3   DEFAULT_DISP_WIDTH
+#define HEIGHT3  12
+#define DEPTH3     1
 #define COLOURS3  (2 << DEPTH3)
 
 #endif // #ifndef SCREEN_SIZE

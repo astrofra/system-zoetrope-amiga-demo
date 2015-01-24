@@ -22,7 +22,6 @@ Common
 Routines
 */
 #include "bitmap_routines.h"
-#include "sprites_routines.h"
 #include "font_routines.h"
 
 /*
@@ -33,6 +32,7 @@ Graphic assets
 #include "mandarine_logo.h"
 #include "font_desc.h"
 #include "font_bitmap.h"
+#include "font_routines.h"
 #include "demo_strings.h"
 
 // #define DEBUG_RASTER_LINE
@@ -95,14 +95,16 @@ void initMusic(void)
 		exit(0); //FIXME
 	}
 
-	// mod = load_getchipmem((UBYTE *)"JAZZY94.MOD", 99182);
 	mod = load_getchipmem((UBYTE *)"brazil-by-med.mod", 413506);
 }
 
 void playMusic(void)
 {
-	theMod = PTSetupMod((APTR)mod);
-	PTPlay(theMod);
+	if (mod != NULL)
+	{
+		theMod = PTSetupMod((APTR)mod);
+		PTPlay(theMod);
+	}
 }
 
 /* Returns all allocated resources: */
@@ -135,18 +137,19 @@ void close_demo(STRPTR message)
 	if( view_port2.ColorMap ) FreeColorMap( view_port2.ColorMap );
 	if( view_port3.ColorMap ) FreeColorMap( view_port3.ColorMap );
 
-	/*	Deallocate sprites */
-	closeSpriteDisplay();
-
 	/* Deallocate various bitmaps */
 	free_allocated_bitmap(bitmap_logo);
 	free_allocated_bitmap(bitmap_checkerboard);
 	free_allocated_bitmap(bitmap_font);
 
 	/*	Stop music */
-	PTStop(theMod);
-	PTFreeMod(theMod);
-	FreeMem(mod, 413506);
+	if (mod != NULL)
+	{
+		PTStop(theMod);
+		PTFreeMod(theMod);
+		FreeMem(mod, 413506);
+	}
+
 	if (PTReplayBase) CloseLibrary(PTReplayBase);
 
 	/* Close the Graphics library: */
@@ -169,6 +172,7 @@ void main()
 {
 	UWORD *pointer;
 	int loop, demo_string_index;
+	ULONG vp_error;
 
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
@@ -334,18 +338,8 @@ void main()
 	ras_info3.Next = NULL;        /* Single playfield - only one       */
 	              /* RasInfo structure is necessary.   */	
 
-	setLogoCopperlist(&view_port1);
-	// setCheckerboardCopperlist(&view_port2);
-	// setTextLinerCopperlist(&view_port3);
-
-	/* Create the display */
-	MakeVPort(&my_view, &view_port1); /* Prepare ViewPort 1 */
-	MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
-	MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
-	MrgCop(&my_view);
 
 	/* Prepare the RastPort, and give it a pointer to the BitMap. */
-
 	/* ViewPort 1 */
 	InitRastPort( &rast_port1 );
 	rast_port1.BitMap = &bit_map1;
@@ -360,31 +354,34 @@ void main()
 	InitRastPort( &rast_port3 );
 	rast_port3.BitMap = &bit_map3;	
 
+	/* Create the display */
+	vp_error = MakeVPort(&my_view, &view_port1); /* Prepare ViewPort 1 */
+	vp_error = MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
+	vp_error = MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
+
+	setLogoCopperlist(&view_port1);
+	setCheckerboardCopperlist(&view_port2);
+	setTextLinerCopperlist(&view_port3);
+
+	WaitTOF();
+
+	MrgCop(&my_view);
+
+	drawMandarineLogo(&bit_map1, 0);
+	drawCheckerboard(&bit_map2);
+
 	/* 8. Show the new View: */
 	LoadView( &my_view );
-
-	// drawMandarineLogo(&bit_map1, 0);
-	drawCheckerboard(&bit_map2);
 
 	/* Print some text into the second ViewPort: */
 	for (loop = 0; loop < 6; loop++)
 	{
 		Move( &rast_port2b, 16 + loop * 4, 16 + loop * 8 );
 		SetAPen( &rast_port2b, 1 + loop );
-		Text( &rast_port2b, "Dual Playfield!", 16);
-
-		Move( &rast_port1, 16 + loop * 4, 16 + loop * 8 );
-		SetAPen( &rast_port1, 1 + loop );
-		Text( &rast_port1, "Logo!", 16);		
+		Text( &rast_port2b, "Dual Playfield!", 16);	
 	}
 
 	blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_string[0]);
-
-	// Move( &rast_port2, 0, 20 );
-	// Text( &rast_port2, "Line 2", 6);
-
-	// myTask = FindTask(NULL);
-	// SetTaskPri(myTask, 127);
 
 	playMusic();
 

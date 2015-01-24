@@ -152,11 +152,9 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     {
         CWAIT(copper, i, 0);
         CMOVE(copper, custom.color[0], vcopperlist_checker_1[i + 5]);
-        // CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], vcopperlist_checker_1[i]));
 
         if (i == 0)
         {
-            // CMOVE(copper, *((UWORD *)SPR0CTL_ADDR), (LONG)&blank_pointer);
             CMOVE(copper, *((UWORD *)SPR0PTH_ADDR), (LONG)&blank_pointer);
             CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
         }
@@ -165,15 +163,7 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
             for(j = 0; j < 4; j++)
                 CMOVE(copper, custom.color[16 + i * 4 + j], ruby_stripe_palRGB4[j]);
 
-        // CWAIT(copper, i, 74);
-        // CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_1[i], vcopperlist_checker_0[i]))));
-        // CWAIT(copper, i, 80);
         CMOVE(copper, custom.color[1], vcopperlist_checker_0[i + 5]);
-
-        // CWAIT(copper, i, 200);
-        // CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_0[i], mixRGB4Colors(vcopperlist_checker_1[i], vcopperlist_checker_0[i]))));
-        // CWAIT(copper, i, 208);
-        // CMOVE(copper, custom.color[1], mixRGB4Colors(vcopperlist_checker_0[i], vcopperlist_checker_1[i]));
     }
 
     CEND(copper);

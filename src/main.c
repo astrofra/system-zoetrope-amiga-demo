@@ -212,7 +212,7 @@ void main()
 	view_port3.DWidth = WIDTH3;      /* Set the width.                */
 	view_port3.DHeight = HEIGHT3;    /* Set the height.               */
 	view_port3.DxOffset = 0;         /* X position.                   */
-	view_port3.DyOffset = HEIGHT1 + 1; /* Y position (5 lines under).   */
+	view_port3.DyOffset = HEIGHT1 + 2; /* Y position (5 lines under).   */
 	view_port3.RasInfo = &ras_info3; /* Give it a pointer to RasInfo. */
 	view_port3.Modes = NULL;        /* High resolution.              */
 	view_port3.Next = &view_port2;          /* Last ViewPort in the list.    */
@@ -222,7 +222,7 @@ void main()
 	view_port2.DWidth = DISPL_WIDTH2;      /* Set the width.                */
 	view_port2.DHeight = DISPL_HEIGHT2;    /* Set the height.               */
 	view_port2.DxOffset = WIDTH2 - DISPL_WIDTH2;         /* X position.                   */
-	view_port2.DyOffset = HEIGHT1 + HEIGHT3 + 2; /* Y position (5 lines under).   */
+	view_port2.DyOffset = HEIGHT1 + HEIGHT3 + 4; /* Y position (5 lines under).   */
 	view_port2.RasInfo = &ras_info2; /* Give it a pointer to RasInfo. */
 	view_port2.Modes = DUALPF|PFBA; 
 	view_port2.Next = NULL;          /* Last ViewPort in the list.    */
@@ -245,9 +245,6 @@ void main()
 		close_demo( "Could NOT get a ColorMap!" );
 	/* Get a pointer to the colour map: */
 	pointer = (UWORD *) view_port2.ColorMap->ColorTable;
-	/* Set the colours: */
-	// for( loop = 0; loop < COLOURS2; loop++ )
-	// 	*pointer++ = color_table2[ loop ];
 
 	/* ViewPort 3 */
 	view_port3.ColorMap = (struct ColorMap *) GetColorMap( COLOURS3 );
@@ -338,8 +335,8 @@ void main()
 	              /* RasInfo structure is necessary.   */	
 
 	setLogoCopperlist(&view_port1);
-	setCheckerboardCopperlist(&view_port2);
-	setTextLinerCopperlist(&view_port3);
+	// setCheckerboardCopperlist(&view_port2);
+	// setTextLinerCopperlist(&view_port3);
 
 	/* Create the display */
 	MakeVPort(&my_view, &view_port1); /* Prepare ViewPort 1 */
@@ -366,7 +363,7 @@ void main()
 	/* 8. Show the new View: */
 	LoadView( &my_view );
 
-	drawMandarineLogo(&bit_map1, 0);
+	// drawMandarineLogo(&bit_map1, 0);
 	drawCheckerboard(&bit_map2);
 
 	/* Print some text into the second ViewPort: */
@@ -375,6 +372,10 @@ void main()
 		Move( &rast_port2b, 16 + loop * 4, 16 + loop * 8 );
 		SetAPen( &rast_port2b, 1 + loop );
 		Text( &rast_port2b, "Dual Playfield!", 16);
+
+		Move( &rast_port1, 16 + loop * 4, 16 + loop * 8 );
+		SetAPen( &rast_port1, 1 + loop );
+		Text( &rast_port1, "Logo!", 16);		
 	}
 
 	blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_string[0]);
@@ -403,21 +404,10 @@ void main()
 		#ifdef DEBUG_RASTER_LINE
 		*((short *)COLOR00_ADDR) = 0xF0F;
 		#endif
-		// updateSpritesChain(&view_port2, (USHORT)loop);
+
 		scrollLogoBackground();
 		scrollTextViewport();
 		updateCheckerboard();
-
-		// loop++;
-
-		// if (loop > 150)
-		// {
-		// 	SetRast(&rast_port3, 0);
-		// 	blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_string[demo_string_index%DEMO_STRINGS_MAX_INDEX]);
-		// 	demo_string_index++;
-		// 	loop = 0;
-		// }
-
 	}
 
 	DisownBlitter();

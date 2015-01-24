@@ -85,6 +85,7 @@ struct BitMap *bitmap_logo = NULL;
 struct BitMap *bitmap_checkerboard = NULL;
 struct BitMap *bitmap_font = NULL;
 struct BitMap *bitmap_bob = NULL;
+struct BitMap *bitmap_bob_mask = NULL;
 
 void initMusic(void)
 {
@@ -144,6 +145,7 @@ void close_demo(STRPTR message)
 	free_allocated_bitmap(bitmap_checkerboard);
 	free_allocated_bitmap(bitmap_font);
 	free_allocated_bitmap(bitmap_bob);
+	free_allocated_bitmap(bitmap_bob_mask);
 
 	/*	Stop music */
 	if (mod != NULL)
@@ -419,7 +421,7 @@ void main()
 		scrollLogoBackground();
 		scrollTextViewport();
 		updateCheckerboard();
-		drawUnlimitedBobs(&bit_map2b);
+		drawUnlimitedBobs(&rast_port2b);
 	}
 
 	// DisownBlitter();

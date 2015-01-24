@@ -17,4 +17,15 @@ struct Image bob_32 =
 	NULL		/* NextImage */
 };
 
+extern UWORD chip bob_32_maskData[64];
+
+struct Image bob_32_mask =
+{
+	0, 0,		/* LeftEdge, TopEdge */
+	32, 32, 1,	/* Width, Height, Depth */
+	bob_32_maskData,	/* ImageData */
+	0x0001, 0x0000,	/* PlanePick, PlaneOnOff */
+	NULL		/* NextImage */
+};
+
 #endif

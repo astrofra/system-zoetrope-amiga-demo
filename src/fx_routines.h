@@ -14,7 +14,7 @@ void scrollLogoBackground(void);
 void scrollTextViewport(void);
 void updateCheckerboard(void);
 void loadBobBitmaps(void);
-void drawUnlimitedBobs(struct BitMap* dest_bitmap);
+void drawUnlimitedBobs(struct RastPort *dest_rp);
 void setTextLinerCopperlist(struct ViewPort *vp);
 void loadTextWriterFont(void);
 

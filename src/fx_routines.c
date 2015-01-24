@@ -23,6 +23,7 @@ extern struct ViewPort view_port3;
 extern struct  BitMap *bitmap_logo;
 extern struct  BitMap *bitmap_checkerboard;
 extern struct  BitMap *bitmap_bob;
+extern struct  BitMap *bitmap_bob_mask;
 
 extern struct Custom far custom;
 
@@ -32,7 +33,7 @@ extern struct BitMap *bitmap_font;
 USHORT bg_scroll_phase = 0;
 
 /*  Viewport 2, checkerboard and sprites animation */
-USHORT ubob_phase = 0;
+USHORT ubob_phase_x = 0, ubob_phase_y = 0;
 USHORT ubob_vscroll = 0;
 USHORT ubob_hscroll_phase = 0;
 USHORT checkerboard_scroll_offset = 0;
@@ -197,22 +198,58 @@ __inline void updateCheckerboard(void)
 }
 
 void loadBobBitmaps(void)
-{   bitmap_bob = load_array_as_bitmap(bob_32Data, 192 << 1, bob_32.Width, bob_32.Height, bob_32.Depth); }
+{   
+    bitmap_bob = load_array_as_bitmap(bob_32Data, 192 << 1, bob_32.Width, bob_32.Height, bob_32.Depth);
+    bitmap_bob_mask = load_array_as_bitmap(bob_32_maskData, 64 << 1, bob_32_mask.Width, bob_32_mask.Height, bob_32_mask.Depth);
+}
 
-__inline void drawUnlimitedBobs(struct BitMap* dest_bitmap)
+
+__inline void drawUnlimitedBobs(struct RastPort *dest_rp) // struct BitMap* dest_bitmap)
 {
     USHORT x, y;
 
-    ubob_phase += 4;
-    ubob_phase &= 0x1FF;
+    switch(3)
+    {
+        case 0:
+            ubob_phase_x += 1;
+            ubob_phase_x &= 0x1FF;
 
-    x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 16 + (((tcos[ubob_phase] + 512) * (DISPL_WIDTH2b - 8 - 64)) >> 10);
-    y = ubob_vscroll + 8 + (((tsin[ubob_phase] + 512) * (DISPL_HEIGHT2b - 16 - 32)) >> 10);    
+            ubob_phase_y += 2;
+            ubob_phase_y &= 0x1FF;
+            break;
 
-    BltBitMap(bitmap_bob, 0, 0,
-        dest_bitmap, x, y,
-        bob_32.Width, bob_32.Height,
-        0xC0, 0xFF, NULL);
+        case 1:
+            ubob_phase_x += 2;
+            ubob_phase_x &= 0x1FF;
+
+            ubob_phase_y += 1;
+            ubob_phase_y &= 0x1FF;
+            break;
+
+        case 2:
+            ubob_phase_x += 3;
+            ubob_phase_x &= 0x1FF;
+
+            ubob_phase_y += 1;
+            ubob_phase_y &= 0x1FF;
+            break;
+
+        case 3:
+            ubob_phase_x += 1;
+            ubob_phase_x &= 0x1FF;
+
+            ubob_phase_y += 5;
+            ubob_phase_y &= 0x1FF;
+            break;                     
+    }
+
+    x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 24 + (((tcos[ubob_phase_x] + 512) * (DISPL_WIDTH2b - 8 - 64)) >> 10);
+    y = ubob_vscroll + 8 + (((tsin[ubob_phase_y] + 512) * (DISPL_HEIGHT2b - 16 - 32)) >> 10);
+
+    BltMaskBitMapRastPort(bitmap_bob, 0,0,
+            dest_rp, x, y,
+            bob_32.Width, bob_32.Height,
+            (ABC|ABNC|ANBC), bitmap_bob_mask->Planes[0]);
 }
 
 /*  

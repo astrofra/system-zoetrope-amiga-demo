@@ -41,31 +41,39 @@ UWORD chip blank_pointer[4]=
     0x0000, 0x0000
 };
 
-UWORD mixRGB4Colors(UWORD A, UWORD B)
+UWORD mixRGB4Colors(UWORD A, UWORD B, UBYTE n)
 {
     UWORD r,g,b;
 
-    r = (A & 0x0f00) >> 8;
-    g = (A & 0x00f0) >> 4;
-    b = A & 0x000f;
+    /*
+        Blends A into B, n times
+    */
+    while(n--)
+    {
+        r = (A & 0x0f00) >> 8;
+        g = (A & 0x00f0) >> 4;
+        b = A & 0x000f;
 
-    r += (B & 0x0f00) >> 8;
-    g += (B & 0x00f0) >> 4;
-    b += B & 0x000f;
+        r += (B & 0x0f00) >> 8;
+        g += (B & 0x00f0) >> 4;
+        b += B & 0x000f;
 
-    r = r >> 1;
-    g = g >> 1;
-    b = b >> 1;
+        r = r >> 1;
+        g = g >> 1;
+        b = b >> 1;
 
-    if (r > 0xf) r = 0xf;
-    if (g > 0xf) g = 0xf;
-    if (b > 0xf) b = 0xf;
+        if (r > 0xf) r = 0xf;
+        if (g > 0xf) g = 0xf;
+        if (b > 0xf) b = 0xf;
 
-    r = r & 0xf;
-    g = g & 0xf;
-    b = b & 0xf;
+        r = r & 0xf;
+        g = g & 0xf;
+        b = b & 0xf;
 
-    return (UWORD)((r << 8) | (g << 4) | b);
+        B = (UWORD)((r << 8) | (g << 4) | b);
+    }
+
+    return B;
 }
 
 
@@ -126,7 +134,7 @@ __inline void drawCheckerboard(struct BitMap *dest_bitmap)
 {
     USHORT i;
 
-    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 60000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
+    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 40000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
 
     for(i = 0; i < ANIM_STRIPE; i++)
         BltBitMap(bitmap_checkerboard, 0, 100 * i,
@@ -138,7 +146,7 @@ __inline void drawCheckerboard(struct BitMap *dest_bitmap)
 
 void setCheckerboardCopperlist(struct ViewPort *vp)
 {
-    USHORT i, j;
+    USHORT i, c;
 
     copper = (struct UCopList *)
     AllocMem( sizeof(struct UCopList), MEMF_PUBLIC|MEMF_CHIP|MEMF_CLEAR );
@@ -148,15 +156,15 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     for(i = 0; i < DISPL_HEIGHT2; i++)
     {
         CWAIT(copper, i, 0);
-        CMOVE(copper, custom.color[0], vcopperlist_checker_1[i + 5]);
 
-        if (i == 0)
-        {
+        if (i == 0) {
             CMOVE(copper, *((UWORD *)SPR0PTH_ADDR), (LONG)&blank_pointer);
             CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
         }
 
-        // CMOVE(copper, custom.color[1], vcopperlist_checker_0[i + 5]);
+        CMOVE(copper, custom.color[0], vcopperlist_checker_1[i + 5]);
+        for (c = 1; c < 4; c++)
+            CMOVE(copper, custom.color[c], mixRGB4Colors(vcopperlist_checker_0[i + 5], vcopperlist_checker_1[i + 5], c));
     }
 
     CEND(copper);

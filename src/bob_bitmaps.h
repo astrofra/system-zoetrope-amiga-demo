@@ -28,4 +28,16 @@ struct Image bob_32_mask =
 	NULL		/* NextImage */
 };
 
+extern UWORD clr_patternData[40];
+extern UWORD clr_patternData_neg[40];
+
+struct Image clr_pattern =
+{
+	0, 0,		/* LeftEdge, TopEdge */
+	64, 10, 1,	/* Width, Height, Depth */
+	clr_patternData,	/* ImageData */
+	0x0001, 0x0000,	/* PlanePick, PlaneOnOff */
+	NULL		/* NextImage */
+};
+
 #endif

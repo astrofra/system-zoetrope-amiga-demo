@@ -34,6 +34,7 @@ USHORT bg_scroll_phase = 0;
 
 /*  Viewport 2, checkerboard and sprites animation */
 USHORT ubob_phase_x = 0, ubob_phase_y = 0;
+USHORT clr_screen_y = 0;
 USHORT ubob_vscroll = 0;
 USHORT ubob_hscroll_phase = 0;
 USHORT checkerboard_scroll_offset = 0;
@@ -204,53 +205,83 @@ void loadBobBitmaps(void)
 }
 
 
-__inline void drawUnlimitedBobs(struct RastPort *dest_rp) // struct BitMap* dest_bitmap)
+__inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE figure_mode) // struct BitMap* dest_bitmap)
 {
     USHORT x, y;
 
-    switch(3)
+    switch(figure_mode)
     {
         case 0:
             ubob_phase_x += 1;
-            ubob_phase_x &= 0x1FF;
-
             ubob_phase_y += 2;
-            ubob_phase_y &= 0x1FF;
             break;
 
         case 1:
             ubob_phase_x += 2;
-            ubob_phase_x &= 0x1FF;
-
             ubob_phase_y += 1;
-            ubob_phase_y &= 0x1FF;
             break;
 
         case 2:
             ubob_phase_x += 3;
-            ubob_phase_x &= 0x1FF;
-
             ubob_phase_y += 1;
-            ubob_phase_y &= 0x1FF;
             break;
 
         case 3:
             ubob_phase_x += 1;
-            ubob_phase_x &= 0x1FF;
-
             ubob_phase_y += 5;
-            ubob_phase_y &= 0x1FF;
-            break;                     
+            break;
+
+        default:
+            ubob_phase_x++;
+            ubob_phase_y++;
+            break;                         
     }
 
-    x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 24 + (((tcos[ubob_phase_x] + 512) * (DISPL_WIDTH2b - 8 - 64)) >> 10);
-    y = ubob_vscroll + 8 + (((tsin[ubob_phase_y] + 512) * (DISPL_HEIGHT2b - 16 - 32)) >> 10);
+    if (ubob_phase_x > COSINE_TABLE_LEN && ubob_phase_y > COSINE_TABLE_LEN)
+    {
+        ubob_phase_x = 0;
+        ubob_phase_y = 0;
+        return 0;
+    }    
+
+    x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 24 + (((tcos[ubob_phase_x & 0x1FF] + 512) * (DISPL_WIDTH2b - 8 - 64)) >> 10);
+    y = ubob_vscroll + 8 + (((tsin[ubob_phase_y & 0x1FF] + 512) * (DISPL_HEIGHT2b - 16 - 32)) >> 10);
 
     BltMaskBitMapRastPort(bitmap_bob, 0,0,
             dest_rp, x, y,
             bob_32.Width, bob_32.Height,
             (ABC|ABNC|ANBC), bitmap_bob_mask->Planes[0]);
+
+    return 1;
 }
+
+__inline UBYTE clearPlayfieldLineByLineFromTop(struct RastPort *dest_rp)
+{
+    USHORT y;
+
+    if (clr_screen_y >= DISPL_HEIGHT2b - 8)
+    {
+        clr_screen_y = 0;
+        return 0;
+    }
+
+    SetAPen(dest_rp, 0);
+
+    for (y = 8; y < HEIGHT2b; y += DISPL_HEIGHT2b)
+    {
+        RectFill(dest_rp, 
+            0, y + clr_screen_y - 8, WIDTH2b - 1, y + clr_screen_y - 1);
+        BltPattern(dest_rp, (PLANEPTR)&clr_patternData, 
+            0, y + clr_screen_y, WIDTH2b - 1, y + clr_screen_y + 7, 
+            32);
+    }        
+
+    clr_screen_y += 8;
+    return 1;
+}
+
+__inline UBYTE clearPlayfieldLineByLineFromBottom(struct RastPort *dest_rp)
+{    return 1;  }
 
 /*  
     Viewport 3, 

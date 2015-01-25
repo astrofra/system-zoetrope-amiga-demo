@@ -34,6 +34,7 @@ Graphic assets
 #include "font_bitmap.h"
 #include "font_routines.h"
 #include "demo_strings.h"
+#include "demo_mode_switches.h"
 
 extern UWORD checkerboard_PaletteRGB4[8];
 extern UWORD bob_32PaletteRGB4[8];
@@ -178,6 +179,7 @@ void main()
 	UWORD *pointer;
 	int loop, demo_string_index;
 	ULONG vp_error;
+	UBYTE mode_switch;
 
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
@@ -410,18 +412,50 @@ void main()
 
 	loop = 0;
 	demo_string_index = 0;
+	mode_switch = 0;
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
 		WaitTOF();
-		#ifdef DEBUG_RASTER_LINE
-		*((short *)COLOR00_ADDR) = 0xF0F;
-		#endif
 
 		scrollLogoBackground();
 		scrollTextViewport();
 		updateCheckerboard();
-		drawUnlimitedBobs(&rast_port2b);
+
+		switch(mode_switch)
+		{
+			case DMODE_SW_INTRO:
+				mode_switch = DMODE_SW_UBOB;
+				break;
+
+			case DMODE_SW_UBOB:
+				if (drawUnlimitedBobs(&rast_port2b, loop) == 0)
+					mode_switch = DMODE_SW_CLEAR_FROM_TOP;
+					// if (loop == ((loop >> 1) << 1))
+					// 	mode_switch = DMODE_SW_CLEAR_FROM_TOP;
+					// else
+					// 	mode_switch = DMODE_SW_CLEAR_FROM_BOTTOM;
+
+				break;
+
+			case DMODE_SW_CLEAR_FROM_TOP:
+				if (clearPlayfieldLineByLineFromTop(&rast_port2b) == 0)
+				{
+					loop++;
+					mode_switch = DMODE_SW_UBOB;
+				}
+				break;
+
+			case DMODE_SW_CLEAR_FROM_BOTTOM:
+				if (clearPlayfieldLineByLineFromBottom(&rast_port2b) == 0)
+				{
+					loop++;
+					mode_switch = DMODE_SW_UBOB;
+				}
+				break;
+		}
+
+
 	}
 
 	// DisownBlitter();

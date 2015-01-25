@@ -14,7 +14,7 @@ void scrollLogoBackground(void);
 void scrollTextViewport(void);
 void updateCheckerboard(void);
 void loadBobBitmaps(void);
-UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE figure_mode);
+UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode);
 UBYTE clearPlayfieldLineByLineFromTop(struct RastPort *dest_rp);
 UBYTE clearPlayfieldLineByLineFromBottom(struct RastPort *dest_rp);
 void setTextLinerCopperlist(struct ViewPort *vp);

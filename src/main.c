@@ -177,7 +177,8 @@ void close_demo(STRPTR message)
 void main()
 {
 	UWORD *pointer;
-	int loop, demo_string_index;
+	UBYTE loop;
+	int demo_string_index;
 	ULONG vp_error;
 	UBYTE mode_switch;
 
@@ -429,29 +430,24 @@ void main()
 				break;
 
 			case DMODE_SW_UBOB:
-				if (drawUnlimitedBobs(&rast_port2b, loop) == 0)
-					mode_switch = DMODE_SW_CLEAR_FROM_TOP;
-					// if (loop == ((loop >> 1) << 1))
-					// 	mode_switch = DMODE_SW_CLEAR_FROM_TOP;
-					// else
-					// 	mode_switch = DMODE_SW_CLEAR_FROM_BOTTOM;
+				if (drawUnlimitedBobs(&rast_port2b, &loop) == 0)
+				{
+					if (loop == ((loop >> 1) << 1))
+						mode_switch = DMODE_SW_CLEAR_FROM_TOP;
+					else
+						mode_switch = DMODE_SW_CLEAR_FROM_BOTTOM;
+				}
 
 				break;
 
 			case DMODE_SW_CLEAR_FROM_TOP:
 				if (clearPlayfieldLineByLineFromTop(&rast_port2b) == 0)
-				{
-					loop++;
 					mode_switch = DMODE_SW_UBOB;
-				}
 				break;
 
 			case DMODE_SW_CLEAR_FROM_BOTTOM:
 				if (clearPlayfieldLineByLineFromBottom(&rast_port2b) == 0)
-				{
-					loop++;
 					mode_switch = DMODE_SW_UBOB;
-				}
 				break;
 		}
 

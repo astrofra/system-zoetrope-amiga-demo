@@ -205,11 +205,11 @@ void loadBobBitmaps(void)
 }
 
 
-__inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE figure_mode) // struct BitMap* dest_bitmap)
+__inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) // struct BitMap* dest_bitmap)
 {
     USHORT x, y;
 
-    switch(figure_mode)
+    switch(*figure_mode)
     {
         case 0:
             ubob_phase_x += 1;
@@ -231,7 +231,7 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE figure_mode) //
             ubob_phase_y += 5;
             break;
 
-        default:
+        case 4:
             ubob_phase_x++;
             ubob_phase_y++;
             break;                         
@@ -239,6 +239,9 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE figure_mode) //
 
     if (ubob_phase_x > COSINE_TABLE_LEN && ubob_phase_y > COSINE_TABLE_LEN)
     {
+        (*figure_mode)++;
+        if (*figure_mode > 4)
+            *figure_mode = 0;
         ubob_phase_x = 0;
         ubob_phase_y = 0;
         return 0;
@@ -281,7 +284,30 @@ __inline UBYTE clearPlayfieldLineByLineFromTop(struct RastPort *dest_rp)
 }
 
 __inline UBYTE clearPlayfieldLineByLineFromBottom(struct RastPort *dest_rp)
-{    return 1;  }
+{
+    USHORT y, bottom_y;
+
+    if (clr_screen_y >= DISPL_HEIGHT2b - 8)
+    {
+        clr_screen_y = 0;
+        return 0;
+    }
+
+    SetAPen(dest_rp, 0);
+    bottom_y = DISPL_HEIGHT2b - clr_screen_y - 16;
+
+    for (y = 8; y < HEIGHT2b; y += DISPL_HEIGHT2b)
+    {
+        BltPattern(dest_rp, (PLANEPTR)&clr_patternData_neg, 
+            0, y + bottom_y - 8, WIDTH2b - 1, y + bottom_y - 1,
+            32);
+        RectFill(dest_rp, 
+            0, y + bottom_y, WIDTH2b - 1, y + bottom_y + 7);
+    }        
+
+    clr_screen_y += 8;
+    return 1;
+}
 
 /*  
     Viewport 3, 

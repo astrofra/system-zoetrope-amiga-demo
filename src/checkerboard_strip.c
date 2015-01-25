@@ -5,6 +5,14 @@ UWORD checkerboard_PaletteRGB4[] = {
 	0x0000,0x0666,0x0BBB,0x0FFF,0x0222,0x0444,0x0888,0x0DDD
 };
 
+UBYTE checkerboard_pal_match[] = {
+	0, 4, 5, 1, 6, 2, 7, 3
+};
+
+UBYTE checkerboard_pal_dec[] = {
+	0, 5, 6, 7, 0, 4, 1, 2
+};
+
 /* Ensure that this data is within chip memory or you'll see nothing !!! */
 UWORD checkerboard_Data[40000] = {
 	/* Plane 0 */

@@ -7,7 +7,7 @@
 
 UWORD mixRGB4Colors(UWORD a, UWORD b);
 void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y);
-void drawCheckerboard(struct BitMap *dest_bitmap);
+void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest_rp);
 void setLogoCopperlist(struct ViewPort *vp);
 void setCheckerboardCopperlist(struct ViewPort *vp);
 void scrollLogoBackground(void);

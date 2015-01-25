@@ -98,9 +98,6 @@ void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y)
 __inline void scrollLogoBackground(void)
 {
     bg_scroll_phase += 4;
-
-    // if (bg_scroll_phase >= COSINE_TABLE_LEN)
-    //     bg_scroll_phase -= COSINE_TABLE_LEN;
     bg_scroll_phase &= 0x1FF;
 
     view_port1.RasInfo->RxOffset = (WIDTH1 - DISPL_WIDTH1) + ((tcos[bg_scroll_phase] + 512) * (WIDTH1 - DISPL_WIDTH1)) >> 10;
@@ -135,9 +132,9 @@ void setLogoCopperlist(struct ViewPort *vp)
 	Viewport 2, 
 	checkerboard and sprites animation
 */
-__inline void drawCheckerboard(struct BitMap *dest_bitmap)
+__inline void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest_rp)
 {
-    USHORT i;
+    USHORT i, j, k, p, o;
 
     bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 40000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
 
@@ -146,7 +143,21 @@ __inline void drawCheckerboard(struct BitMap *dest_bitmap)
             dest_bitmap, 0, DISPL_HEIGHT2 * i + (DISPL_HEIGHT2 - (100)),
             checkerboard.Width, 100,
             0xC0, 0xFF, NULL);
-        // BLIT_BITMAP_S(bitmap_checkerboard, dest_bitmap, checkerboard.Width, 100, 0, DISPL_HEIGHT2 * i + 60);
+
+    // for (k = 0; k < 5 * 8; k += 8)
+    //     for(j = 0; j  < HEIGHT2; j++)
+    //         for(i = 0; i < k; i++)
+    //         {
+    //             p = ReadPixel(dest_rp, i, j);
+    //             p = checkerboard_pal_dec[p];
+    //             SetAPen(dest_rp, p);
+    //             WritePixel(dest_rp, i, j);
+
+    //             p = ReadPixel(dest_rp, WIDTH2 - i - 1, j);
+    //             p = checkerboard_pal_dec[p];
+    //             SetAPen(dest_rp, p);
+    //             WritePixel(dest_rp, WIDTH2 - i - 1, j);
+    //         }
 }
 
 void setCheckerboardCopperlist(struct ViewPort *vp)
@@ -168,8 +179,8 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
         }
 
         CMOVE(copper, custom.color[0], vcopperlist_checker_1[i + 5]);
-        for (c = 1; c < 4; c++)
-            CMOVE(copper, custom.color[c], mixRGB4Colors(vcopperlist_checker_0[i + 5], vcopperlist_checker_1[i + 5], c));
+        for (c = 1; c < 8; c++)
+            CMOVE(copper, custom.color[c], mixRGB4Colors(vcopperlist_checker_0[i + 5], vcopperlist_checker_1[i + 5], (checkerboard_PaletteRGB4[c] & 0xF) / 5));
     }
 
     CEND(copper);

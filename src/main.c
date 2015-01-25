@@ -387,7 +387,7 @@ void main()
 
 	SetAPen(&rast_port2, 0);
 	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
-	drawCheckerboard(&bit_map2);
+	drawCheckerboard(&bit_map2, &rast_port2);
 
 	/* 8. Show the new View: */
 	LoadView( &my_view );

@@ -4,6 +4,8 @@
 #include <intuition/intuition.h>
 
 extern UWORD checkerboard_PaletteRGB4[8];
+extern UBYTE checkerboard_pal_match[8];
+extern UBYTE checkerboard_pal_dec[8];
 extern UWORD checkerboard_Data[40000];
 
 struct Image checkerboard = {

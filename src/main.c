@@ -414,9 +414,7 @@ void main()
 	demo_string_index = 0;
 	mode_switch = 0;
 	counter_before_next_text = 0;
-	text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[0]);
-	text_duration = text_width << 2;
-	font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, 1, (UBYTE *)demo_string[0]);
+	text_duration = 0;
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
@@ -453,7 +451,20 @@ void main()
 				break;
 		}
 
-		// counter_before_next_text++;
+		counter_before_next_text++;
+		if(counter_before_next_text > text_duration)
+		{
+			SetRast(&rast_port3, 0);
+
+			text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
+			text_duration = text_width << 1;
+			font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, 1, (UBYTE *)demo_string[demo_string_index]);
+
+			counter_before_next_text = 0;
+			demo_string_index++;
+			if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
+				demo_string_index = 0;
+		}
 	}
 
 	// DisownBlitter();

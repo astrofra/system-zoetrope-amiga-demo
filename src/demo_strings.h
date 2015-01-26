@@ -1,7 +1,7 @@
 #ifndef DEMO_STRINGS
 #define DEMO_STRINGS
 
-#define	DEMO_STRINGS_MAX_INDEX	4
-extern const char *demo_string[4];
+#define	DEMO_STRINGS_MAX_INDEX	7
+extern const char *demo_string[DEMO_STRINGS_MAX_INDEX];
 
 #endif

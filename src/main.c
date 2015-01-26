@@ -180,7 +180,8 @@ void main()
 	UBYTE loop;
 	int demo_string_index;
 	ULONG vp_error;
-	UBYTE mode_switch;
+	UBYTE mode_switch, ubob_figure;
+	UWORD counter_before_next_text, text_width, text_duration;	
 
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
@@ -400,8 +401,6 @@ void main()
 	// 	Text( &rast_port2b, "Dual Playfield!", 16);	
 	// }
 
-	blit_font_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, 1, 1, (UBYTE *)demo_string[0]);
-
 	playMusic();
 
 	OFF_SPRITE;
@@ -411,9 +410,13 @@ void main()
 	WaitBlit();
 	// OwnBlitter();	
 
-	loop = 0;
+	ubob_figure = 0;
 	demo_string_index = 0;
 	mode_switch = 0;
+	counter_before_next_text = 0;
+	text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[0]);
+	text_duration = text_width << 2;
+	font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, 1, (UBYTE *)demo_string[0]);
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
@@ -430,14 +433,13 @@ void main()
 				break;
 
 			case DMODE_SW_UBOB:
-				if (drawUnlimitedBobs(&rast_port2b, &loop) == 0)
+				if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0)
 				{
-					if (loop == ((loop >> 1) << 1))
+					if (ubob_figure == ((ubob_figure >> 1) << 1))
 						mode_switch = DMODE_SW_CLEAR_FROM_TOP;
 					else
 						mode_switch = DMODE_SW_CLEAR_FROM_BOTTOM;
 				}
-
 				break;
 
 			case DMODE_SW_CLEAR_FROM_TOP:
@@ -451,7 +453,7 @@ void main()
 				break;
 		}
 
-
+		// counter_before_next_text++;
 	}
 
 	// DisownBlitter();

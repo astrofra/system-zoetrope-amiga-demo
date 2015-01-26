@@ -1,6 +1,9 @@
-const char *demo_string[4] = {
-	"(BUDDHAMIGA INTRO 2015!)\0",
+const char *demo_string[] = {
+	"SYSTEM ZOETROPE\0",
 	"MUSIC BY MED\0",
 	"GRAPHICS BY PTOING\0",
-	"CODE BY FRA\0"
+	"CODE BY FRA\0",
+	"A DEMO ENTIRELY WRITTEN IN C\0",
+	"NO HARDWARE BANGING - SYSTEM CALLS ONLY\0",
+	"GREETINGS TO AMYCODERS, ADA\0"
 };

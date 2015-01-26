@@ -5,5 +5,4 @@
 #define	DMODE_SW_UBOB	1
 #define	DMODE_SW_CLEAR_FROM_TOP	2
 #define	DMODE_SW_CLEAR_FROM_BOTTOM	3
-
 #endif

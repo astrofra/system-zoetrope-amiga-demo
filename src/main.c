@@ -416,6 +416,8 @@ void main()
 	counter_before_next_text = 0;
 	text_duration = 0;
 
+	// printf("DEMO_STRINGS_MAX_INDEX = %i\n", DEMO_STRINGS_MAX_INDEX);
+
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
 		WaitTOF();
@@ -457,7 +459,7 @@ void main()
 			SetRast(&rast_port3, 0);
 
 			text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
-			text_duration = text_width << 1;
+			text_duration = text_width + 5;
 			font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, 1, (UBYTE *)demo_string[demo_string_index]);
 
 			counter_before_next_text = 0;

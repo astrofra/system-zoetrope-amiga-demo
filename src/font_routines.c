@@ -39,6 +39,8 @@ void font_blit_string(struct BitMap *font_BitMap, struct BitMap *font_BitMap_dar
 
 	struct BitMap *default_font;
 
+	printf("%s\n", text_string);
+
 	cur_x = x;
 	glyph_h = font_BitMap->Rows;
 	default_font = font_BitMap;
@@ -50,8 +52,13 @@ void font_blit_string(struct BitMap *font_BitMap, struct BitMap *font_BitMap_dar
 		{
 			/*	Space	*/
 			case ' ':
-				cur_x += 4;		
+				cur_x += 3;		
 				break;
+
+			/*	,	*/
+			case ',':
+				cur_x += 2;		
+				break;				
 
 			/*	Switch to the default font	*/
 			case '\1':
@@ -81,9 +88,9 @@ void font_blit_string(struct BitMap *font_BitMap, struct BitMap *font_BitMap_dar
 			/*	Write glyph */
 			default:
 				glyph_index = font_glyph_find_index((char)text_string[i], glyph_array);
-				if (glyph_index >= 0)
+				if (glyph_index >= 0 && glyph_index < 512)
 				{
-					glyph_w = x_pos_array[glyph_index + 1] - x_pos_array[glyph_index];
+					glyph_w = x_pos_array[glyph_index + 1] - x_pos_array[glyph_index] - 1;
 					BltBitMap(default_font, x_pos_array[glyph_index], 0,
 					            dest_BitMap, cur_x, y,
 					            glyph_w, glyph_h,
@@ -116,8 +123,13 @@ UWORD font_get_string_width(const char *glyph_array, const short *x_pos_array, U
 		{
 			/*	Space	*/
 			case ' ':
-				cur_x += 4;		
+				cur_x += 3;		
 				break;
+
+			/*	,	*/
+			case ',':
+				cur_x += 2;		
+				break;	
 
 			/*	Line feed + carriage return	*/
 			case '\n':
@@ -138,9 +150,10 @@ UWORD font_get_string_width(const char *glyph_array, const short *x_pos_array, U
 			/*	Write glyph */
 			default:
 				glyph_index = font_glyph_find_index((char)text_string[i], glyph_array);
-				if (glyph_index >= 0)
+				if (glyph_index >= 0 && glyph_index < 512)
 				{
-					glyph_w = x_pos_array[glyph_index + 1] - (UWORD)x_pos_array[glyph_index];
+					glyph_w = x_pos_array[glyph_index + 1] - (UWORD)x_pos_array[glyph_index] - 1;
+					// if (glyph_w > 16) printf("glyph_w = %c, %i, ", (char)text_string[i], glyph_w);
 					cur_x += (glyph_w);
 				}			
 				break;
@@ -149,5 +162,6 @@ UWORD font_get_string_width(const char *glyph_array, const short *x_pos_array, U
 		i++;
 	}
 
+	// printf("Next text length = %i, ", cur_x);
 	return cur_x;
 }

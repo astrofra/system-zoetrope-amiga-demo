@@ -180,7 +180,7 @@ void main()
 	UBYTE loop;
 	int demo_string_index;
 	ULONG vp_error;
-	UBYTE mode_switch, ubob_figure;
+	UBYTE mode_switch, ubob_figure, text_switch;
 	UWORD counter_before_next_text, text_width, text_duration;	
 
 	/* Open the Intuition library: */
@@ -413,6 +413,8 @@ void main()
 	ubob_figure = 0;
 	demo_string_index = 0;
 	mode_switch = 0;
+
+	text_switch = 0;
 	counter_before_next_text = 0;
 	text_duration = 0;
 
@@ -453,19 +455,32 @@ void main()
 				break;
 		}
 
-		counter_before_next_text++;
-		if(counter_before_next_text > text_duration)
+		switch(text_switch)
 		{
-			SetRast(&rast_port3, 0);
 
-			text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
-			text_duration = text_width + 5;
-			font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, 1, (UBYTE *)demo_string[demo_string_index]);
+			case TEXTMODE_SW_WAIT:
+				counter_before_next_text++;
+				if(counter_before_next_text > text_duration)
+					text_switch = TEXTMODE_SW_CLEAR;
+				break;
 
-			counter_before_next_text = 0;
-			demo_string_index++;
-			if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
-				demo_string_index = 0;
+			case TEXTMODE_SW_CLEAR:
+				SetRast(&rast_port3, 0);
+				text_switch = TEXTMODE_SW_DRAW;
+				break;
+
+			case TEXTMODE_SW_DRAW:
+				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
+				text_duration = text_width + 5;
+				font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, 1, (UBYTE *)demo_string[demo_string_index]);
+
+				demo_string_index++;
+				if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
+					demo_string_index = 0;
+
+				counter_before_next_text = 0;
+				text_switch = TEXTMODE_SW_WAIT;
+				break;
 		}
 	}
 

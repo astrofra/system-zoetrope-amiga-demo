@@ -9,4 +9,5 @@
 #define	TEXTMODE_SW_WAIT 0
 #define	TEXTMODE_SW_CLEAR 1
 #define	TEXTMODE_SW_DRAW 2
+#define TEXTMODE_SW_SCROLL 3
 #endif

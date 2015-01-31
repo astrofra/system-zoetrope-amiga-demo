@@ -181,7 +181,8 @@ void main()
 	int demo_string_index;
 	ULONG vp_error;
 	UBYTE mode_switch, ubob_figure, text_switch;
-	UWORD counter_before_next_text, text_width, text_duration;	
+	UWORD counter_before_next_text, text_width, text_duration;
+	UWORD vp3_target_y;	
 
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
@@ -225,7 +226,7 @@ void main()
 	/* ViewPort 3 */
 	InitVPort( &view_port3 );
 	view_port3.DWidth = WIDTH3;      /* Set the width.                */
-	view_port3.DHeight = HEIGHT3;    /* Set the height.               */
+	view_port3.DHeight = DISPL_HEIGHT3;    /* Set the height.               */
 	view_port3.DxOffset = 0;         /* X position.                   */
 	view_port3.DyOffset = HEIGHT1 + 2; /* Y position (5 lines under).   */
 	view_port3.RasInfo = &ras_info3; /* Give it a pointer to RasInfo. */
@@ -237,7 +238,7 @@ void main()
 	view_port2.DWidth = DISPL_WIDTH2;      /* Set the width.                */
 	view_port2.DHeight = DISPL_HEIGHT2;    /* Set the height.               */
 	view_port2.DxOffset = WIDTH2 - DISPL_WIDTH2;         /* X position.                   */
-	view_port2.DyOffset = HEIGHT1 + HEIGHT3 + 4; /* Y position (5 lines under).   */
+	view_port2.DyOffset = HEIGHT1 + DISPL_HEIGHT3 + 4; /* Y position (5 lines under).   */
 	view_port2.RasInfo = &ras_info2; /* Give it a pointer to RasInfo. */
 	view_port2.Modes = DUALPF|PFBA; 
 	view_port2.Next = NULL;          /* Last ViewPort in the list.    */
@@ -395,14 +396,6 @@ void main()
 	/* 8. Show the new View: */
 	LoadView( &my_view );
 
-	/* Print some text into the second ViewPort: */
-	// for (loop = 0; loop < 6; loop++)
-	// {
-	// 	Move( &rast_port2b, 16 + loop * 4, 16 + loop * 8 );
-	// 	SetAPen( &rast_port2b, 1 + loop );
-	// 	Text( &rast_port2b, "Dual Playfield!", 16);	
-	// }
-
 	playMusic();
 
 	OFF_SPRITE;
@@ -419,6 +412,7 @@ void main()
 	text_switch = 0;
 	counter_before_next_text = 0;
 	text_duration = 0;
+	vp3_target_y = 0;
 
 	// printf("DEMO_STRINGS_MAX_INDEX = %i\n", DEMO_STRINGS_MAX_INDEX);
 
@@ -427,7 +421,6 @@ void main()
 		WaitTOF();
 
 		scrollLogoBackground();
-		scrollTextViewport();
 		updateCheckerboard();
 
 		switch(mode_switch)
@@ -463,25 +456,39 @@ void main()
 			case TEXTMODE_SW_WAIT:
 				counter_before_next_text++;
 				if(counter_before_next_text > text_duration)
+				{
 					text_switch = TEXTMODE_SW_CLEAR;
+					if (vp3_target_y == 0)
+						vp3_target_y = DISPL_HEIGHT3;
+					else
+						vp3_target_y = 0;
+				}
 				break;
 
 			case TEXTMODE_SW_CLEAR:
-				SetRast(&rast_port3, 0);
+				SetAPen(&rast_port3, 0);
+				RectFill(&rast_port3, 
+	            0, vp3_target_y, WIDTH3 - 1, vp3_target_y + DISPL_HEIGHT3 - 1);
+
 				text_switch = TEXTMODE_SW_DRAW;
 				break;
 
 			case TEXTMODE_SW_DRAW:
 				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
 				text_duration = text_width + 5;
-				font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, 1, (UBYTE *)demo_string[demo_string_index]);
+				font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]);
 
 				demo_string_index++;
 				if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
 					demo_string_index = 0;
 
 				counter_before_next_text = 0;
-				text_switch = TEXTMODE_SW_WAIT;
+				text_switch = TEXTMODE_SW_SCROLL;
+				break;
+
+			case TEXTMODE_SW_SCROLL:
+				if (scrollTextViewport(vp3_target_y) == 0)
+					text_switch = TEXTMODE_SW_WAIT;
 				break;
 		}
 	}

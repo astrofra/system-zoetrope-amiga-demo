@@ -11,7 +11,7 @@ void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest_rp);
 void setLogoCopperlist(struct ViewPort *vp);
 void setCheckerboardCopperlist(struct ViewPort *vp);
 void scrollLogoBackground(void);
-void scrollTextViewport(void);
+UBYTE scrollTextViewport(UWORD y_target);
 void updateCheckerboard(void);
 void loadBobBitmaps(void);
 UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode);

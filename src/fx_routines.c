@@ -30,14 +30,15 @@ extern struct Custom far custom;
 extern struct BitMap *bitmap_font;
 
 /*	Viewport 1, Mandarine Logo */
-USHORT bg_scroll_phase = 0;
+UWORD bg_scroll_phase = 0;
 
 /*  Viewport 2, checkerboard and sprites animation */
-USHORT ubob_phase_x = 0, ubob_phase_y = 0;
-USHORT clr_screen_y = 0;
-USHORT ubob_vscroll = 0;
-USHORT ubob_hscroll_phase = 0;
-USHORT checkerboard_scroll_offset = 0;
+UWORD ubob_phase_x = 0, ubob_phase_y = 0;
+UWORD clr_screen_y = 0;
+UWORD ubob_vscroll = 0;
+UWORD ubob_hscroll_phase = 0;
+UWORD checkerboard_scroll_offset = 0;
+UWORD scrolltext_y_offset = 0;
 struct UCopList *copper;
 
 UWORD chip blank_pointer[4]=
@@ -88,7 +89,7 @@ UWORD mixRGB4Colors(UWORD A, UWORD B, UBYTE n)
 */
 
 /*	Draws the Mandarine Logo */
-void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y)
+void drawMandarineLogo(struct BitMap *dest_bitmap, UWORD offset_y)
 {
 	bitmap_logo = load_array_as_bitmap(mandarine_logoData, 6400 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
 	BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (WIDTH1 - mandarine_logo.Width) >> 1, offset_y);
@@ -105,11 +106,22 @@ __inline void scrollLogoBackground(void)
     ScrollVPort(&view_port1);
 }
 
-__inline void scrollTextViewport(void)
+__inline UBYTE scrollTextViewport(UWORD y_target)
 {
+    if (scrolltext_y_offset > y_target)
+        scrolltext_y_offset--;
+    else
+    if (scrolltext_y_offset < y_target)
+        scrolltext_y_offset++;
+
     view_port3.RasInfo->RxOffset = 0;
-    view_port3.RasInfo->RyOffset = 0;
+    view_port3.RasInfo->RyOffset = scrolltext_y_offset;
     ScrollVPort(&view_port3);
+
+    if (scrolltext_y_offset == y_target)
+        return 0;
+
+    return 1;
 }
 
 void setLogoCopperlist(struct ViewPort *vp)
@@ -134,7 +146,7 @@ void setLogoCopperlist(struct ViewPort *vp)
 */
 __inline void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest_rp)
 {
-    USHORT i, j, k, p, o;
+    UWORD i, j, k, p, o;
 
     bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 40000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
 
@@ -162,7 +174,7 @@ __inline void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest
 
 void setCheckerboardCopperlist(struct ViewPort *vp)
 {
-    USHORT i, c;
+    UWORD i, c;
 
     copper = (struct UCopList *)
     AllocMem( sizeof(struct UCopList), MEMF_PUBLIC|MEMF_CHIP|MEMF_CLEAR );
@@ -218,7 +230,7 @@ void loadBobBitmaps(void)
 
 __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) // struct BitMap* dest_bitmap)
 {
-    USHORT x, y;
+    UWORD x, y;
 
     switch(*figure_mode)
     {
@@ -271,7 +283,7 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
 
 __inline UBYTE clearPlayfieldLineByLineFromTop(struct RastPort *dest_rp)
 {
-    USHORT y;
+    UWORD y;
 
     if (clr_screen_y >= DISPL_HEIGHT2b - 8)
     {
@@ -296,7 +308,7 @@ __inline UBYTE clearPlayfieldLineByLineFromTop(struct RastPort *dest_rp)
 
 __inline UBYTE clearPlayfieldLineByLineFromBottom(struct RastPort *dest_rp)
 {
-    USHORT y, bottom_y;
+    UWORD y, bottom_y;
 
     if (clr_screen_y >= DISPL_HEIGHT2b - 8)
     {

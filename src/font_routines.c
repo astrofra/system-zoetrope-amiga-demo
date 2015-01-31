@@ -39,8 +39,6 @@ void font_blit_string(struct BitMap *font_BitMap, struct BitMap *font_BitMap_dar
 
 	struct BitMap *default_font;
 
-	printf("%s\n", text_string);
-
 	cur_x = x;
 	glyph_h = font_BitMap->Rows;
 	default_font = font_BitMap;

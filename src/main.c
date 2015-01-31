@@ -245,31 +245,37 @@ void main()
 	/* 3. Get a colour map, link it to the ViewPort, and prepare it: */
 
 	/* ViewPort 1 */
-	view_port1.ColorMap = (struct ColorMap *) GetColorMap( COLOURS1 );
+	view_port1.ColorMap = (struct ColorMap *) GetColorMap(COLOURS1);
 	if( view_port1.ColorMap == NULL )
 		close_demo( "Could NOT get a ColorMap!" );
 	/* Get a pointer to the colour map: */
 	pointer = (UWORD *) view_port1.ColorMap->ColorTable;
 	/* Set the colours: */
-	for( loop = 0; loop < COLOURS1; loop++ )
-		*pointer++ = mandarine_logoPaletteRGB4[ loop ];
+	// for( loop = 0; loop < COLOURS1; loop++ )
+	// 	*pointer++ = mandarine_logoPaletteRGB4[ loop ];
+	for( loop = 0; loop < COLOURS1; loop++)
+		SetRGB4(&view_port1, loop, (mandarine_logoPaletteRGB4[loop] & 0x0f00) >> 8, (mandarine_logoPaletteRGB4[loop] & 0x00f0) >> 4, mandarine_logoPaletteRGB4[loop] & 0x000f);
+
 
 	/* ViewPort 2 */
-	view_port2.ColorMap = (struct ColorMap *) GetColorMap( COLOURS2 );
+	view_port2.ColorMap = (struct ColorMap *) GetColorMap(COLOURS2 + COLOURS2b);
 	if( view_port2.ColorMap == NULL )
 		close_demo( "Could NOT get a ColorMap!" );
 	/* Get a pointer to the colour map: */
 	pointer = (UWORD *) view_port2.ColorMap->ColorTable;
 
 	/* ViewPort 3 */
-	view_port3.ColorMap = (struct ColorMap *) GetColorMap( COLOURS3 );
+	view_port3.ColorMap = (struct ColorMap *) GetColorMap(COLOURS3);
 	if( view_port3.ColorMap == NULL )
 		close_demo( "Could NOT get a ColorMap!" );
 	/* Get a pointer to the colour map: */
 	pointer = (UWORD *) view_port3.ColorMap->ColorTable;
 	/* Set the colours: */
-	for( loop = 0; loop < COLOURS3; loop++ )
-		*pointer++ = font_palRGB4[ loop ];	
+	// for( loop = 0; loop < COLOURS3; loop++ )
+	// 	*pointer++ = font_palRGB4[ loop ];
+	for( loop = 0; loop < COLOURS3; loop++)
+		SetRGB4(&view_port3, loop, (font_palRGB4[loop] & 0x0f00) >> 8, (font_palRGB4[loop] & 0x00f0) >> 4, font_palRGB4[loop] & 0x000f);
+
 
 	/* Prepare the BitMap */
 
@@ -295,11 +301,7 @@ void main()
 			close_demo( "Could NOT allocate enough memory for the raster!" );
 		/* Clear the display memory with help of the Blitter: */
 		BltClear( bit_map2.Planes[ loop ], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
-	}
-	/* Set the colours: */
-	pointer = (UWORD *) view_port2.ColorMap->ColorTable;
-	for( loop = 0; loop < COLOURS2; loop++ )
-		*pointer++ = checkerboard_PaletteRGB4[ loop ];		
+	}	
 
 	InitBitMap( &bit_map2b, DEPTH2b, WIDTH2b, HEIGHT2b );
 	/* Allocate memory for the Raster: */ 
@@ -311,8 +313,8 @@ void main()
 		/* Clear the display memory with help of the Blitter: */
 		BltClear( bit_map2b.Planes[ loop ], RASSIZE( WIDTH2b, HEIGHT2b ), 0 );
 	}
-	for( loop = 0; loop < COLOURS3; loop++ )
-		SetRGB4(&view_port2, loop + 8, (bob_32PaletteRGB4[loop] & 0x0f00) >> 8, (bob_32PaletteRGB4[loop] & 0x00f0) >> 4, bob_32PaletteRGB4[loop] & 0x000f);
+	for( loop = 0; loop < COLOURS2b; loop++)
+		SetRGB4(&view_port2, COLOURS2 + loop, (bob_32PaletteRGB4[loop] & 0x0f00) >> 8, (bob_32PaletteRGB4[loop] & 0x00f0) >> 4, bob_32PaletteRGB4[loop] & 0x000f);
 
 	/* ViewPort 3 */
 	InitBitMap( &bit_map3, DEPTH3, WIDTH3, HEIGHT3 );

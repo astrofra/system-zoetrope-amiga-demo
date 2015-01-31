@@ -38,6 +38,7 @@ Graphic assets
 
 extern UWORD checkerboard_PaletteRGB4[8];
 extern UWORD bob_32PaletteRGB4[8];
+extern UWORD buddhaPaletteRGB4[8];
 
 /* Music */
 struct Library *PTReplayBase;
@@ -87,8 +88,10 @@ struct BitMap *bitmap_checkerboard = NULL;
 struct BitMap *bitmap_font = NULL;
 struct BitMap *bitmap_bob = NULL;
 struct BitMap *bitmap_bob_mask = NULL;
+struct BitMap *bitmap_buddha = NULL;
+struct BitMap *bitmap_zzz = NULL;
 
-void initMusic(void)
+void initMusicLibrary(void)
 {
 	if (SysBase->LibNode.lib_Version >= 36)
 		if (!AssignPath("Libs","Libs"))
@@ -99,7 +102,7 @@ void initMusic(void)
 		exit(0); //FIXME
 	}
 
-	mod = load_getchipmem((UBYTE *)"brazil-by-med.mod", 413506);
+	// mod = load_getchipmem((UBYTE *)"brazil-by-med.mod", 413506);
 }
 
 void playMusic(void)
@@ -147,6 +150,8 @@ void close_demo(STRPTR message)
 	free_allocated_bitmap(bitmap_font);
 	free_allocated_bitmap(bitmap_bob);
 	free_allocated_bitmap(bitmap_bob_mask);
+	free_allocated_bitmap(bitmap_buddha);
+	free_allocated_bitmap(bitmap_zzz);
 
 	/*	Stop music */
 	if (mod != NULL)
@@ -182,7 +187,11 @@ void main()
 	ULONG vp_error;
 	UBYTE mode_switch, ubob_figure, text_switch;
 	UWORD counter_before_next_text, text_width, text_duration;
-	UWORD vp3_target_y;	
+	UWORD vp3_target_y;
+	ULONG chiprevbits;
+	UBYTE IS_AGA;
+	BPTR fileHandle;
+	UBYTE *tmp_ptr;
 
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
@@ -196,12 +205,9 @@ void main()
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
 
-	SetChipRev(SETCHIPREV_BEST);
+	chiprevbits = SetChipRev(SETCHIPREV_BEST);
+	printf("chiprevbits & GFXB_AA_ALICE = %x\n", (chiprevbits & GFXB_AA_ALICE));
 
-	loadTextWriterFont();
-	loadBobBitmaps();
-
-	initMusic();
 
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
@@ -230,7 +236,7 @@ void main()
 	view_port3.DxOffset = 0;         /* X position.                   */
 	view_port3.DyOffset = HEIGHT1 + 2; /* Y position (5 lines under).   */
 	view_port3.RasInfo = &ras_info3; /* Give it a pointer to RasInfo. */
-	view_port3.Modes = NULL;        /* High resolution.              */
+	view_port3.Modes = HIRES;        /* High resolution.              */
 	view_port3.Next = &view_port2;          /* Last ViewPort in the list.    */
 
 	/* ViewPort 2 */
@@ -254,9 +260,8 @@ void main()
 	/* Set the colours: */
 	// for( loop = 0; loop < COLOURS1; loop++ )
 	// 	*pointer++ = mandarine_logoPaletteRGB4[ loop ];
-	for( loop = 0; loop < COLOURS1; loop++)
-		SetRGB4(&view_port1, loop, (mandarine_logoPaletteRGB4[loop] & 0x0f00) >> 8, (mandarine_logoPaletteRGB4[loop] & 0x00f0) >> 4, mandarine_logoPaletteRGB4[loop] & 0x000f);
-
+	for( loop = 0; loop < 8; loop++)
+		SetRGB4(&view_port1, loop, (buddhaPaletteRGB4[loop] & 0x0f00) >> 8, (buddhaPaletteRGB4[loop] & 0x00f0) >> 4, buddhaPaletteRGB4[loop] & 0x000f);
 
 	/* ViewPort 2 */
 	view_port2.ColorMap = (struct ColorMap *) GetColorMap(COLOURS2 + COLOURS2b);
@@ -276,7 +281,6 @@ void main()
 	// 	*pointer++ = font_palRGB4[ loop ];
 	for( loop = 0; loop < COLOURS3; loop++)
 		SetRGB4(&view_port3, loop, (font_palRGB4[loop] & 0x0f00) >> 8, (font_palRGB4[loop] & 0x00f0) >> 4, font_palRGB4[loop] & 0x000f);
-
 
 	/* Prepare the BitMap */
 
@@ -380,12 +384,58 @@ void main()
 	vp_error = MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
 
 	setLogoCopperlist(&view_port1);
-	setCheckerboardCopperlist(&view_port2);
 	setTextLinerCopperlist(&view_port3);
 
 	WaitTOF();
 
 	MrgCop(&my_view);
+
+	/* 8. Show the new View: */
+	LoadView( &my_view );
+
+	OFF_SPRITE;
+
+	loadBuddhaBitmaps();
+	initMusicLibrary();
+
+	//	mod = load_getchipmem((UBYTE *)"brazil-by-med.mod", 413506);
+
+	fileHandle = Open((UBYTE *)"brazil-by-med.mod", MODE_OLDFILE);
+
+	mod = (UBYTE *)AllocMem(413506, MEMF_CHIP);
+	tmp_ptr = mod;
+
+	loop = 0;
+	while(loop < (1 << 6))
+	{
+		Read(fileHandle, tmp_ptr, (413506 >> 6));
+		WaitTOF();
+		drawBuddha(&rast_port1, &bit_map1, loop << 3);
+		loop++;
+		tmp_ptr += (413506 >> 6);
+	}
+	// drawBuddha(&rast_port1, &bit_map1, 0);
+	// Read(fileHandle, mod, 413506);
+
+
+	Close(fileHandle);
+
+	setLogoCopperlist(&view_port1);
+	setTextLinerCopperlist(&view_port3);
+	setCheckerboardCopperlist(&view_port2);
+
+	WaitTOF();
+
+	MrgCop(&my_view);
+
+	/* 8. Show the new View: */
+	LoadView( &my_view );	
+
+	loadTextWriterFont();
+	loadBobBitmaps();
+
+	for( loop = 0; loop < COLOURS1; loop++)
+		SetRGB4(&view_port1, loop, (mandarine_logoPaletteRGB4[loop] & 0x0f00) >> 8, (mandarine_logoPaletteRGB4[loop] & 0x00f0) >> 4, mandarine_logoPaletteRGB4[loop] & 0x000f);
 
 	drawMandarineLogo(&bit_map1, 0);
 
@@ -393,12 +443,8 @@ void main()
 	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
 	drawCheckerboard(&bit_map2, &rast_port2);
 
-	/* 8. Show the new View: */
-	LoadView( &my_view );
-
 	playMusic();
 
-	OFF_SPRITE;
 
 	Forbid();
 	Disable();

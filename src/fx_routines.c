@@ -11,6 +11,7 @@
 #include "mandarine_logo.h"
 #include "checkerboard_strip.h"
 #include "bob_bitmaps.h"
+#include "buddha_bitmaps.h"
 #include "vert_copper_palettes.h"
 #include "font_desc.h"
 #include "font_bitmap.h"
@@ -24,6 +25,8 @@ extern struct  BitMap *bitmap_logo;
 extern struct  BitMap *bitmap_checkerboard;
 extern struct  BitMap *bitmap_bob;
 extern struct  BitMap *bitmap_bob_mask;
+extern struct BitMap *bitmap_buddha;
+extern struct BitMap *bitmap_zzz;
 
 extern struct Custom far custom;
 
@@ -80,6 +83,28 @@ UWORD mixRGB4Colors(UWORD A, UWORD B, UBYTE n)
     }
 
     return B;
+}
+
+/*
+    Preaload (Buddha)
+*/
+void loadBuddhaBitmaps(void)
+{
+    bitmap_buddha = load_array_as_bitmap(buddhaData, 192 << 1, buddha.Width, buddha.Height, buddha.Depth);
+    bitmap_zzz = load_array_as_bitmap(buddha_zzData, 48 << 1, buddha_zz.Width, buddha_zz.Height, buddha_zz.Depth);
+}
+
+void drawBuddha(struct RastPort *dest_rp, struct BitMap *dest_bitmap, UWORD phase)
+{
+    UWORD x, y, offset_y;
+    offset_y = 8 + ((tcos[phase & 0x1FF] + 512) * 8) >> 10;
+    x = (DISPL_WIDTH1 - buddha_zz.Width) >> 1;
+    y = HEIGHT1 - buddha.Height - buddha_zz.Height - 12 + offset_y;
+    SetAPen(dest_rp, 0);
+    RectFill(dest_rp, 
+       x, y - 1, x + buddha_zz.Width - 1, y + buddha_zz.Height + 2);    
+    BLIT_BITMAP_S(bitmap_zzz, dest_bitmap, buddha_zz.Width, buddha_zz.Height, x, y); 
+    BLIT_BITMAP_S(bitmap_buddha, dest_bitmap, buddha.Width, buddha.Height, (DISPL_WIDTH1 - buddha.Width) >> 1, HEIGHT1 - buddha.Height - 4); 
 }
 
 

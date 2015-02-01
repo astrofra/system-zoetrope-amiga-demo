@@ -205,9 +205,10 @@ void main()
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
 
-	chiprevbits = SetChipRev(SETCHIPREV_BEST);
-	printf("chiprevbits & GFXB_AA_ALICE = %x\n", (chiprevbits & GFXB_AA_ALICE));
-
+	chiprevbits = GfxBase->ChipRevBits0;
+	printf("chiprevbits & GFXB_HR_AGNUS  = %x\n", (chiprevbits & GFXB_HR_AGNUS));
+	printf("chiprevbits & GFXB_HR_DENISE = %x\n", (chiprevbits & GFXB_HR_DENISE));
+	printf("chiprevbits & GFXB_AA_ALICE  = %x\n", (chiprevbits & GFXB_AA_ALICE));
 
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
@@ -462,7 +463,7 @@ void main()
 	loadBobBitmaps();
 
 	for( loop = 0; loop < COLOURS1; loop++)
-		SetRGB4(&view_port1, loop, (mandarine_logoPaletteRGB4[loop] & 0x0f00) >> 8, (mandarine_logoPaletteRGB4[loop] & 0x00f0) >> 4, mandarine_logoPaletteRGB4[loop] & 0x000f);
+		SetRGB4(&view_port1, loop, 0, 0, 0); // (mandarine_logoPaletteRGB4[loop] & 0x0f00) >> 8, (mandarine_logoPaletteRGB4[loop] & 0x00f0) >> 4, mandarine_logoPaletteRGB4[loop] & 0x000f);
 
 	drawMandarineLogo(&bit_map1, 0);
 
@@ -478,6 +479,7 @@ void main()
 	WaitBlit();
 	// OwnBlitter();	
 
+	loop = 0;
 	ubob_figure = 0;
 	demo_string_index = 0;
 	mode_switch = 0;
@@ -491,7 +493,6 @@ void main()
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
-		WaitTOF();
 
 		scrollLogoBackground();
 		updateCheckerboard();
@@ -499,7 +500,11 @@ void main()
 		switch(mode_switch)
 		{
 			case DMODE_SW_INTRO:
-				mode_switch = DMODE_SW_UBOB;
+				fadeRGB4Palette(&view_port1, (UWORD *)mandarine_logoPaletteRGB4, COLOURS1, ((12 << 2) - loop) >> 2);
+				loop++;
+
+				if (loop >= (12 << 2))
+					mode_switch = DMODE_SW_UBOB;
 				break;
 
 			case DMODE_SW_UBOB:
@@ -564,6 +569,7 @@ void main()
 					text_switch = TEXTMODE_SW_WAIT;
 				break;
 		}
+		WaitTOF();
 	}
 
 	// DisownBlitter();

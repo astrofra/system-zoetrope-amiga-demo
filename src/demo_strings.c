@@ -1,7 +1,3 @@
-const char *loading_string[] = {
-	"BUDDHA MEDITATES WHILE LOADING\0",
-};
-
 const char *demo_string[] = {
 	"SYSTEM ZOETROPE\0",
 	"AN AMIGA AGA DEMO BY MANDARINE\0",	
@@ -12,9 +8,11 @@ const char *demo_string[] = {
 	"A DEMO ENTIRELY WRITTEN IN C\0",
 	"USING THE GRAPHICS.LIBRARY V39\0",
 	"NO HARDWARE BANGING - SYSTEM CALLS ONLY!\0",
-	"GREETINGS TO AMYCODERS, \0",
+	"GREETINGS TO MANKIND\0",
+	"CONDENSE\0",
+	"AMYCODERS\0",
 	"AMIGA DEMOSCENE ARCHIVE\0",
-	"CYG, DBUG, BAUDSURFER, SAM, DEN...\0",	
+	"PHOTON, CYG, DBUG, BAUDSURFER, SAM, DEN...\0",	
 	"  \0",	
 	"  \0",	
 	"NOW LET ME TELL YOU\0",
@@ -73,4 +71,8 @@ const char *demo_string[] = {
 	"IT WAS LIKE A BOOTSTRAP TO ME!\0",
 	"TEXT WILL NOW LOOP! BYE BYE :)\0",
 	"  \0"
+};
+
+const char *loading_string[] = {
+	"BUDDHA MEDITATES WHILE LOADING\0",
 };

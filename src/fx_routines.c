@@ -42,6 +42,7 @@ UWORD ubob_vscroll = 0;
 UWORD ubob_hscroll_phase = 0;
 UWORD checkerboard_scroll_offset = 0;
 UWORD scrolltext_y_offset = 0;
+UWORD ubob_scale = 0;
 struct UCopList *copper;
 
 UWORD chip blank_pointer[4]=
@@ -297,18 +298,22 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
             break;                         
     }
 
-    if (ubob_phase_x > COSINE_TABLE_LEN && ubob_phase_y > COSINE_TABLE_LEN)
+    if (ubob_phase_x > (COSINE_TABLE_LEN << 1) && ubob_phase_y > (COSINE_TABLE_LEN << 1))
     {
         (*figure_mode)++;
         if (*figure_mode > 4)
             *figure_mode = 0;
         ubob_phase_x = 0;
         ubob_phase_y = 0;
+        ubob_scale = 0;
         return 0;
     }    
 
-    x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 24 + (((tcos[ubob_phase_x & 0x1FF] + 512) * (DISPL_WIDTH2b - 8 - 64)) >> 10);
-    y = ubob_vscroll + 8 + (((tsin[ubob_phase_y & 0x1FF] + 512) * (DISPL_HEIGHT2b - 16 - 32)) >> 10);
+    if ((ubob_phase_x & 0x7F) == 0 || (ubob_phase_y & 0x7F) == 0)
+        ubob_scale++;
+
+    x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 24 + ubob_scale + (((tcos[ubob_phase_x & 0x1FF] + 512) * (DISPL_WIDTH2b - 8 - 64 - ubob_scale - ubob_scale)) >> 10);
+    y = ubob_vscroll + 8 + ubob_scale + (((tsin[ubob_phase_y & 0x1FF] + 512) * (DISPL_HEIGHT2b - 16 - 32 - ubob_scale - ubob_scale)) >> 10);
 
     BltMaskBitMapRastPort(bitmap_bob, 0,0,
             dest_rp, x, y,

@@ -1,3 +1,7 @@
+const char *loading_string[] = {
+	"BUDDHA MEDITATES WHILE LOADING\0",
+};
+
 const char *demo_string[] = {
 	"SYSTEM ZOETROPE\0",
 	"AN AMIGA AGA DEMO BY MANDARINE\0",	

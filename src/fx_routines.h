@@ -6,6 +6,7 @@
 #include <graphics/gfxbase.h>
 
 UWORD mixRGB4Colors(UWORD a, UWORD b);
+void fadeRGB4Palette(struct ViewPort *vp, UWORD *pal, UWORD pal_size, UWORD fade);
 void loadBuddhaBitmaps(void);
 void drawBuddha(struct RastPort *dest_rp, struct BitMap *dest_bitmap, UWORD phase);
 void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y);

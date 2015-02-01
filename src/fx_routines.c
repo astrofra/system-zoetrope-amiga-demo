@@ -79,10 +79,22 @@ UWORD mixRGB4Colors(UWORD A, UWORD B, UBYTE n)
         g = g & 0xf;
         b = b & 0xf;
 
-        B = (UWORD)((r << 8) | (g << 4) | b);
+        A = (UWORD)((r << 8) | (g << 4) | b);
     }
 
-    return B;
+    return A;
+}
+
+void fadeRGB4Palette(struct ViewPort *vp, UWORD *pal, UWORD pal_size, UWORD fade)
+{
+    UBYTE i;
+    UWORD col;
+
+    for(i = 0; i < pal_size; i++)
+    {
+        col = mixRGB4Colors(pal[i], 0x000, fade);
+        SetRGB4(vp, i, (col & 0x0f00) >> 8, (col & 0x00f0) >> 4, col & 0x000f);
+    }
 }
 
 /*
@@ -217,7 +229,7 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
 
         CMOVE(copper, custom.color[0], vcopperlist_checker_1[i + 5]);
         for (c = 1; c < 8; c++)
-            CMOVE(copper, custom.color[c], mixRGB4Colors(vcopperlist_checker_0[i + 5], vcopperlist_checker_1[i + 5], (checkerboard_PaletteRGB4[c] & 0xF) / 5));
+            CMOVE(copper, custom.color[c], mixRGB4Colors(vcopperlist_checker_1[i + 5], vcopperlist_checker_0[i + 5], (checkerboard_PaletteRGB4[c] & 0xF) / 5));
     }
 
     CEND(copper);

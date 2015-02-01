@@ -261,7 +261,7 @@ void main()
 	// for( loop = 0; loop < COLOURS1; loop++ )
 	// 	*pointer++ = mandarine_logoPaletteRGB4[ loop ];
 	for( loop = 0; loop < 8; loop++)
-		SetRGB4(&view_port1, loop, (buddhaPaletteRGB4[loop] & 0x0f00) >> 8, (buddhaPaletteRGB4[loop] & 0x00f0) >> 4, buddhaPaletteRGB4[loop] & 0x000f);
+		SetRGB4(&view_port1, loop, 0, 0, 0); // (buddhaPaletteRGB4[loop] & 0x0f00) >> 8, (buddhaPaletteRGB4[loop] & 0x00f0) >> 4, buddhaPaletteRGB4[loop] & 0x000f);
 
 	/* ViewPort 2 */
 	view_port2.ColorMap = (struct ColorMap *) GetColorMap(COLOURS2 + COLOURS2b);
@@ -280,7 +280,7 @@ void main()
 	// for( loop = 0; loop < COLOURS3; loop++ )
 	// 	*pointer++ = font_palRGB4[ loop ];
 	for( loop = 0; loop < COLOURS3; loop++)
-		SetRGB4(&view_port3, loop, (font_palRGB4[loop] & 0x0f00) >> 8, (font_palRGB4[loop] & 0x00f0) >> 4, font_palRGB4[loop] & 0x000f);
+		SetRGB4(&view_port3, loop, 0, 0, 0); // (font_palRGB4[loop] & 0x0f00) >> 8, (font_palRGB4[loop] & 0x00f0) >> 4, font_palRGB4[loop] & 0x000f);
 
 	/* Prepare the BitMap */
 
@@ -398,6 +398,24 @@ void main()
 	loadBuddhaBitmaps();
 	initMusicLibrary();
 
+	drawBuddha(&rast_port1, &bit_map1, 0);
+
+	text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)loading_string[0]);
+	font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, 1, (UBYTE *)loading_string[0]);
+
+	/*
+		Fade in
+	*/
+	for(loop = 0; loop <= 16; loop++)
+	{
+		WaitTOF();
+		WaitTOF();
+		WaitTOF();
+		WaitTOF();
+		fadeRGB4Palette(&view_port1, (UWORD *)buddhaPaletteRGB4, COLOURS1, 16 - loop);
+		fadeRGB4Palette(&view_port3, (UWORD *)font_palRGB4, COLOURS3, 16 - loop);
+	}	
+
 	//	mod = load_getchipmem((UBYTE *)"brazil-by-med.mod", 413506);
 
 	fileHandle = Open((UBYTE *)"brazil-by-med.mod", MODE_OLDFILE);
@@ -414,11 +432,20 @@ void main()
 		loop++;
 		tmp_ptr += (413506 >> 6);
 	}
-	// drawBuddha(&rast_port1, &bit_map1, 0);
-	// Read(fileHandle, mod, 413506);
-
 
 	Close(fileHandle);
+
+	/*
+		Fade out
+	*/
+	for(loop = 0; loop <= 16; loop++)
+	{
+		WaitTOF();
+		WaitTOF();
+		WaitTOF();
+		WaitTOF();
+		fadeRGB4Palette(&view_port1, (UWORD *)buddhaPaletteRGB4, COLOURS1, loop);
+	}
 
 	setLogoCopperlist(&view_port1);
 	setTextLinerCopperlist(&view_port3);

@@ -182,7 +182,8 @@ void close_demo(STRPTR message)
 void main()
 {
 	UWORD *pointer;
-	UBYTE loop;
+	UBYTE loop, palette_fade, palette_idx;
+	ULONG tmp_col;
 	int demo_string_index;
 	ULONG vp_error;
 	UBYTE mode_switch, ubob_figure, text_switch;
@@ -204,11 +205,6 @@ void main()
 	OpenLibrary( "graphics.library", 0 );
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
-
-	chiprevbits = GfxBase->ChipRevBits0;
-	printf("chiprevbits & GFXB_HR_AGNUS  = %x\n", (chiprevbits & GFXB_HR_AGNUS));
-	printf("chiprevbits & GFXB_HR_DENISE = %x\n", (chiprevbits & GFXB_HR_DENISE));
-	printf("chiprevbits & GFXB_AA_ALICE  = %x\n", (chiprevbits & GFXB_AA_ALICE));
 
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
@@ -415,9 +411,7 @@ void main()
 		WaitTOF();
 		fadeRGB4Palette(&view_port1, (UWORD *)buddhaPaletteRGB4, COLOURS1, 16 - loop);
 		fadeRGB4Palette(&view_port3, (UWORD *)font_palRGB4, COLOURS3, 16 - loop);
-	}	
-
-	//	mod = load_getchipmem((UBYTE *)"brazil-by-med.mod", 413506);
+	}
 
 	fileHandle = Open((UBYTE *)"brazil-by-med.mod", MODE_OLDFILE);
 
@@ -462,8 +456,16 @@ void main()
 	loadTextWriterFont();
 	loadBobBitmaps();
 
+	printf("sizeof(ULONG) = %d\n", sizeof(ULONG));
+	printf("0xF00 = %x\n", RGB4toRGB8(0xF00));
+	printf("0xF84 = %x\n", RGB4toRGB8(0xF84));
+
 	for( loop = 0; loop < COLOURS1; loop++)
-		SetRGB4(&view_port1, loop, 0, 0, 0); // (mandarine_logoPaletteRGB4[loop] & 0x0f00) >> 8, (mandarine_logoPaletteRGB4[loop] & 0x00f0) >> 4, mandarine_logoPaletteRGB4[loop] & 0x000f);
+		SetRGB4(&view_port1, loop, 0, 0, 0);
+	// for( loop = 0; loop < COLOURS1; loop++)
+	// 	SetRGB32(&view_port1, loop, (RGB4toRGB8(mandarine_logoPaletteRGB4[loop]) & 0xff0000) << 8, 
+	// 								(RGB4toRGB8(mandarine_logoPaletteRGB4[loop]) & 0x00ff00) << 16, 
+	// 								(RGB4toRGB8(mandarine_logoPaletteRGB4[loop]) & 0x00ff) << 24);;
 
 	drawMandarineLogo(&bit_map1, 0);
 
@@ -479,7 +481,8 @@ void main()
 	WaitBlit();
 	// OwnBlitter();	
 
-	loop = 0;
+	palette_fade = 0; 
+	palette_idx = 0;
 	ubob_figure = 0;
 	demo_string_index = 0;
 	mode_switch = 0;
@@ -500,11 +503,19 @@ void main()
 		switch(mode_switch)
 		{
 			case DMODE_SW_INTRO:
-				fadeRGB4Palette(&view_port1, (UWORD *)mandarine_logoPaletteRGB4, COLOURS1, ((12 << 2) - loop) >> 2);
-				loop++;
+				// tmp_col = RGB4toRGB8(mixRGB4Colors(0x000, mandarine_logoPaletteRGB4[palette_idx], palette_fade));
+				tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
+        		// SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+        		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
 
-				if (loop >= (12 << 2))
-					mode_switch = DMODE_SW_UBOB;
+        		palette_idx++;
+        		if (palette_idx >= COLOURS1)
+        		{
+        			palette_idx = 0;
+					palette_fade++;
+					if (palette_fade > 10)
+						mode_switch = DMODE_SW_UBOB;
+				}
 				break;
 
 			case DMODE_SW_UBOB:

@@ -86,6 +86,51 @@ UWORD mixRGB4Colors(UWORD A, UWORD B, UBYTE n)
     return A;
 }
 
+ULONG RGB4toRGB8(UWORD A)
+{
+    ULONG r,g,b;
+    r = ((ULONG)(A & 0x0f00)) << 12;
+    g = (A & 0x00f0) << 8;
+    b = (A & 0x000f) << 4;
+
+    return r|g|b;
+}
+
+ULONG mixRGB8Colors(ULONG A, ULONG B, UBYTE n)
+{
+    ULONG r,g,b;
+
+    /*
+        Blends A into B, n times
+    */
+    while(n--)
+    {
+        r = (A & 0xff0000) >> 16;
+        g = (A & 0x00ff00) >> 8;
+        b = A & 0x0000ff;
+
+        r += (B & 0xff0000) >> 16;
+        g += (B & 0x00ff00) >> 8;
+        b += B & 0x000f;
+
+        r = r >> 1;
+        g = g >> 1;
+        b = b >> 1;
+
+        if (r > 0xff) r = 0xff;
+        if (g > 0xff) g = 0xff;
+        if (b > 0xff) b = 0xff;
+
+        r = r & 0xff;
+        g = g & 0xff;
+        b = b & 0xff;
+
+        A = (ULONG)((r << 16) | (g << 8) | b);
+    }
+
+    return A;
+}
+
 void fadeRGB4Palette(struct ViewPort *vp, UWORD *pal, UWORD pal_size, UWORD fade)
 {
     UBYTE i;

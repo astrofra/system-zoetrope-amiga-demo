@@ -209,6 +209,8 @@ void main()
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
 
+	SetChipRev(SETCHIPREV_BEST);
+
 	/* Prepare the View structure, and give it a pointer to */
 	/* the first ViewPort:                                  */
 	InitView( &my_view );
@@ -233,7 +235,7 @@ void main()
 	view_port3.DxOffset = 0;         /* X position.                   */
 	view_port3.DyOffset = HEIGHT1 + 2; /* Y position (5 lines under).   */
 	view_port3.RasInfo = &ras_info3; /* Give it a pointer to RasInfo. */
-	view_port3.Modes = HIRES;        /* High resolution.              */
+	view_port3.Modes = NULL;        /* High resolution.              */
 	view_port3.Next = &view_port2;          /* Last ViewPort in the list.    */
 
 	/* ViewPort 2 */
@@ -503,23 +505,31 @@ void main()
 		switch(mode_switch)
 		{
 			case DMODE_SW_INTRO:
-				// tmp_col = RGB4toRGB8(mixRGB4Colors(0x000, mandarine_logoPaletteRGB4[palette_idx], palette_fade));
-				tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
-        		// SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+				tmp_col = mixRGB8Colors(RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), 0x000, palette_fade);
         		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
-
         		palette_idx++;
+				tmp_col = mixRGB8Colors(RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), 0x000, palette_fade);
+        		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
+        		palette_idx++;
+				tmp_col = mixRGB8Colors(RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), 0x000, palette_fade);
+        		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
+        		palette_idx++;
+				tmp_col = mixRGB8Colors(RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), 0x000, palette_fade);
+        		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
+        		palette_idx++;
+
         		if (palette_idx >= COLOURS1)
         		{
         			palette_idx = 0;
 					palette_fade++;
-					if (palette_fade > 10)
+					if (palette_fade > 1 << 4)
 						mode_switch = DMODE_SW_UBOB;
 				}
+					// mode_switch = DMODE_SW_UBOB;
 				break;
 
 			case DMODE_SW_UBOB:
-				if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0)
+				if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0 && text_switch == TEXTMODE_SW_WAIT)
 				{
 					if (ubob_figure == ((ubob_figure >> 1) << 1))
 						mode_switch = DMODE_SW_CLEAR_FROM_TOP;
@@ -544,7 +554,9 @@ void main()
 
 			case TEXTMODE_SW_WAIT:
 				counter_before_next_text++;
-				if(counter_before_next_text > text_duration)
+				if(counter_before_next_text > text_duration
+					&& mode_switch != DMODE_SW_CLEAR_FROM_TOP
+					&& mode_switch != DMODE_SW_CLEAR_FROM_BOTTOM)
 				{
 					text_switch = TEXTMODE_SW_CLEAR;
 					if (vp3_target_y == 0)

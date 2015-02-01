@@ -28,7 +28,7 @@
 #define COLOURS2b   (1 << DEPTH2b)
 
 /* ViewPort 3 */
-#define WIDTH3   (DEFAULT_DISP_WIDTH << 1)
+#define WIDTH3   DEFAULT_DISP_WIDTH
 #define DISPL_HEIGHT3   12
 #define HEIGHT3  (DISPL_HEIGHT3 << 1)
 #define DEPTH3     1

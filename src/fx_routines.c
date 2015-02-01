@@ -96,7 +96,7 @@ ULONG RGB4toRGB8(UWORD A)
     return r|g|b;
 }
 
-ULONG mixRGB8Colors(ULONG A, ULONG B, UBYTE n)
+ULONG QmixRGB8Colors(ULONG A, ULONG B, UBYTE n)
 {
     ULONG r,g,b;
 
@@ -111,7 +111,7 @@ ULONG mixRGB8Colors(ULONG A, ULONG B, UBYTE n)
 
         r += (B & 0xff0000) >> 16;
         g += (B & 0x00ff00) >> 8;
-        b += B & 0x000f;
+        b += B & 0x000ff;
 
         r = r >> 1;
         g = g >> 1;
@@ -129,6 +129,63 @@ ULONG mixRGB8Colors(ULONG A, ULONG B, UBYTE n)
     }
 
     return A;
+}
+
+ULONG mixRGB8Colors(ULONG A, ULONG B, UBYTE n)
+{
+    ULONG   r,g,b,
+            x,y,z;
+
+    /*
+        Blends A into B, n times
+    */
+    r = (A & 0xff0000) >> 16;
+    g = (A & 0x00ff00) >> 8;
+    b = A & 0x0000ff;
+
+    r <<= 4;
+    g <<= 4;
+    b <<= 4;
+
+    if (n != 1 << 4)
+    {
+        r /= (1 << 4) - n;
+        g /= (1 << 4) - n;
+        b /= (1 << 4) - n;
+    }
+
+    x = (B & 0xff0000) >> 16;
+    y = (B & 0x00ff00) >> 8;
+    z = B & 0x000ff;
+
+    x <<= 4;
+    y <<= 4;
+    z <<= 4;
+
+    if (n != 0)
+    {
+        x /= n;
+        y /= n;
+        z /= n;
+    }
+
+    r += x;
+    g += y;
+    b += z;
+
+    r >>= 4;
+    g >>= 4;
+    b >>= 4;
+
+    if (r > 0xff) r = 0xff;
+    if (g > 0xff) g = 0xff;
+    if (b > 0xff) b = 0xff;
+
+    r = r & 0xff;
+    g = g & 0xff;
+    b = b & 0xff;
+
+    return (r << 16) | (g << 8) | b;
 }
 
 void fadeRGB4Palette(struct ViewPort *vp, UWORD *pal, UWORD pal_size, UWORD fade)

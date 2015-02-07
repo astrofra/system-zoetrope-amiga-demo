@@ -96,6 +96,16 @@ ULONG RGB4toRGB8(UWORD A)
     return r|g|b;
 }
 
+UWORD RGB8toRGB4(ULONG A)
+{
+    UWORD r,g,b;
+    r = (A & 0xF00000) >> 12; // ((ULONG)(A & 0x0f00)) << 12;
+    g = (A & 0x00F000) >> 8;
+    b = (A & 0x00F0) >> 4;
+
+    return (UWORD)(r|g|b);
+}
+
 ULONG mixRGB8Colors(ULONG A, ULONG B, USHORT n)
 {
     ULONG   r,g,b,
@@ -270,11 +280,15 @@ __inline void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest
 
 void setCheckerboardCopperlist(struct ViewPort *vp)
 {
-    UWORD i, c, r, g, b;
+    UWORD i, j, c, r, g, b;
+    ULONG *pal;
     ULONG c0, c1, cl, ch;
 
     copper = (struct UCopList *)
     AllocMem( sizeof(struct UCopList), MEMF_PUBLIC|MEMF_CHIP|MEMF_CLEAR );
+
+    pal = (ULONG *)malloc(sizeof(ULONG) * 256);
+    memset(pal, 0xFF00FF, 256);
 
     CINIT(copper, DISPL_HEIGHT2 * 10);
 
@@ -287,45 +301,53 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
             CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
         }
 
-        // c0 = mixRGB8Colors(RGB4toRGB8(vcopperlist_checker_1[i + 1]), RGB4toRGB8(vcopperlist_checker_1[i + 3]), 1 << 2);
-        // c1 = mixRGB8Colors(RGB4toRGB8(vcopperlist_checker_1[i + 4]), RGB4toRGB8(vcopperlist_checker_1[i + 6]), 1 << 2);
-        // c0 = mixRGB8Colors(c0, c1, 1 << 2);
+        /*
+            Create the palette
+        */
+        /*
+            Background color
+        */
+        r = 0;
+        g = 0;
+        b = 0;
 
-        // c0 = RGB4toRGB8(vcopperlist_checker_1[i + 5]);
+        for(c = 0; c < 8; c++)
+        {
+            c0 = RGB4toRGB8(vcopperlist_checker_1[i + c]);
+            r += (c0 & 0xff0000) >> 16;
+            g += (c0 & 0x00ff00) >> 8;
+            b += c0 & 0x0000ff;
+        }
 
-         // OK
-        c0 = i | ((i * 3) / 2) << 8;
+        r >>= 3;
+        g >>= 3;
+        b >>= 3;
 
-        //  OK
-        // c0 = mixRGB8Colors(RGB4toRGB8(0xF00), RGB4toRGB8(0x00F), i * 255 / DISPL_HEIGHT2);
+        pal[0] = (r << 16) | (g << 8) | b;
 
-        ch = (c0 & 0xf00000)>>12 | (c0 & 0xf000) >> 8 | (c0 & 0xf0) >> 4;
-        cl = (c0 & 0x0f0000)>>8   | (c0 & 0x0f00) >> 4 | (c0 & 0x0f);
+        pal[0] = mixRGB8Colors(pal[0], RGB4toRGB8(vcopperlist_checker_1[i + 2]), 127);
+        pal[0] = mixRGB8Colors(pal[0], 0x22AAFF, 16);
 
-        CMOVE(copper, *((UWORD *)0xdff106), 0x0000);
-        CMOVE(copper, *((UWORD *)0xdff180), ch);
-        CMOVE(copper, *((UWORD *)0xdff106), 0x0200);
-        CMOVE(copper, *((UWORD *)0xdff180), cl);
+        for(c = 1; c < COLOURS2b; c++)
+        {
+            pal[c] = 
+            mixRGB8Colors(pal[0], RGB4toRGB8(vcopperlist_checker_0[i + 5]), (checkerboard_PaletteRGB4[c] & 0xF) * 16);
+        }
+        // printf("c0 = %x\n", pal[0]);
 
-        // CMOVE(copper, custom.color[0], vcopperlist_checker_1[i + 5]);
-        // for (c = 1; c < 8; c++)
-        //     CMOVE(copper, custom.color[c], mixRGB4Colors(vcopperlist_checker_1[i + 5], vcopperlist_checker_0[i + 5], (checkerboard_PaletteRGB4[c] & 0xF) / 4));
-     
-        // for (c = 1; c < 8; c++)
-        // {
-        //     c1 = mixRGB8Colors(c0, RGB4toRGB8(vcopperlist_checker_0[i + 5]), (checkerboard_PaletteRGB4[c] & 0xF) * 16);
-        //     ch = (c1 & 0xf00000)>>12 | (c1 & 0xf000) >> 8 | (c1 & 0xf0) >> 4;
-        //     cl = (c1 & 0x0f0000)>>8   | (c1 & 0x0f00) >> 4 | (c1 & 0x0f);   
-        //     CMOVE(copper, *((UWORD *)0xdff106), 0x0000);            
-        //     CMOVE(copper, custom.color[c], ch);
-        //     CMOVE(copper, *((UWORD *)0xdff106), 0x0200);            
-        //     CMOVE(copper, custom.color[c], cl);            
-        // }        
+        /*
+            Convert the palette
+            into a user copper list
+        */
+        for (c = 0; c < COLOURS2b; c++)
+            CMOVE(copper, custom.color[c], RGB8toRGB4(pal[c]));
     }
 
     CEND(copper);
 
     vp->UCopIns = copper;
+
+    free(pal);
 }
 
 __inline void updateCheckerboard(void)

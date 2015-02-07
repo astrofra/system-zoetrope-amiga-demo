@@ -96,86 +96,42 @@ ULONG RGB4toRGB8(UWORD A)
     return r|g|b;
 }
 
-ULONG QmixRGB8Colors(ULONG A, ULONG B, UBYTE n)
-{
-    ULONG r,g,b;
-
-    /*
-        Blends A into B, n times
-    */
-    while(n--)
-    {
-        r = (A & 0xff0000) >> 16;
-        g = (A & 0x00ff00) >> 8;
-        b = A & 0x0000ff;
-
-        r += (B & 0xff0000) >> 16;
-        g += (B & 0x00ff00) >> 8;
-        b += B & 0x000ff;
-
-        r = r >> 1;
-        g = g >> 1;
-        b = b >> 1;
-
-        if (r > 0xff) r = 0xff;
-        if (g > 0xff) g = 0xff;
-        if (b > 0xff) b = 0xff;
-
-        r = r & 0xff;
-        g = g & 0xff;
-        b = b & 0xff;
-
-        A = (ULONG)((r << 16) | (g << 8) | b);
-    }
-
-    return A;
-}
-
-ULONG mixRGB8Colors(ULONG A, ULONG B, UBYTE n)
+ULONG mixRGB8Colors(ULONG A, ULONG B, USHORT n)
 {
     ULONG   r,g,b,
             x,y,z;
 
-    /*
-        Blends A into B, n times
-    */
-    r = (A & 0xff0000) >> 16;
-    g = (A & 0x00ff00) >> 8;
-    b = A & 0x0000ff;
+    if (n == 0)
+        return A;
 
-    r <<= 4;
-    g <<= 4;
-    b <<= 4;
-
-    if (n != 1 << 4)
-    {
-        r /= (1 << 4) - n;
-        g /= (1 << 4) - n;
-        b /= (1 << 4) - n;
-    }
+    if (n >= 255)
+        return B;
 
     x = (B & 0xff0000) >> 16;
     y = (B & 0x00ff00) >> 8;
     z = B & 0x000ff;
 
-    x <<= 4;
-    y <<= 4;
-    z <<= 4;
+    x *= n;
+    y *= n;
+    z *= n;
 
-    if (n != 0)
-    {
-        x /= n;
-        y /= n;
-        z /= n;
-    }
+    n = 255 - n;
+
+    r = (A & 0xff0000) >> 16;
+    g = (A & 0x00ff00) >> 8;
+    b = A & 0x0000ff;
+
+    r *= n;
+    g *= n;
+    b *= n;
 
     r += x;
     g += y;
     b += z;
 
-    r >>= 4;
-    g >>= 4;
-    b >>= 4;
+    r >>= 8;
+    g >>= 8;
+    b >>= 8;
 
     if (r > 0xff) r = 0xff;
     if (g > 0xff) g = 0xff;
@@ -288,7 +244,7 @@ __inline void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest
 {
     UWORD i, j, k, p, o;
 
-    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 40000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
+    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 60000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
 
     for(i = 0; i < ANIM_STRIPE; i++)
         BltBitMap(bitmap_checkerboard, 0, 100 * i,
@@ -314,7 +270,8 @@ __inline void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest
 
 void setCheckerboardCopperlist(struct ViewPort *vp)
 {
-    UWORD i, c;
+    UWORD i, c, r, g, b;
+    ULONG c0, c1, cl, ch;
 
     copper = (struct UCopList *)
     AllocMem( sizeof(struct UCopList), MEMF_PUBLIC|MEMF_CHIP|MEMF_CLEAR );
@@ -330,9 +287,40 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
             CMOVE(copper, *((UWORD *)SPR0PTL_ADDR), (LONG)&blank_pointer);
         }
 
-        CMOVE(copper, custom.color[0], vcopperlist_checker_1[i + 5]);
-        for (c = 1; c < 8; c++)
-            CMOVE(copper, custom.color[c], mixRGB4Colors(vcopperlist_checker_1[i + 5], vcopperlist_checker_0[i + 5], (checkerboard_PaletteRGB4[c] & 0xF) / 5));
+        // c0 = mixRGB8Colors(RGB4toRGB8(vcopperlist_checker_1[i + 1]), RGB4toRGB8(vcopperlist_checker_1[i + 3]), 1 << 2);
+        // c1 = mixRGB8Colors(RGB4toRGB8(vcopperlist_checker_1[i + 4]), RGB4toRGB8(vcopperlist_checker_1[i + 6]), 1 << 2);
+        // c0 = mixRGB8Colors(c0, c1, 1 << 2);
+
+        // c0 = RGB4toRGB8(vcopperlist_checker_1[i + 5]);
+
+         // OK
+        c0 = i | ((i * 3) / 2) << 8;
+
+        //  OK
+        // c0 = mixRGB8Colors(RGB4toRGB8(0xF00), RGB4toRGB8(0x00F), i * 255 / DISPL_HEIGHT2);
+
+        ch = (c0 & 0xf00000)>>12 | (c0 & 0xf000) >> 8 | (c0 & 0xf0) >> 4;
+        cl = (c0 & 0x0f0000)>>8   | (c0 & 0x0f00) >> 4 | (c0 & 0x0f);
+
+        CMOVE(copper, *((UWORD *)0xdff106), 0x0000);
+        CMOVE(copper, *((UWORD *)0xdff180), ch);
+        CMOVE(copper, *((UWORD *)0xdff106), 0x0200);
+        CMOVE(copper, *((UWORD *)0xdff180), cl);
+
+        // CMOVE(copper, custom.color[0], vcopperlist_checker_1[i + 5]);
+        // for (c = 1; c < 8; c++)
+        //     CMOVE(copper, custom.color[c], mixRGB4Colors(vcopperlist_checker_1[i + 5], vcopperlist_checker_0[i + 5], (checkerboard_PaletteRGB4[c] & 0xF) / 4));
+     
+        // for (c = 1; c < 8; c++)
+        // {
+        //     c1 = mixRGB8Colors(c0, RGB4toRGB8(vcopperlist_checker_0[i + 5]), (checkerboard_PaletteRGB4[c] & 0xF) * 16);
+        //     ch = (c1 & 0xf00000)>>12 | (c1 & 0xf000) >> 8 | (c1 & 0xf0) >> 4;
+        //     cl = (c1 & 0x0f0000)>>8   | (c1 & 0x0f00) >> 4 | (c1 & 0x0f);   
+        //     CMOVE(copper, *((UWORD *)0xdff106), 0x0000);            
+        //     CMOVE(copper, custom.color[c], ch);
+        //     CMOVE(copper, *((UWORD *)0xdff106), 0x0200);            
+        //     CMOVE(copper, custom.color[c], cl);            
+        // }        
     }
 
     CEND(copper);

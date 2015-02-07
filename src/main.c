@@ -182,7 +182,8 @@ void close_demo(STRPTR message)
 void main()
 {
 	UWORD *pointer;
-	UBYTE loop, palette_fade, palette_idx;
+	USHORT loop, palette_idx;
+	UWORD palette_fade;
 	ULONG tmp_col;
 	int demo_string_index;
 	ULONG vp_error;
@@ -193,6 +194,13 @@ void main()
 	UBYTE IS_AGA;
 	BPTR fileHandle;
 	UBYTE *tmp_ptr;
+
+	for(loop = 0; loop < 16; loop++)
+		printf("(0xFFFFFF, 0x000000, %d) = %x\n", loop, mixRGB8Colors(0xFFFFFF, 0x000000, loop));
+	// for(loop = 255 - 16; loop < 255; loop++)
+	// 	printf("(0xFFFFFF, 0x000000, %d) = %x\n", loop, mixRGB8Colors(0xFFFFFF, 0x000000, loop));	
+
+	// exit(0);
 
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
@@ -464,6 +472,9 @@ void main()
 
 	for( loop = 0; loop < COLOURS1; loop++)
 		SetRGB4(&view_port1, loop, 0, 0, 0);
+
+	// for( loop = 0; loop < COLOURS2b; loop++)
+	// 	SetRGB4(&view_port2, COLOURS2 + loop, (bob_32PaletteRGB4[loop] & 0x0f00) >> 8, (bob_32PaletteRGB4[loop] & 0x00f0) >> 4, bob_32PaletteRGB4[loop] & 0x000f);	
 	// for( loop = 0; loop < COLOURS1; loop++)
 	// 	SetRGB32(&view_port1, loop, (RGB4toRGB8(mandarine_logoPaletteRGB4[loop]) & 0xff0000) << 8, 
 	// 								(RGB4toRGB8(mandarine_logoPaletteRGB4[loop]) & 0x00ff00) << 16, 
@@ -498,34 +509,26 @@ void main()
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
-
+		WaitTOF();
 		scrollLogoBackground();
 		updateCheckerboard();
 
 		switch(mode_switch)
 		{
 			case DMODE_SW_INTRO:
-				tmp_col = mixRGB8Colors(RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), 0x000, palette_fade);
-        		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
-        		palette_idx++;
-				tmp_col = mixRGB8Colors(RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), 0x000, palette_fade);
-        		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
-        		palette_idx++;
-				tmp_col = mixRGB8Colors(RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), 0x000, palette_fade);
-        		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
-        		palette_idx++;
-				tmp_col = mixRGB8Colors(RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), 0x000, palette_fade);
-        		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
-        		palette_idx++;
-
-        		if (palette_idx >= COLOURS1)
-        		{
-        			palette_idx = 0;
-					palette_fade++;
-					if (palette_fade > 1 << 4)
-						mode_switch = DMODE_SW_UBOB;
+				for(palette_idx = 0; palette_idx < COLOURS1 >> 1; palette_idx++)
+				{
+					tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
+	        		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
 				}
-					// mode_switch = DMODE_SW_UBOB;
+
+				palette_fade += 1;
+				if (palette_fade > (1 << 8))
+				{
+					printf("palette_fade = %d\n", palette_fade);
+					mode_switch = DMODE_SW_UBOB;
+				}
+				// mode_switch = DMODE_SW_UBOB;
 				break;
 
 			case DMODE_SW_UBOB:
@@ -592,7 +595,6 @@ void main()
 					text_switch = TEXTMODE_SW_WAIT;
 				break;
 		}
-		WaitTOF();
 	}
 
 	// DisownBlitter();

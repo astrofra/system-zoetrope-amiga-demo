@@ -5,10 +5,6 @@
 #include <intuition/intuition.h>
 #include <graphics/gfxbase.h>
 
-UWORD mixRGB4Colors(UWORD A, UWORD B, UBYTE n);
-void fadeRGB4Palette(struct ViewPort *vp, UWORD *pal, UWORD pal_size, UWORD fade);
-ULONG RGB4toRGB8(UWORD A);
-ULONG mixRGB8Colors(ULONG A, ULONG B, USHORT n);
 void loadBuddhaBitmaps(void);
 void drawBuddha(struct RastPort *dest_rp, struct BitMap *dest_bitmap, UWORD phase);
 void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y);

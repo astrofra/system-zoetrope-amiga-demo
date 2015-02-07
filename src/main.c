@@ -32,6 +32,7 @@ Graphic assets
 #include "mandarine_logo.h"
 #include "font_desc.h"
 #include "font_bitmap.h"
+#include "color_routines.h"
 #include "font_routines.h"
 #include "demo_strings.h"
 #include "demo_mode_switches.h"

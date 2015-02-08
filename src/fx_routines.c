@@ -44,6 +44,7 @@ UWORD ubob_hscroll_phase = 0;
 UWORD checkerboard_scroll_offset = 0;
 UWORD scrolltext_y_offset = 0;
 UWORD ubob_scale = 0;
+UBYTE ubob_morph_idx = 0;
 struct UCopList *copper;
 
 UWORD chip blank_pointer[4]=
@@ -73,7 +74,6 @@ void drawBuddha(struct RastPort *dest_rp, struct BitMap *dest_bitmap, UWORD phas
     BLIT_BITMAP_S(bitmap_zzz, dest_bitmap, buddha_zz.Width, buddha_zz.Height, x, y); 
     BLIT_BITMAP_S(bitmap_buddha, dest_bitmap, buddha.Width, buddha.Height, (DISPL_WIDTH1 - buddha.Width) >> 1, HEIGHT1 - buddha.Height - 4); 
 }
-
 
 /*	
 	Viewport 1, 
@@ -245,40 +245,45 @@ __inline void updateCheckerboard(void)
 
 void loadBobBitmaps(void)
 {   
-    bitmap_bob = load_array_as_bitmap(bob_32Data, 192 << 1, bob_32.Width, bob_32.Height, bob_32.Depth);
-    bitmap_bob_mask = load_array_as_bitmap(bob_32_maskData, 64 << 1, bob_32_mask.Width, bob_32_mask.Height, bob_32_mask.Depth);
+    bitmap_bob = load_file_as_bitmap("assets/morph_iso_0.bin", 6912 << 1, morph_iso_0.Width, morph_iso_0.Height, morph_iso_0.Depth);
+    bitmap_bob_mask = load_file_as_bitmap("assets/morph_iso_0_mask.bin", 4608, morph_iso_0.Width, morph_iso_0.Height, 1);
 }
 
 
 __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) // struct BitMap* dest_bitmap)
 {
-    UWORD x, y;
+    UWORD x, y, src_x, src_y;
 
     switch(*figure_mode)
     {
         case 0:
-            ubob_phase_x += 1;
-            ubob_phase_y += 2;
+            ubob_phase_x++;
+            ubob_phase_y++;
+            // ubob_morph_idx = 3;
             break;
 
         case 1:
             ubob_phase_x += 2;
             ubob_phase_y += 1;
+            // ubob_morph_idx = 2;
             break;
 
         case 2:
             ubob_phase_x += 3;
             ubob_phase_y += 1;
+            // ubob_morph_idx = 1;
             break;
 
         case 3:
             ubob_phase_x += 1;
             ubob_phase_y += 5;
+            // ubob_morph_idx = 3;         
             break;
 
         case 4:
-            ubob_phase_x++;
-            ubob_phase_y++;
+            ubob_phase_x += 1;
+            ubob_phase_y += 2;
+            // ubob_morph_idx = 0;         
             break;                         
     }
 
@@ -297,11 +302,29 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
         ubob_scale++;
 
     x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 24 + ubob_scale + (((tcos[ubob_phase_x & 0x1FF] + 512) * (DISPL_WIDTH2b - 8 - 64 - ubob_scale - ubob_scale)) >> 10);
-    y = ubob_vscroll + 8 + ubob_scale + (((tsin[ubob_phase_y & 0x1FF] + 512) * (DISPL_HEIGHT2b - 16 - 32 - ubob_scale - ubob_scale)) >> 10);
+    y = 8 + ubob_scale + (((tsin[ubob_phase_y & 0x1FF] + 512) * (DISPL_HEIGHT2b - 16 - 32 - ubob_scale - ubob_scale)) >> 10);
 
-    BltMaskBitMapRastPort(bitmap_bob, 0,0,
-            dest_rp, x, y,
-            bob_32.Width, bob_32.Height,
+    if (x < ((WIDTH2b * 2) / 5))
+        src_x = 0;
+    else
+    if (x < (WIDTH2b - ((WIDTH2b * 2) / 5)))
+        src_x = 32;
+    else
+        src_x = 2 * 32;
+
+    if (y < ((DISPL_HEIGHT2b * 2) / 5))
+        src_y = 0;
+    else
+    if (y < (DISPL_HEIGHT2b - ((DISPL_HEIGHT2b * 2) / 5)))
+        src_y = 32;
+    else
+        src_y = 2 * 32;
+
+    src_y += 3 * 96;
+
+    BltMaskBitMapRastPort(bitmap_bob, src_x, src_y,
+            dest_rp, x, y + ubob_vscroll,
+            32, 32,
             (ABC|ABNC|ANBC), bitmap_bob_mask->Planes[0]);
 
     return 1;

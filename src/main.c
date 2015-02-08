@@ -39,6 +39,7 @@ Graphic assets
 
 extern UWORD checkerboard_PaletteRGB4[8];
 extern UWORD bob_32PaletteRGB4[8];
+extern UWORD morph_iso_0PaletteRGB4[8];
 extern UWORD buddhaPaletteRGB4[8];
 
 /* Music */
@@ -320,7 +321,12 @@ void main()
 		BltClear( bit_map2b.Planes[ loop ], RASSIZE( WIDTH2b, HEIGHT2b ), 0 );
 	}
 	for( loop = 0; loop < COLOURS2b; loop++)
-		SetRGB4(&view_port2, COLOURS2 + loop, (bob_32PaletteRGB4[loop] & 0x0f00) >> 8, (bob_32PaletteRGB4[loop] & 0x00f0) >> 4, bob_32PaletteRGB4[loop] & 0x000f);
+	{
+		tmp_col = RGB4toRGB8(bob_32PaletteRGB4[loop]);
+		tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
+		tmp_col = RGB8toRGB4(tmp_col);				
+		SetRGB4(&view_port2, COLOURS2 + loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	}
 
 	/* ViewPort 3 */
 	InitBitMap( &bit_map3, DEPTH3, WIDTH3, HEIGHT3 );
@@ -407,6 +413,9 @@ void main()
 	/*
 		Fade in
 	*/
+	for(loop = 0; loop < COLOURS3; loop++)
+		font_palRGB4[loop] = RGB8toRGB4(addRGB8Colors(RGB4toRGB8(font_palRGB4[loop]), COLOUR_PURPLE));
+
 	for(loop = 0; loop <= 16; loop++)
 	{
 		WaitTOF();
@@ -417,7 +426,7 @@ void main()
 		fadeRGB4Palette(&view_port3, (UWORD *)font_palRGB4, COLOURS3, 16 - loop);
 	}
 
-	fileHandle = Open((UBYTE *)"brazil-by-med.mod", MODE_OLDFILE);
+	fileHandle = Open((UBYTE *)"assets/brazil-by-med.mod", MODE_OLDFILE);
 
 	mod = (UBYTE *)AllocMem(413506, MEMF_CHIP);
 	tmp_ptr = mod;
@@ -443,7 +452,8 @@ void main()
 		WaitTOF();
 		WaitTOF();
 		WaitTOF();
-		fadeRGB4Palette(&view_port1, (UWORD *)buddhaPaletteRGB4, COLOURS1, loop);
+		// fadeRGB4Palette(&view_port1, (UWORD *)buddhaPaletteRGB4, COLOURS1, loop);
+		fadeRGB4PaletteToRGB8Color(&view_port1, (UWORD *)buddhaPaletteRGB4, COLOURS1, COLOUR_PURPLE, loop * 16);
 	}
 
 	setLogoCopperlist(&view_port1);

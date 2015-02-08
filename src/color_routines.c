@@ -103,6 +103,24 @@ ULONG addRGB8Colors(ULONG A, ULONG B)
     return (r << 16) | (g << 8) | b;
 }
 
+ULONG divideRGB8Color(ULONG A, UWORD n)
+{
+    ULONG   r,g,b;
+
+    if (n == 0)
+        return A;
+
+    r = (A & 0xff0000) >> 16;
+    g = (A & 0x00ff00) >> 8;
+    b = A & 0x0000ff;
+
+    r /= n;
+    g /= n;
+    b /= n;
+
+    return (r << 16) | (g << 8) | b;    
+}
+
 ULONG mixRGB8Colors(ULONG A, ULONG B, USHORT n)
 {
     ULONG   r,g,b,
@@ -159,6 +177,19 @@ void fadeRGB4Palette(struct ViewPort *vp, UWORD *pal, UWORD pal_size, UWORD fade
     for(i = 0; i < pal_size; i++)
     {
         col = mixRGB4Colors(pal[i], 0x000, fade);
+        SetRGB4(vp, i, (col & 0x0f00) >> 8, (col & 0x00f0) >> 4, col & 0x000f);
+    }
+}
+
+void fadeRGB4PaletteToRGB8Color(struct ViewPort *vp, UWORD *pal, UWORD pal_size, ULONG rgb8color, UWORD fade)
+{
+    UBYTE i;
+    UWORD col;
+
+    for(i = 0; i < pal_size; i++)
+    {
+        col = mixRGB8Colors(RGB4toRGB8(pal[i]), rgb8color, fade);
+        col = RGB8toRGB4(col);
         SetRGB4(vp, i, (col & 0x0f00) >> 8, (col & 0x00f0) >> 4, col & 0x000f);
     }
 }

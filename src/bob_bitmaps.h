@@ -40,4 +40,15 @@ struct Image clr_pattern =
 	NULL		/* NextImage */
 };
 
+extern UWORD morph_iso_0PaletteRGB4[8];
+
+struct Image morph_iso_0 =
+{
+	0, 0,		/* LeftEdge, TopEdge */
+	96, 384, 3,	/* Width, Height, Depth */
+	NULL,	/* ImageData */
+	0x0007, 0x0000,	/* PlanePick, PlaneOnOff */
+	NULL		/* NextImage */
+};
+
 #endif

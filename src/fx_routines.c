@@ -140,28 +140,14 @@ __inline void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest
 {
     UWORD i, j, k, p, o;
 
-    bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 60000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
+    // bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 60000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
+    bitmap_checkerboard = load_file_as_bitmap("assets/checkerboard_strip.bin", 60000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
 
     for(i = 0; i < ANIM_STRIPE; i++)
         BltBitMap(bitmap_checkerboard, 0, 100 * i,
             dest_bitmap, 0, DISPL_HEIGHT2 * i + (DISPL_HEIGHT2 - (100)),
             checkerboard.Width, 100,
             0xC0, 0xFF, NULL);
-
-    // for (k = 0; k < 5 * 8; k += 8)
-    //     for(j = 0; j  < HEIGHT2; j++)
-    //         for(i = 0; i < k; i++)
-    //         {
-    //             p = ReadPixel(dest_rp, i, j);
-    //             p = checkerboard_pal_dec[p];
-    //             SetAPen(dest_rp, p);
-    //             WritePixel(dest_rp, i, j);
-
-    //             p = ReadPixel(dest_rp, WIDTH2 - i - 1, j);
-    //             p = checkerboard_pal_dec[p];
-    //             SetAPen(dest_rp, p);
-    //             WritePixel(dest_rp, WIDTH2 - i - 1, j);
-    //         }
 }
 
 void setCheckerboardCopperlist(struct ViewPort *vp)
@@ -226,7 +212,7 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
             into a user copper list
         */
         for (c = 0; c < COLOURS2b; c++)
-            CMOVE(copper, custom.color[c], RGB8toRGB4(pal[c]));
+            CMOVE(copper, custom.color[c], RGB8toRGB4(addRGB8Colors(pal[c], COLOUR_PURPLE)));
     }
 
     CEND(copper);

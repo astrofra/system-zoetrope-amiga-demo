@@ -76,6 +76,33 @@ UWORD RGB8toRGB4(ULONG A)
     return (UWORD)(r|g|b);
 }
 
+ULONG addRGB8Colors(ULONG A, ULONG B)
+{
+    ULONG   r,g,b,
+            x,y,z;
+
+    x = (B & 0xff0000) >> 16;
+    y = (B & 0x00ff00) >> 8;
+    z = B & 0x000ff;
+
+    r = (A & 0xff0000) >> 16;
+    g = (A & 0x00ff00) >> 8;
+    b = A & 0x0000ff;
+
+    r += x;
+    g += y;
+    b += z;
+
+    if (r > 0xFF)
+        r = 0xFF;
+    if (g > 0xFF)
+        g = 0xFF;
+    if (b > 0xFF)
+        b = 0xFF;
+
+    return (r << 16) | (g << 8) | b;
+}
+
 ULONG mixRGB8Colors(ULONG A, ULONG B, USHORT n)
 {
     ULONG   r,g,b,

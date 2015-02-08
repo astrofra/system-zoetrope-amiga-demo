@@ -196,13 +196,6 @@ void main()
 	BPTR fileHandle;
 	UBYTE *tmp_ptr;
 
-	for(loop = 0; loop < 16; loop++)
-		printf("(0xFFFFFF, 0x000000, %d) = %x\n", loop, mixRGB8Colors(0xFFFFFF, 0x000000, loop));
-	// for(loop = 255 - 16; loop < 255; loop++)
-	// 	printf("(0xFFFFFF, 0x000000, %d) = %x\n", loop, mixRGB8Colors(0xFFFFFF, 0x000000, loop));	
-
-	// exit(0);
-
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
 	OpenLibrary( "intuition.library", 0 );
@@ -467,10 +460,6 @@ void main()
 	loadTextWriterFont();
 	loadBobBitmaps();
 
-	printf("sizeof(ULONG) = %d\n", sizeof(ULONG));
-	printf("0xF00 = %x\n", RGB4toRGB8(0xF00));
-	printf("0xF84 = %x\n", RGB4toRGB8(0xF84));
-
 	for( loop = 0; loop < COLOURS1; loop++)
 		SetRGB4(&view_port1, loop, 0, 0, 0);
 
@@ -520,15 +509,13 @@ void main()
 				for(palette_idx = 0; palette_idx < COLOURS1 >> 1; palette_idx++)
 				{
 					tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
+					tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
 	        		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
 				}
 
-				palette_fade += 1;
+				palette_fade += 4;
 				if (palette_fade > (1 << 8))
-				{
-					printf("palette_fade = %d\n", palette_fade);
 					mode_switch = DMODE_SW_UBOB;
-				}
 				// mode_switch = DMODE_SW_UBOB;
 				break;
 

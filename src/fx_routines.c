@@ -141,7 +141,7 @@ __inline void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest
     UWORD i, j, k, p, o;
 
     // bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 60000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
-    bitmap_checkerboard = load_file_as_bitmap("assets/checkerboard_strip.bin", 60000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
+    bitmap_checkerboard = load_file_as_bitmap("assets/checkerboard_strip.bin", 40000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
 
     for(i = 0; i < ANIM_STRIPE; i++)
         BltBitMap(bitmap_checkerboard, 0, 100 * i,

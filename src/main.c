@@ -160,7 +160,7 @@ void close_demo(STRPTR message)
 	{
 		PTStop(theMod);
 		PTFreeMod(theMod);
-		FreeMem(mod, 413506);
+		FreeMem(mod, 24838);
 	}
 
 	if (PTReplayBase) CloseLibrary(PTReplayBase);
@@ -424,19 +424,19 @@ void main()
 		fadeRGB4Palette(&view_port3, (UWORD *)font_palRGB4, COLOURS3, 16 - loop);
 	}
 
-	fileHandle = Open((UBYTE *)"assets/brazil-by-med.mod", MODE_OLDFILE);
+	fileHandle = Open((UBYTE *)"assets/95_02_21_SKULL.mod", MODE_OLDFILE);
 
-	mod = (UBYTE *)AllocMem(413506, MEMF_CHIP);
+	mod = (UBYTE *)AllocMem(24838, MEMF_CHIP);
 	tmp_ptr = mod;
 
 	loop = 0;
 	while(loop < (1 << 6))
 	{
-		Read(fileHandle, tmp_ptr, (413506 >> 6));
+		Read(fileHandle, tmp_ptr, (24838 >> 6));
 		WaitTOF();
 		drawBuddha(&rast_port1, &bit_map1, loop << 3);
 		loop++;
-		tmp_ptr += (413506 >> 6);
+		tmp_ptr += (24838 >> 6);
 	}
 
 	Close(fileHandle);
@@ -518,7 +518,7 @@ void main()
 				{
 					tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
 					tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
-	        		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
+	        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0xff0000L) >> 20, (tmp_col & 0x00ff00L) >> 16, (tmp_col & 0x00ffL) >> 12);
 				}
 
 				palette_fade += 4;

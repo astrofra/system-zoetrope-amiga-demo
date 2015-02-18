@@ -15,7 +15,7 @@
 #define DISPL_WIDTH2   DEFAULT_DISP_WIDTH
 #define DISPL_HEIGHT2   150
 #define HEIGHT2 (DISPL_HEIGHT2 * ANIM_STRIPE)                        
-#define DEPTH2     1
+#define DEPTH2     2
 #define COLOURS2   (1 << DEPTH2)
 
 /* ViewPort 2b */
@@ -24,7 +24,7 @@
 #define DISPL_WIDTH2b   DEFAULT_DISP_WIDTH
 #define DISPL_HEIGHT2b   150
 #define HEIGHT2b (DISPL_HEIGHT2b * ANIM_STRIPEb)                        
-#define DEPTH2b     1
+#define DEPTH2b     2
 #define COLOURS2b   (1 << DEPTH2b)
 
 /* ViewPort 3 */

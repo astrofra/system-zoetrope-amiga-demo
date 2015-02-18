@@ -212,8 +212,6 @@ void main()
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
 
-	SetChipRev(SETCHIPREV_BEST);
-
 	/* Prepare the View structure, and give it a pointer to */
 	/* the first ViewPort:                                  */
 	InitView( &my_view );

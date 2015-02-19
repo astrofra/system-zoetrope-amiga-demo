@@ -7,10 +7,7 @@
 /*
 	Data for "mandarine_logo" Image
 */
-extern UWORD mandarine_logoPaletteRGB4[16];
-
-extern UWORD mandarine_logoData[6400];
-
+extern UWORD mandarine_logoPaletteRGB4[8];
 extern struct Image mandarine_logo;
 
 #endif // #ifndef MANDARINE_LOGO

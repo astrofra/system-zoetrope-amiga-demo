@@ -12,7 +12,7 @@
 #include "mandarine_logo.h"
 #include "checkerboard_strip.h"
 #include "bob_bitmaps.h"
-#include "buddha_bitmaps.h"
+// #include "buddha_bitmaps.h"
 #include "vert_copper_palettes.h"
 #include "font_desc.h"
 #include "font_bitmap.h"
@@ -26,8 +26,8 @@ extern struct  BitMap *bitmap_logo;
 extern struct  BitMap *bitmap_checkerboard;
 extern struct  BitMap *bitmap_bob;
 extern struct  BitMap *bitmap_bob_mask;
-extern struct BitMap *bitmap_buddha;
-extern struct BitMap *bitmap_zzz;
+// extern struct BitMap *bitmap_buddha;
+// extern struct BitMap *bitmap_zzz;
 
 extern struct Custom far custom;
 
@@ -56,24 +56,24 @@ UWORD chip blank_pointer[4]=
 /*
     Preaload (Buddha)
 */
-void loadBuddhaBitmaps(void)
-{
-    bitmap_buddha = load_array_as_bitmap(buddhaData, 192 << 1, buddha.Width, buddha.Height, buddha.Depth);
-    bitmap_zzz = load_array_as_bitmap(buddha_zzData, 48 << 1, buddha_zz.Width, buddha_zz.Height, buddha_zz.Depth);
-}
+// void loadBuddhaBitmaps(void)
+// {
+//     bitmap_buddha = load_array_as_bitmap(buddhaData, 192 << 1, buddha.Width, buddha.Height, buddha.Depth);
+//     bitmap_zzz = load_array_as_bitmap(buddha_zzData, 48 << 1, buddha_zz.Width, buddha_zz.Height, buddha_zz.Depth);
+// }
 
-void drawBuddha(struct RastPort *dest_rp, struct BitMap *dest_bitmap, UWORD phase)
-{
-    UWORD x, y, offset_y;
-    offset_y = 8 + ((tcos[phase & 0x1FF] + 512) * 8) >> 10;
-    x = (DISPL_WIDTH1 - buddha_zz.Width) >> 1;
-    y = HEIGHT1 - buddha.Height - buddha_zz.Height - 12 + offset_y;
-    SetAPen(dest_rp, 0);
-    RectFill(dest_rp, 
-       x, y - 1, x + buddha_zz.Width - 1, y + buddha_zz.Height + 2);    
-    BLIT_BITMAP_S(bitmap_zzz, dest_bitmap, buddha_zz.Width, buddha_zz.Height, x, y); 
-    BLIT_BITMAP_S(bitmap_buddha, dest_bitmap, buddha.Width, buddha.Height, (DISPL_WIDTH1 - buddha.Width) >> 1, HEIGHT1 - buddha.Height - 4); 
-}
+// void drawBuddha(struct RastPort *dest_rp, struct BitMap *dest_bitmap, UWORD phase)
+// {
+//     UWORD x, y, offset_y;
+//     offset_y = 8 + ((tcos[phase & 0x1FF] + 512) * 8) >> 10;
+//     x = (DISPL_WIDTH1 - buddha_zz.Width) >> 1;
+//     y = HEIGHT1 - buddha.Height - buddha_zz.Height - 12 + offset_y;
+//     SetAPen(dest_rp, 0);
+//     RectFill(dest_rp, 
+//        x, y - 1, x + buddha_zz.Width - 1, y + buddha_zz.Height + 2);    
+//     BLIT_BITMAP_S(bitmap_zzz, dest_bitmap, buddha_zz.Width, buddha_zz.Height, x, y); 
+//     BLIT_BITMAP_S(bitmap_buddha, dest_bitmap, buddha.Width, buddha.Height, (DISPL_WIDTH1 - buddha.Width) >> 1, HEIGHT1 - buddha.Height - 4); 
+// }
 
 /*	
 	Viewport 1, 
@@ -83,7 +83,9 @@ void drawBuddha(struct RastPort *dest_rp, struct BitMap *dest_bitmap, UWORD phas
 /*	Draws the Mandarine Logo */
 void drawMandarineLogo(struct BitMap *dest_bitmap, UWORD offset_y)
 {
-	bitmap_logo = load_array_as_bitmap(mandarine_logoData, 6400 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
+	// bitmap_logo = load_array_as_bitmap(mandarine_logoData, 6400 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
+
+    bitmap_logo = load_file_as_bitmap("assets/mandarine_logo.bin", 4800 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
 	BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (WIDTH1 - mandarine_logo.Width) >> 1, offset_y);
 }
 
@@ -245,14 +247,15 @@ __inline void updateCheckerboard(void)
 
 void loadBobBitmaps(void)
 {   
-    bitmap_bob = load_file_as_bitmap("assets/morph_iso_0.bin", 6912 << 1, morph_iso_0.Width, morph_iso_0.Height, morph_iso_0.Depth);
-    bitmap_bob_mask = load_file_as_bitmap("assets/morph_iso_0_mask.bin", 4608, morph_iso_0.Width, morph_iso_0.Height, 1);
+    bitmap_bob = load_file_as_bitmap("assets/bob_sphere.bin", 264, bob_32.Width, bob_32.Height, bob_32.Depth);
+    bitmap_bob_mask = load_file_as_bitmap("assets/bob_sphere_mask.bin", 128, bob_32_mask.Width, bob_32_mask.Height, bob_32_mask.Depth);
 }
 
 
 __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) // struct BitMap* dest_bitmap)
 {
-    UWORD x, y, src_x, src_y;
+    UWORD x, y;
+    // UWORD src_x, src_y;
 
     switch(*figure_mode)
     {
@@ -304,25 +307,25 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
     x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 24 + ubob_scale + (((tcos[ubob_phase_x & 0x1FF] + 512) * (DISPL_WIDTH2b - 8 - 64 - ubob_scale - ubob_scale)) >> 10);
     y = 8 + ubob_scale + (((tsin[ubob_phase_y & 0x1FF] + 512) * (DISPL_HEIGHT2b - 16 - 32 - ubob_scale - ubob_scale)) >> 10);
 
-    if (x < ((WIDTH2b * 2) / 5))
-        src_x = 0;
-    else
-    if (x < (WIDTH2b - ((WIDTH2b * 2) / 5)))
-        src_x = 32;
-    else
-        src_x = 2 * 32;
+    // if (x < ((WIDTH2b * 2) / 5))
+    //     src_x = 0;
+    // else
+    // if (x < (WIDTH2b - ((WIDTH2b * 2) / 5)))
+    //     src_x = 32;
+    // else
+    //     src_x = 2 * 32;
 
-    if (y < ((DISPL_HEIGHT2b * 2) / 5))
-        src_y = 0;
-    else
-    if (y < (DISPL_HEIGHT2b - ((DISPL_HEIGHT2b * 2) / 5)))
-        src_y = 32;
-    else
-        src_y = 2 * 32;
+    // if (y < ((DISPL_HEIGHT2b * 2) / 5))
+    //     src_y = 0;
+    // else
+    // if (y < (DISPL_HEIGHT2b - ((DISPL_HEIGHT2b * 2) / 5)))
+    //     src_y = 32;
+    // else
+    //     src_y = 2 * 32;
 
-    src_y += 3 * 96;
+    // src_y += 3 * 96;
 
-    BltMaskBitMapRastPort(bitmap_bob, src_x, src_y,
+    BltMaskBitMapRastPort(bitmap_bob, 0, 0,
             dest_rp, x, y + ubob_vscroll,
             32, 32,
             (ABC|ABNC|ANBC), bitmap_bob_mask->Planes[0]);

@@ -5,8 +5,8 @@
 #include <intuition/intuition.h>
 #include <graphics/gfxbase.h>
 
-void loadBuddhaBitmaps(void);
-void drawBuddha(struct RastPort *dest_rp, struct BitMap *dest_bitmap, UWORD phase);
+// void loadBuddhaBitmaps(void);
+// void drawBuddha(struct RastPort *dest_rp, struct BitMap *dest_bitmap, UWORD phase);
 void drawMandarineLogo(struct BitMap *dest_bitmap, USHORT offset_y);
 void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest_rp);
 void setLogoCopperlist(struct ViewPort *vp);

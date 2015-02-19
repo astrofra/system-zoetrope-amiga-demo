@@ -40,7 +40,7 @@ Graphic assets
 extern UWORD checkerboard_PaletteRGB4[8];
 extern UWORD bob_32PaletteRGB4[8];
 extern UWORD morph_iso_0PaletteRGB4[8];
-extern UWORD buddhaPaletteRGB4[8];
+// extern UWORD buddhaPaletteRGB4[8];
 
 /* Music */
 struct Library *PTReplayBase;
@@ -90,8 +90,8 @@ struct BitMap *bitmap_checkerboard = NULL;
 struct BitMap *bitmap_font = NULL;
 struct BitMap *bitmap_bob = NULL;
 struct BitMap *bitmap_bob_mask = NULL;
-struct BitMap *bitmap_buddha = NULL;
-struct BitMap *bitmap_zzz = NULL;
+// struct BitMap *bitmap_buddha = NULL;
+// struct BitMap *bitmap_zzz = NULL;
 
 void initMusicLibrary(void)
 {
@@ -104,7 +104,7 @@ void initMusicLibrary(void)
 		exit(0); //FIXME
 	}
 
-	// mod = load_getchipmem((UBYTE *)"brazil-by-med.mod", 413506);
+	mod = load_getchipmem((UBYTE *)"assets/med-kenet_zougi.mod", 11264);
 }
 
 void playMusic(void)
@@ -152,15 +152,15 @@ void close_demo(STRPTR message)
 	free_allocated_bitmap(bitmap_font);
 	free_allocated_bitmap(bitmap_bob);
 	free_allocated_bitmap(bitmap_bob_mask);
-	free_allocated_bitmap(bitmap_buddha);
-	free_allocated_bitmap(bitmap_zzz);
+	// free_allocated_bitmap(bitmap_buddha);
+	// free_allocated_bitmap(bitmap_zzz);
 
 	/*	Stop music */
 	if (mod != NULL)
 	{
 		PTStop(theMod);
 		PTFreeMod(theMod);
-		FreeMem(mod, 24838);
+		FreeMem(mod, 11264);
 	}
 
 	if (PTReplayBase) CloseLibrary(PTReplayBase);
@@ -318,13 +318,14 @@ void main()
 		/* Clear the display memory with help of the Blitter: */
 		BltClear( bit_map2b.Planes[ loop ], RASSIZE( WIDTH2b, HEIGHT2b ), 0 );
 	}
-	for( loop = 0; loop < COLOURS2b; loop++)
-	{
-		tmp_col = RGB4toRGB8(bob_32PaletteRGB4[loop]);
-		tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
-		tmp_col = RGB8toRGB4(tmp_col);				
-		SetRGB4(&view_port2, COLOURS2 + loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-	}
+
+	// for( loop = 0; loop < COLOURS2b; loop++)
+	// {
+	// 	tmp_col = RGB4toRGB8(bob_32PaletteRGB4[loop]);
+	// 	tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
+	// 	tmp_col = RGB8toRGB4(tmp_col);				
+	// 	SetRGB4(&view_port2, COLOURS2 + loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	// }
 
 	/* ViewPort 3 */
 	InitBitMap( &bit_map3, DEPTH3, WIDTH3, HEIGHT3 );
@@ -388,71 +389,19 @@ void main()
 	vp_error = MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
 	vp_error = MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
 
-	setLogoCopperlist(&view_port1);
-	setTextLinerCopperlist(&view_port3);
+	// setLogoCopperlist(&view_port1);
+	// setTextLinerCopperlist(&view_port3);
 
-	WaitTOF();
+	// WaitTOF();
 
-	MrgCop(&my_view);
+	// MrgCop(&my_view);
 
 	/* 8. Show the new View: */
 	LoadView( &my_view );
 
 	OFF_SPRITE;
 
-	loadBuddhaBitmaps();
 	initMusicLibrary();
-
-	drawBuddha(&rast_port1, &bit_map1, 0);
-
-	text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)loading_string[0]);
-	font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, 1, (UBYTE *)loading_string[0]);
-
-	/*
-		Fade in
-	*/
-	for(loop = 0; loop < COLOURS3; loop++)
-		font_palRGB4[loop] = RGB8toRGB4(addRGB8Colors(RGB4toRGB8(font_palRGB4[loop]), COLOUR_PURPLE));
-
-	for(loop = 0; loop <= 16; loop++)
-	{
-		WaitTOF();
-		WaitTOF();
-		WaitTOF();
-		WaitTOF();
-		fadeRGB4Palette(&view_port1, (UWORD *)buddhaPaletteRGB4, COLOURS1, 16 - loop);
-		fadeRGB4Palette(&view_port3, (UWORD *)font_palRGB4, COLOURS3, 16 - loop);
-	}
-
-	fileHandle = Open((UBYTE *)"assets/95_02_21_SKULL.mod", MODE_OLDFILE);
-
-	mod = (UBYTE *)AllocMem(24838, MEMF_CHIP);
-	tmp_ptr = mod;
-
-	loop = 0;
-	while(loop < (1 << 6))
-	{
-		Read(fileHandle, tmp_ptr, (24838 >> 6));
-		WaitTOF();
-		drawBuddha(&rast_port1, &bit_map1, loop << 3);
-		loop++;
-		tmp_ptr += (24838 >> 6);
-	}
-
-	Close(fileHandle);
-
-	/*
-		Fade out
-	*/
-	for(loop = 0; loop <= 16; loop++)
-	{
-		WaitTOF();
-		WaitTOF();
-		WaitTOF();
-		WaitTOF();
-		// fadeRGB4Palette(&view_port1, (UWORD *)buddhaPaletteRGB4, COLOURS1, loop);
-		fadeRGB4PaletteToRGB8Color(&view_port1, (UWORD *)buddhaPaletteRGB4, COLOURS1, COLOUR_PURPLE, loop * 16);
-	}
 
 	setLogoCopperlist(&view_port1);
 	setTextLinerCopperlist(&view_port3);
@@ -468,9 +417,6 @@ void main()
 	loadTextWriterFont();
 	loadBobBitmaps();
 
-	for( loop = 0; loop < COLOURS1; loop++)
-		SetRGB4(&view_port1, loop, 0, 0, 0);
-
 	// for( loop = 0; loop < COLOURS2b; loop++)
 	// 	SetRGB4(&view_port2, COLOURS2 + loop, (bob_32PaletteRGB4[loop] & 0x0f00) >> 8, (bob_32PaletteRGB4[loop] & 0x00f0) >> 4, bob_32PaletteRGB4[loop] & 0x000f);	
 	// for( loop = 0; loop < COLOURS1; loop++)
@@ -480,12 +426,23 @@ void main()
 
 	drawMandarineLogo(&bit_map1, 0);
 
+	for( loop = 0; loop < COLOURS1; loop++)
+	{
+		tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE, RGB4toRGB8(mandarine_logoPaletteRGB4[loop])));
+		SetRGB4(&view_port1, loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	}
+
+	for( loop = 0; loop < COLOURS3; loop++)
+	{
+		tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE, RGB4toRGB8(font_palRGB4[loop])));
+		SetRGB4(&view_port3, loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	}	
+
 	SetAPen(&rast_port2, 0);
 	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
 	drawCheckerboard(&bit_map2, &rast_port2);
 
-	playMusic();
-
+	// playMusic();
 
 	Forbid();
 	Disable();
@@ -514,17 +471,17 @@ void main()
 		switch(mode_switch)
 		{
 			case DMODE_SW_INTRO:
-				for(palette_idx = 0; palette_idx < COLOURS1 >> 1; palette_idx++)
-				{
-					tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
-					tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
-	        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0xff0000L) >> 20, (tmp_col & 0x00ff00L) >> 16, (tmp_col & 0x00ffL) >> 12);
-				}
+				// for(palette_idx = 0; palette_idx < COLOURS1 >> 1; palette_idx++)
+				// {
+				// 	tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
+				// 	tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
+	   //      		SetRGB4(&view_port1, palette_idx, (tmp_col & 0xff0000L) >> 20, (tmp_col & 0x00ff00L) >> 16, (tmp_col & 0x00ffL) >> 12);
+				// }
 
-				palette_fade += 4;
-				if (palette_fade > (1 << 8))
-					mode_switch = DMODE_SW_UBOB;
-				// mode_switch = DMODE_SW_UBOB;
+				// palette_fade += 4;
+				// if (palette_fade > (1 << 8))
+				// 	mode_switch = DMODE_SW_UBOB;
+				mode_switch = DMODE_SW_UBOB;
 				break;
 
 			case DMODE_SW_UBOB:

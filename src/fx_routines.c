@@ -26,8 +26,6 @@ extern struct  BitMap *bitmap_logo;
 extern struct  BitMap *bitmap_checkerboard;
 extern struct  BitMap *bitmap_bob;
 extern struct  BitMap *bitmap_bob_mask;
-// extern struct BitMap *bitmap_buddha;
-// extern struct BitMap *bitmap_zzz;
 
 extern struct Custom far custom;
 
@@ -164,7 +162,7 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     pal = (ULONG *)malloc(sizeof(ULONG) * 256);
     memset(pal, 0xFF00FF, 256);
 
-    CINIT(copper, DISPL_HEIGHT2 * 10);
+    CINIT(copper, DISPL_HEIGHT2 * 2 * 16);
 
     for(i = 0; i < DISPL_HEIGHT2; i++)
     {
@@ -247,7 +245,7 @@ __inline void updateCheckerboard(void)
 
 void loadBobBitmaps(void)
 {   
-    bitmap_bob = load_file_as_bitmap("assets/bob_sphere.bin", 264, bob_32.Width, bob_32.Height, bob_32.Depth);
+    bitmap_bob = load_file_as_bitmap("assets/bob_sphere.bin", 256, bob_32.Width, bob_32.Height, bob_32.Depth);
     bitmap_bob_mask = load_file_as_bitmap("assets/bob_sphere_mask.bin", 128, bob_32_mask.Width, bob_32_mask.Height, bob_32_mask.Depth);
 }
 

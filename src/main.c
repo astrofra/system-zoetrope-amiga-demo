@@ -389,15 +389,8 @@ void main()
 	vp_error = MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
 	vp_error = MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
 
-	// setLogoCopperlist(&view_port1);
-	// setTextLinerCopperlist(&view_port3);
-
-	// WaitTOF();
-
-	// MrgCop(&my_view);
-
 	/* 8. Show the new View: */
-	LoadView( &my_view );
+	// LoadView( &my_view );
 
 	OFF_SPRITE;
 
@@ -417,14 +410,8 @@ void main()
 	loadTextWriterFont();
 	loadBobBitmaps();
 
-	// for( loop = 0; loop < COLOURS2b; loop++)
-	// 	SetRGB4(&view_port2, COLOURS2 + loop, (bob_32PaletteRGB4[loop] & 0x0f00) >> 8, (bob_32PaletteRGB4[loop] & 0x00f0) >> 4, bob_32PaletteRGB4[loop] & 0x000f);	
-	// for( loop = 0; loop < COLOURS1; loop++)
-	// 	SetRGB32(&view_port1, loop, (RGB4toRGB8(mandarine_logoPaletteRGB4[loop]) & 0xff0000) << 8, 
-	// 								(RGB4toRGB8(mandarine_logoPaletteRGB4[loop]) & 0x00ff00) << 16, 
-	// 								(RGB4toRGB8(mandarine_logoPaletteRGB4[loop]) & 0x00ff) << 24);;
-
 	drawMandarineLogo(&bit_map1, 0);
+	free_allocated_bitmap(bitmap_logo);
 
 	for( loop = 0; loop < COLOURS1; loop++)
 	{
@@ -441,13 +428,13 @@ void main()
 	SetAPen(&rast_port2, 0);
 	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
 	drawCheckerboard(&bit_map2, &rast_port2);
+	free_allocated_bitmap(bitmap_checkerboard);
 
-	// playMusic();
+	playMusic();
 
 	Forbid();
 	Disable();
 	WaitBlit();
-	// OwnBlitter();	
 
 	palette_fade = 0; 
 	palette_idx = 0;
@@ -550,7 +537,6 @@ void main()
 		}
 	}
 
-	// DisownBlitter();
 	Enable();
 	Permit();
 

@@ -34,6 +34,7 @@
 #define DEPTH3     1
 #define COLOURS3  (1 << DEPTH3)
 
-#define COLOUR_PURPLE (ULONG)0x5F004B
+#define COLOUR_PURPLE (ULONG)0x4a2251
+#define COLOUR_PURPLE_LIGHT (ULONG)0x5F004B
 
 #endif // #ifndef SCREEN_SIZE

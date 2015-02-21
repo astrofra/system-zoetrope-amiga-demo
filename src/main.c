@@ -104,7 +104,7 @@ void initMusicLibrary(void)
 		exit(0); //FIXME
 	}
 
-	mod = load_getchipmem((UBYTE *)"assets/med-kenet_zougi.mod", 11264);
+	mod = load_getchipmem((UBYTE *)"assets/A_SYNTH.mod", 20092);
 }
 
 void playMusic(void)
@@ -147,8 +147,8 @@ void close_demo(STRPTR message)
 	if( view_port3.ColorMap ) FreeColorMap( view_port3.ColorMap );
 
 	/* Deallocate various bitmaps */
-	free_allocated_bitmap(bitmap_logo);
-	free_allocated_bitmap(bitmap_checkerboard);
+	// free_allocated_bitmap(bitmap_logo);
+	// free_allocated_bitmap(bitmap_checkerboard);
 	free_allocated_bitmap(bitmap_font);
 	free_allocated_bitmap(bitmap_bob);
 	free_allocated_bitmap(bitmap_bob_mask);
@@ -160,7 +160,7 @@ void close_demo(STRPTR message)
 	{
 		PTStop(theMod);
 		PTFreeMod(theMod);
-		FreeMem(mod, 11264);
+		FreeMem(mod, 20092);
 	}
 
 	if (PTReplayBase) CloseLibrary(PTReplayBase);
@@ -183,19 +183,13 @@ void close_demo(STRPTR message)
 
 void main()
 {
-	UWORD *pointer;
 	USHORT loop, palette_idx;
 	UWORD palette_fade;
 	ULONG tmp_col;
 	int demo_string_index;
-	ULONG vp_error;
 	UBYTE mode_switch, ubob_figure, text_switch;
 	UWORD counter_before_next_text, text_width, text_duration;
 	UWORD vp3_target_y;
-	ULONG chiprevbits;
-	UBYTE IS_AGA;
-	BPTR fileHandle;
-	UBYTE *tmp_ptr;
 
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
@@ -256,7 +250,7 @@ void main()
 	if( view_port1.ColorMap == NULL )
 		close_demo( "Could NOT get a ColorMap!" );
 	/* Get a pointer to the colour map: */
-	pointer = (UWORD *) view_port1.ColorMap->ColorTable;
+	// pointer = (UWORD *) view_port1.ColorMap->ColorTable;
 	/* Set the colours: */
 	// for( loop = 0; loop < COLOURS1; loop++ )
 	// 	*pointer++ = mandarine_logoPaletteRGB4[ loop ];
@@ -264,18 +258,18 @@ void main()
 		SetRGB4(&view_port1, loop, 0, 0, 0); // (buddhaPaletteRGB4[loop] & 0x0f00) >> 8, (buddhaPaletteRGB4[loop] & 0x00f0) >> 4, buddhaPaletteRGB4[loop] & 0x000f);
 
 	/* ViewPort 2 */
-	view_port2.ColorMap = (struct ColorMap *) GetColorMap(COLOURS2 + COLOURS2b);
+	view_port2.ColorMap = (struct ColorMap *) GetColorMap(COLOURS2 * 4);
 	if( view_port2.ColorMap == NULL )
 		close_demo( "Could NOT get a ColorMap!" );
 	/* Get a pointer to the colour map: */
-	pointer = (UWORD *) view_port2.ColorMap->ColorTable;
+	// pointer = (UWORD *) view_port2.ColorMap->ColorTable;
 
 	/* ViewPort 3 */
 	view_port3.ColorMap = (struct ColorMap *) GetColorMap(COLOURS3);
 	if( view_port3.ColorMap == NULL )
 		close_demo( "Could NOT get a ColorMap!" );
 	/* Get a pointer to the colour map: */
-	pointer = (UWORD *) view_port3.ColorMap->ColorTable;
+	// pointer = (UWORD *) view_port3.ColorMap->ColorTable;
 	/* Set the colours: */
 	// for( loop = 0; loop < COLOURS3; loop++ )
 	// 	*pointer++ = font_palRGB4[ loop ];
@@ -319,13 +313,14 @@ void main()
 		BltClear( bit_map2b.Planes[ loop ], RASSIZE( WIDTH2b, HEIGHT2b ), 0 );
 	}
 
-	// for( loop = 0; loop < COLOURS2b; loop++)
-	// {
-	// 	tmp_col = RGB4toRGB8(bob_32PaletteRGB4[loop]);
-	// 	tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
-	// 	tmp_col = RGB8toRGB4(tmp_col);				
-	// 	SetRGB4(&view_port2, COLOURS2 + loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-	// }
+	for( loop = 0; loop < COLOURS2b; loop++)
+	{
+		tmp_col = RGB4toRGB8(bob_32PaletteRGB4[loop]);
+		tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
+		tmp_col = RGB8toRGB4(tmp_col);
+		// printf("bob_32PaletteRGB4 = %x\n", tmp_col);
+		SetRGB4(&view_port2, (COLOURS2 * 2) + loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	}
 
 	/* ViewPort 3 */
 	InitBitMap( &bit_map3, DEPTH3, WIDTH3, HEIGHT3 );
@@ -385,17 +380,24 @@ void main()
 	rast_port3.BitMap = &bit_map3;	
 
 	/* Create the display */
-	vp_error = MakeVPort(&my_view, &view_port1); /* Prepare ViewPort 1 */
-	vp_error = MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
-	vp_error = MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
+	MakeVPort(&my_view, &view_port1); /* Prepare ViewPort 1 */
+	MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
+	MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
 
-	/* 8. Show the new View: */
-	// LoadView( &my_view );
+
+	/*	Load the assets */
+	drawMandarineLogo(&bit_map1, 0);
+	free_allocated_bitmap(bitmap_logo);
+	loadTextWriterFont();
+	loadBobBitmaps();
+	SetAPen(&rast_port2, 0);
+	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
+	drawCheckerboard(&bit_map2, &rast_port2);
+	free_allocated_bitmap(bitmap_checkerboard);
 
 	OFF_SPRITE;
 
 	initMusicLibrary();
-
 	setLogoCopperlist(&view_port1);
 	setTextLinerCopperlist(&view_port3);
 	setCheckerboardCopperlist(&view_port2);
@@ -406,12 +408,6 @@ void main()
 
 	/* 8. Show the new View: */
 	LoadView( &my_view );	
-
-	loadTextWriterFont();
-	loadBobBitmaps();
-
-	drawMandarineLogo(&bit_map1, 0);
-	free_allocated_bitmap(bitmap_logo);
 
 	for( loop = 0; loop < COLOURS1; loop++)
 	{
@@ -425,10 +421,6 @@ void main()
 		SetRGB4(&view_port3, loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
 	}	
 
-	SetAPen(&rast_port2, 0);
-	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
-	drawCheckerboard(&bit_map2, &rast_port2);
-	free_allocated_bitmap(bitmap_checkerboard);
 
 	playMusic();
 
@@ -537,8 +529,8 @@ void main()
 		}
 	}
 
-	Enable();
-	Permit();
+	// Enable();
+	// Permit();
 
 	ON_SPRITE;
 

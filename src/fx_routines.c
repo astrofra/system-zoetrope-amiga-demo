@@ -138,7 +138,7 @@ void setLogoCopperlist(struct ViewPort *vp)
 */
 __inline void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest_rp)
 {
-    UWORD i, j, k, p, o;
+    UWORD i;
 
     // bitmap_checkerboard = load_array_as_bitmap(checkerboard_Data, 60000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
     bitmap_checkerboard = load_file_as_bitmap("assets/checkerboard_strip.bin", 40000 << 1, checkerboard.Width, checkerboard.Height, checkerboard.Depth);
@@ -152,9 +152,9 @@ __inline void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest
 
 void setCheckerboardCopperlist(struct ViewPort *vp)
 {
-    UWORD i, j, c, r, g, b;
+    UWORD i, c, r, g, b;
     ULONG *pal;
-    ULONG c0, c1, cl, ch;
+    ULONG c0;
 
     copper = (struct UCopList *)
     AllocMem( sizeof(struct UCopList), MEMF_PUBLIC|MEMF_CHIP|MEMF_CLEAR );

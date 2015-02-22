@@ -5,6 +5,11 @@
 #include <exec/types.h>
 #include <intuition/intuition.h>
 
+UWORD ship0PaletteRGB4[4] =
+{
+	0x0F0F,0x0111,0x0444,0x0999
+};
+
 
 UWORD bob_32PaletteRGB4[4] =
 {

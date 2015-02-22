@@ -19,7 +19,7 @@
 #define COLOURS2   (1 << DEPTH2)
 
 /* ViewPort 2b */
-#define ANIM_STRIPEb 10
+#define ANIM_STRIPEb 1
 #define WIDTH2b   384
 #define DISPL_WIDTH2b   DEFAULT_DISP_WIDTH
 #define DISPL_HEIGHT2b   150
@@ -34,6 +34,7 @@
 #define DEPTH3     1
 #define COLOURS3  (1 << DEPTH3)
 
+#define COLOUR_PURPLE_DARK (ULONG)0x2a1221
 #define COLOUR_PURPLE (ULONG)0x4a2251
 #define COLOUR_PURPLE_LIGHT (ULONG)0x5F004B
 

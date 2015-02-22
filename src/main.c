@@ -40,6 +40,7 @@ Graphic assets
 extern UWORD checkerboard_PaletteRGB4[8];
 extern UWORD bob_32PaletteRGB4[8];
 extern UWORD morph_iso_0PaletteRGB4[8];
+extern UWORD ship0PaletteRGB4[4];
 // extern UWORD buddhaPaletteRGB4[8];
 
 /* Music */
@@ -90,6 +91,7 @@ struct BitMap *bitmap_checkerboard = NULL;
 struct BitMap *bitmap_font = NULL;
 struct BitMap *bitmap_bob = NULL;
 struct BitMap *bitmap_bob_mask = NULL;
+struct BitMap *bitmap_ship = NULL;
 // struct BitMap *bitmap_buddha = NULL;
 // struct BitMap *bitmap_zzz = NULL;
 
@@ -157,8 +159,9 @@ void close_demo(STRPTR message)
 	// free_allocated_bitmap(bitmap_logo);
 	// free_allocated_bitmap(bitmap_checkerboard);
 	free_allocated_bitmap(bitmap_font);
-	free_allocated_bitmap(bitmap_bob);
-	free_allocated_bitmap(bitmap_bob_mask);
+	// free_allocated_bitmap(bitmap_bob);
+	// free_allocated_bitmap(bitmap_bob_mask);
+	// free_allocated_bitmap(bitmap_ship);
 	// free_allocated_bitmap(bitmap_buddha);
 	// free_allocated_bitmap(bitmap_zzz);
 
@@ -325,7 +328,7 @@ void main()
 
 	for( loop = 0; loop < COLOURS2b; loop++)
 	{
-		tmp_col = RGB4toRGB8(bob_32PaletteRGB4[loop]);
+		tmp_col = RGB4toRGB8(ship0PaletteRGB4[loop]);
 		tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
 		tmp_col = RGB8toRGB4(tmp_col);
 		// printf("bob_32PaletteRGB4 = %x\n", tmp_col);
@@ -403,11 +406,14 @@ void main()
 	printf("...even more stuff\n");
 
 	loadTextWriterFont();
-	loadBobBitmaps();
+	// loadBobBitmaps();
 	SetAPen(&rast_port2, 0);
 	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
 	drawCheckerboard(&bit_map2, &rast_port2);
 	free_allocated_bitmap(bitmap_checkerboard);
+	loadShipBitmap();
+	drawShip(&bit_map2b);
+	free_allocated_bitmap(bitmap_ship);
 
 	printf("...done!\n");
 
@@ -464,7 +470,7 @@ void main()
 		update_sw = !update_sw;
 
 		scrollLogoBackground();
-		updateCheckerboard(update_sw);
+		updateCheckerboard();
 
 		// switch(mode_switch)
 		// {

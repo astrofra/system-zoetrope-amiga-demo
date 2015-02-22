@@ -3,6 +3,16 @@
 #include <exec/types.h>
 #include <intuition/intuition.h>
 
+extern UWORD ship0PaletteRGB4[4];
+
+struct Image ship0 =
+{
+	0, 0,		/* LeftEdge, TopEdge */
+	160, 90, 2,	/* Width, Height, Depth */
+	NULL,	/* ImageData */
+	0x0003, 0x0000,	/* PlanePick, PlaneOnOff */
+	NULL		/* NextImage */
+};
 
 extern UWORD bob_32PaletteRGB4[4];
 

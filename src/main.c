@@ -116,6 +116,13 @@ void playMusic(void)
 	}
 }
 
+void print_ascci_art_logo(void)
+{
+	int i;
+	for(i = 0; i < ASCII_ART_MAX_INDEX; i++)
+		printf(ascii_art[i]);
+}
+
 /* Returns all allocated resources: */
 void close_demo(STRPTR message)
 {
@@ -190,6 +197,7 @@ void main()
 	UBYTE mode_switch, ubob_figure, text_switch;
 	UWORD counter_before_next_text, text_width, text_duration;
 	UWORD vp3_target_y;
+	UBYTE update_sw;
 
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
@@ -202,6 +210,8 @@ void main()
 	OpenLibrary( "graphics.library", 0 );
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
+
+	print_ascci_art_logo();
 
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
@@ -384,10 +394,14 @@ void main()
 	MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
 	MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
 
+	printf("...more stuff\n");
 
 	/*	Load the assets */
 	drawMandarineLogo(&bit_map1, 0);
 	free_allocated_bitmap(bitmap_logo);
+
+	printf("...even more stuff\n");
+
 	loadTextWriterFont();
 	loadBobBitmaps();
 	SetAPen(&rast_port2, 0);
@@ -395,12 +409,14 @@ void main()
 	drawCheckerboard(&bit_map2, &rast_port2);
 	free_allocated_bitmap(bitmap_checkerboard);
 
-	OFF_SPRITE;
+	printf("...done!\n");
 
 	initMusicLibrary();
 	setLogoCopperlist(&view_port1);
 	setTextLinerCopperlist(&view_port3);
 	setCheckerboardCopperlist(&view_port2);
+
+	OFF_SPRITE;
 
 	WaitTOF();
 
@@ -428,6 +444,7 @@ void main()
 	Disable();
 	WaitBlit();
 
+	update_sw = 0;
 	palette_fade = 0; 
 	palette_idx = 0;
 	ubob_figure = 0;
@@ -444,93 +461,100 @@ void main()
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
 		WaitTOF();
+		update_sw = !update_sw;
+
 		scrollLogoBackground();
-		updateCheckerboard();
+		updateCheckerboard(update_sw);
 
-		switch(mode_switch)
-		{
-			case DMODE_SW_INTRO:
-				// for(palette_idx = 0; palette_idx < COLOURS1 >> 1; palette_idx++)
-				// {
-				// 	tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
-				// 	tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
-	   //      		SetRGB4(&view_port1, palette_idx, (tmp_col & 0xff0000L) >> 20, (tmp_col & 0x00ff00L) >> 16, (tmp_col & 0x00ffL) >> 12);
-				// }
+		// switch(mode_switch)
+		// {
+		// 	case DMODE_SW_INTRO:
+		// 		// for(palette_idx = 0; palette_idx < COLOURS1 >> 1; palette_idx++)
+		// 		// {
+		// 		// 	tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
+		// 		// 	tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
+	 //   //      		SetRGB4(&view_port1, palette_idx, (tmp_col & 0xff0000L) >> 20, (tmp_col & 0x00ff00L) >> 16, (tmp_col & 0x00ffL) >> 12);
+		// 		// }
 
-				// palette_fade += 4;
-				// if (palette_fade > (1 << 8))
-				// 	mode_switch = DMODE_SW_UBOB;
-				mode_switch = DMODE_SW_UBOB;
-				break;
+		// 		// palette_fade += 4;
+		// 		// if (palette_fade > (1 << 8))
+		// 		// 	mode_switch = DMODE_SW_UBOB;
+		// 		mode_switch = DMODE_SW_UBOB;
+		// 		break;
 
-			case DMODE_SW_UBOB:
-				if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0 && text_switch == TEXTMODE_SW_WAIT)
-				{
-					if (ubob_figure == ((ubob_figure >> 1) << 1))
-						mode_switch = DMODE_SW_CLEAR_FROM_TOP;
-					else
-						mode_switch = DMODE_SW_CLEAR_FROM_BOTTOM;
-				}
-				break;
+		// 	case DMODE_SW_UBOB:
+		// 		if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0 && text_switch == TEXTMODE_SW_WAIT)
+		// 		{
+		// 			// if (ubob_figure == (ubob_figure & 0xFE))
+		// 			// 	mode_switch = DMODE_SW_CLEAR_FROM_TOP;
+		// 			// else
+		// 				mode_switch = DMODE_SW_CLEAR_FROM_BOTTOM;
+		// 		}
+		// 		break;
 
-			case DMODE_SW_CLEAR_FROM_TOP:
-				if (clearPlayfieldLineByLineFromTop(&rast_port2b) == 0)
-					mode_switch = DMODE_SW_UBOB;
-				break;
+		// 	case DMODE_SW_CLEAR_FROM_TOP:
+		// 		if (clearPlayfieldLineByLineFromTop(&rast_port2b) == 0)
+		// 			mode_switch = DMODE_SW_UBOB;
+		// 		break;
 
-			case DMODE_SW_CLEAR_FROM_BOTTOM:
-				if (clearPlayfieldLineByLineFromBottom(&rast_port2b) == 0)
-					mode_switch = DMODE_SW_UBOB;
-				break;
-		}
+		// 	case DMODE_SW_CLEAR_FROM_BOTTOM:
+		// 		if (clearPlayfieldLineByLineFromBottom(&rast_port2b) == 0)
+		// 			mode_switch = DMODE_SW_UBOB;
+		// 		break;
+		// }
 
-		switch(text_switch)
-		{
+		// if (!update_sw)
+			switch(text_switch)
+			{
 
-			case TEXTMODE_SW_WAIT:
-				counter_before_next_text++;
-				if(counter_before_next_text > text_duration
-					&& mode_switch != DMODE_SW_CLEAR_FROM_TOP
-					&& mode_switch != DMODE_SW_CLEAR_FROM_BOTTOM)
-				{
-					text_switch = TEXTMODE_SW_CLEAR;
-					if (vp3_target_y == 0)
-						vp3_target_y = DISPL_HEIGHT3;
-					else
-						vp3_target_y = 0;
-				}
-				break;
+				case TEXTMODE_SW_WAIT:
+					counter_before_next_text++;
+					if(counter_before_next_text > text_duration
+						&& mode_switch != DMODE_SW_CLEAR_FROM_TOP
+						&& mode_switch != DMODE_SW_CLEAR_FROM_BOTTOM)
+					{
+						text_switch = TEXTMODE_SW_CLEAR;
+						if (vp3_target_y == 0)
+							vp3_target_y = DISPL_HEIGHT3;
+						else
+							vp3_target_y = 0;
+					}
+					break;
 
-			case TEXTMODE_SW_CLEAR:
-				SetAPen(&rast_port3, 0);
-				RectFill(&rast_port3, 
-	            0, vp3_target_y, WIDTH3 - 1, vp3_target_y + DISPL_HEIGHT3 - 1);
+				case TEXTMODE_SW_CLEAR:
+					SetAPen(&rast_port3, 0);
+					RectFill(&rast_port3, 
+		            0, vp3_target_y, WIDTH3 - 1, vp3_target_y + DISPL_HEIGHT3 - 1);
 
-				text_switch = TEXTMODE_SW_DRAW;
-				break;
+					text_switch = TEXTMODE_SW_PRECALC;
+					break;
 
-			case TEXTMODE_SW_DRAW:
-				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
-				text_duration = text_width + 5;
-				font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]);
+				case TEXTMODE_SW_PRECALC:
+					text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
+					text_switch = TEXTMODE_SW_DRAW;
+					break;
 
-				demo_string_index++;
-				if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
-					demo_string_index = 0;
+				case TEXTMODE_SW_DRAW:
+					text_duration = text_width + 5;
+					font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]);
 
-				counter_before_next_text = 0;
-				text_switch = TEXTMODE_SW_SCROLL;
-				break;
+					demo_string_index++;
+					if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
+						demo_string_index = 0;
 
-			case TEXTMODE_SW_SCROLL:
-				if (scrollTextViewport(vp3_target_y) == 0)
-					text_switch = TEXTMODE_SW_WAIT;
-				break;
-		}
+					counter_before_next_text = 0;
+					text_switch = TEXTMODE_SW_SCROLL;
+					break;
+
+				case TEXTMODE_SW_SCROLL:
+					if (scrollTextViewport(vp3_target_y) == 0)
+						text_switch = TEXTMODE_SW_WAIT;
+					break;
+			}
 	}
 
-	// Enable();
-	// Permit();
+	Enable();
+	Permit();
 
 	ON_SPRITE;
 

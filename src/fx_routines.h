@@ -13,7 +13,7 @@ void setLogoCopperlist(struct ViewPort *vp);
 void setCheckerboardCopperlist(struct ViewPort *vp);
 void scrollLogoBackground(void);
 UBYTE scrollTextViewport(UWORD y_target);
-void updateCheckerboard(void);
+void updateCheckerboard(UBYTE update_sw);
 void loadBobBitmaps(void);
 UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode);
 UBYTE clearPlayfieldLineByLineFromTop(struct RastPort *dest_rp);

@@ -222,25 +222,28 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     free(pal);
 }
 
-__inline void updateCheckerboard(void)
+__inline void updateCheckerboard(UBYTE update_sw)
 {
-    checkerboard_scroll_offset += DISPL_HEIGHT2;
-    if (checkerboard_scroll_offset >= HEIGHT2)
-        checkerboard_scroll_offset = 0;
+    // if (update_sw)
+    // {
+        checkerboard_scroll_offset += DISPL_HEIGHT2;
+        if (checkerboard_scroll_offset >= HEIGHT2)
+            checkerboard_scroll_offset = 0;
+        view_port2.RasInfo->RxOffset = 0;
+        view_port2.RasInfo->RyOffset = checkerboard_scroll_offset;
+    // }
 
-    ubob_hscroll_phase += 3;
-    ubob_hscroll_phase &= 0x1FF;
+    // ubob_hscroll_phase += 3;
+    // ubob_hscroll_phase &= 0x1FF;
 
-    view_port2.RasInfo->RxOffset = 0;
-    view_port2.RasInfo->RyOffset = checkerboard_scroll_offset;
-    view_port2.RasInfo->Next->RxOffset = (WIDTH2b - DISPL_WIDTH2b) + ((tsin[ubob_hscroll_phase] + 512) * (WIDTH2b - DISPL_WIDTH2b)) >> 10;
-    view_port2.RasInfo->Next->RyOffset = ubob_vscroll;
+    // view_port2.RasInfo->Next->RxOffset = (WIDTH2b - DISPL_WIDTH2b) + ((tsin[ubob_hscroll_phase] + 512) * (WIDTH2b - DISPL_WIDTH2b)) >> 10;
+    // view_port2.RasInfo->Next->RyOffset = ubob_vscroll;
 
     ScrollVPort(&view_port2);
 
-    ubob_vscroll += DISPL_HEIGHT2b;
-    if (ubob_vscroll >= HEIGHT2b)
-        ubob_vscroll = 0;    
+    // ubob_vscroll += DISPL_HEIGHT2b;
+    // if (ubob_vscroll >= HEIGHT2b)
+    //     ubob_vscroll = 0;    
 }
 
 void loadBobBitmaps(void)
@@ -253,7 +256,6 @@ void loadBobBitmaps(void)
 __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) // struct BitMap* dest_bitmap)
 {
     UWORD x, y;
-    // UWORD src_x, src_y;
 
     switch(*figure_mode)
     {
@@ -304,24 +306,6 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
 
     x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 24 + ubob_scale + (((tcos[ubob_phase_x & 0x1FF] + 512) * (DISPL_WIDTH2b - 8 - 64 - ubob_scale - ubob_scale)) >> 10);
     y = 8 + ubob_scale + (((tsin[ubob_phase_y & 0x1FF] + 512) * (DISPL_HEIGHT2b - 16 - 32 - ubob_scale - ubob_scale)) >> 10);
-
-    // if (x < ((WIDTH2b * 2) / 5))
-    //     src_x = 0;
-    // else
-    // if (x < (WIDTH2b - ((WIDTH2b * 2) / 5)))
-    //     src_x = 32;
-    // else
-    //     src_x = 2 * 32;
-
-    // if (y < ((DISPL_HEIGHT2b * 2) / 5))
-    //     src_y = 0;
-    // else
-    // if (y < (DISPL_HEIGHT2b - ((DISPL_HEIGHT2b * 2) / 5)))
-    //     src_y = 32;
-    // else
-    //     src_y = 2 * 32;
-
-    // src_y += 3 * 96;
 
     BltMaskBitMapRastPort(bitmap_bob, 0, 0,
             dest_rp, x, y + ubob_vscroll,

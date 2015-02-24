@@ -1,9 +1,10 @@
 const char *demo_string[] = {
 	"SYSTEM ZOETROPE\0",
-	"AN AMIGA AGA DEMO BY MANDARINE\0",	
-	"MUSIC BY MED\0",
+	"    \0",
+	"AN AMIGA DEMO BY MANKIND AND MANDARINE\0",	
+	"MUSIC BY ERK\0",
 	"GRAPHICS BY PTOING\0",
-	"BUDDHA PORTRAIT BY GWEN\0",
+	// "BUDDHA PORTRAIT BY GWEN\0",
 	"CODE BY FRA\0",
 	"A DEMO ENTIRELY WRITTEN IN C\0",
 	"USING THE GRAPHICS.LIBRARY V39\0",
@@ -76,3 +77,22 @@ const char *demo_string[] = {
 const char *loading_string[] = {
 	"BUDDHA MEDITATES WHILE LOADING\0",
 };
+
+const char *ascii_art[] = {
+"\n",	
+"   _____    _______   ____  __._______  ________\n",  
+"  /     \\   \\      \\ |    |/ _|\\      \\ \\______ \\\n",   
+" /  \\ /  \\  /   |   \\|      <  /   |   \\ |    |  \\\n", 
+"/    Y    \\/    |    \\    |  \\/    |    \\|    `   \\\n",
+"\\____|__  /\\____|__  /____|__ \\____|__  /_______  /\n",
+"        \\/         \\/        \\/       \\/        \\/\n",  
+"   _____    _______  ________ __________  _______\n",  
+"  /     \\   \\      \\ \\______ \\_____ _   \\ \\      \\\n", 
+" /  \\ /  \\  /   |   \\ |    |  \\|       _/ /   |   \\\n", 
+"/    Y    \\/    |    \\|    `   \\    |   \\/    |    \\\n",
+"\\____|__  /\\____|__  /_______  /____|_  /\\____|__  /\n",
+"        \\/         \\/        \\/       \\/         \\/\n",
+"DEMO IS LOADING STUFF\n",
+""
+};
+

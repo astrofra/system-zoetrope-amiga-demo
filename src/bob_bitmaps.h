@@ -3,17 +3,25 @@
 #include <exec/types.h>
 #include <intuition/intuition.h>
 
+extern UWORD ship0PaletteRGB4[4];
 
-extern UWORD bob_32PaletteRGB4[8];
+struct Image ship0 =
+{
+	0, 0,		/* LeftEdge, TopEdge */
+	160, 90, 2,	/* Width, Height, Depth */
+	NULL,	/* ImageData */
+	0x0003, 0x0000,	/* PlanePick, PlaneOnOff */
+	NULL		/* NextImage */
+};
 
-extern UWORD chip bob_32Data[192];
+extern UWORD bob_32PaletteRGB4[4];
 
 struct Image bob_32 =
 {
 	0, 0,		/* LeftEdge, TopEdge */
-	32, 32, 3,	/* Width, Height, Depth */
-	bob_32Data,	/* ImageData */
-	0x0007, 0x0000,	/* PlanePick, PlaneOnOff */
+	32, 32, 2,	/* Width, Height, Depth */
+	NULL,	/* ImageData */
+	0x0003, 0x0000,	/* PlanePick, PlaneOnOff */
 	NULL		/* NextImage */
 };
 
@@ -23,7 +31,7 @@ struct Image bob_32_mask =
 {
 	0, 0,		/* LeftEdge, TopEdge */
 	32, 32, 1,	/* Width, Height, Depth */
-	bob_32_maskData,	/* ImageData */
+	NULL,	/* ImageData */
 	0x0001, 0x0000,	/* PlanePick, PlaneOnOff */
 	NULL		/* NextImage */
 };

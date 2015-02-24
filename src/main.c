@@ -40,7 +40,8 @@ Graphic assets
 extern UWORD checkerboard_PaletteRGB4[8];
 extern UWORD bob_32PaletteRGB4[8];
 extern UWORD morph_iso_0PaletteRGB4[8];
-extern UWORD buddhaPaletteRGB4[8];
+extern UWORD ship0PaletteRGB4[4];
+// extern UWORD buddhaPaletteRGB4[8];
 
 /* Music */
 struct Library *PTReplayBase;
@@ -90,8 +91,9 @@ struct BitMap *bitmap_checkerboard = NULL;
 struct BitMap *bitmap_font = NULL;
 struct BitMap *bitmap_bob = NULL;
 struct BitMap *bitmap_bob_mask = NULL;
-struct BitMap *bitmap_buddha = NULL;
-struct BitMap *bitmap_zzz = NULL;
+struct BitMap *bitmap_ship = NULL;
+// struct BitMap *bitmap_buddha = NULL;
+// struct BitMap *bitmap_zzz = NULL;
 
 void initMusicLibrary(void)
 {
@@ -104,7 +106,7 @@ void initMusicLibrary(void)
 		exit(0); //FIXME
 	}
 
-	// mod = load_getchipmem((UBYTE *)"brazil-by-med.mod", 413506);
+	mod = load_getchipmem((UBYTE *)"assets/A_SYNTH.mod", 20092);
 }
 
 void playMusic(void)
@@ -114,6 +116,13 @@ void playMusic(void)
 		theMod = PTSetupMod((APTR)mod);
 		PTPlay(theMod);
 	}
+}
+
+void print_ascci_art_logo(void)
+{
+	int i;
+	for(i = 0; i < ASCII_ART_MAX_INDEX; i++)
+		printf(ascii_art[i]);
 }
 
 /* Returns all allocated resources: */
@@ -147,20 +156,21 @@ void close_demo(STRPTR message)
 	if( view_port3.ColorMap ) FreeColorMap( view_port3.ColorMap );
 
 	/* Deallocate various bitmaps */
-	free_allocated_bitmap(bitmap_logo);
-	free_allocated_bitmap(bitmap_checkerboard);
+	// free_allocated_bitmap(bitmap_logo);
+	// free_allocated_bitmap(bitmap_checkerboard);
 	free_allocated_bitmap(bitmap_font);
-	free_allocated_bitmap(bitmap_bob);
-	free_allocated_bitmap(bitmap_bob_mask);
-	free_allocated_bitmap(bitmap_buddha);
-	free_allocated_bitmap(bitmap_zzz);
+	// free_allocated_bitmap(bitmap_bob);
+	// free_allocated_bitmap(bitmap_bob_mask);
+	// free_allocated_bitmap(bitmap_ship);
+	// free_allocated_bitmap(bitmap_buddha);
+	// free_allocated_bitmap(bitmap_zzz);
 
 	/*	Stop music */
 	if (mod != NULL)
 	{
 		PTStop(theMod);
 		PTFreeMod(theMod);
-		FreeMem(mod, 413506);
+		FreeMem(mod, 20092);
 	}
 
 	if (PTReplayBase) CloseLibrary(PTReplayBase);
@@ -183,19 +193,14 @@ void close_demo(STRPTR message)
 
 void main()
 {
-	UWORD *pointer;
 	USHORT loop, palette_idx;
 	UWORD palette_fade;
 	ULONG tmp_col;
 	int demo_string_index;
-	ULONG vp_error;
 	UBYTE mode_switch, ubob_figure, text_switch;
 	UWORD counter_before_next_text, text_width, text_duration;
 	UWORD vp3_target_y;
-	ULONG chiprevbits;
-	UBYTE IS_AGA;
-	BPTR fileHandle;
-	UBYTE *tmp_ptr;
+	UBYTE update_sw;
 
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
@@ -209,10 +214,10 @@ void main()
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
 
+	print_ascci_art_logo();
+
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
-
-	SetChipRev(SETCHIPREV_BEST);
 
 	/* Prepare the View structure, and give it a pointer to */
 	/* the first ViewPort:                                  */
@@ -258,7 +263,7 @@ void main()
 	if( view_port1.ColorMap == NULL )
 		close_demo( "Could NOT get a ColorMap!" );
 	/* Get a pointer to the colour map: */
-	pointer = (UWORD *) view_port1.ColorMap->ColorTable;
+	// pointer = (UWORD *) view_port1.ColorMap->ColorTable;
 	/* Set the colours: */
 	// for( loop = 0; loop < COLOURS1; loop++ )
 	// 	*pointer++ = mandarine_logoPaletteRGB4[ loop ];
@@ -266,18 +271,18 @@ void main()
 		SetRGB4(&view_port1, loop, 0, 0, 0); // (buddhaPaletteRGB4[loop] & 0x0f00) >> 8, (buddhaPaletteRGB4[loop] & 0x00f0) >> 4, buddhaPaletteRGB4[loop] & 0x000f);
 
 	/* ViewPort 2 */
-	view_port2.ColorMap = (struct ColorMap *) GetColorMap(COLOURS2 + COLOURS2b);
+	view_port2.ColorMap = (struct ColorMap *) GetColorMap(COLOURS2 * 4);
 	if( view_port2.ColorMap == NULL )
 		close_demo( "Could NOT get a ColorMap!" );
 	/* Get a pointer to the colour map: */
-	pointer = (UWORD *) view_port2.ColorMap->ColorTable;
+	// pointer = (UWORD *) view_port2.ColorMap->ColorTable;
 
 	/* ViewPort 3 */
 	view_port3.ColorMap = (struct ColorMap *) GetColorMap(COLOURS3);
 	if( view_port3.ColorMap == NULL )
 		close_demo( "Could NOT get a ColorMap!" );
 	/* Get a pointer to the colour map: */
-	pointer = (UWORD *) view_port3.ColorMap->ColorTable;
+	// pointer = (UWORD *) view_port3.ColorMap->ColorTable;
 	/* Set the colours: */
 	// for( loop = 0; loop < COLOURS3; loop++ )
 	// 	*pointer++ = font_palRGB4[ loop ];
@@ -320,12 +325,14 @@ void main()
 		/* Clear the display memory with help of the Blitter: */
 		BltClear( bit_map2b.Planes[ loop ], RASSIZE( WIDTH2b, HEIGHT2b ), 0 );
 	}
+
 	for( loop = 0; loop < COLOURS2b; loop++)
 	{
-		tmp_col = RGB4toRGB8(bob_32PaletteRGB4[loop]);
+		tmp_col = RGB4toRGB8(ship0PaletteRGB4[loop]);
 		tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
-		tmp_col = RGB8toRGB4(tmp_col);				
-		SetRGB4(&view_port2, COLOURS2 + loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+		tmp_col = RGB8toRGB4(tmp_col);
+		// printf("bob_32PaletteRGB4 = %x\n", tmp_col);
+		SetRGB4(&view_port2, (COLOURS2 * 2) + loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
 	}
 
 	/* ViewPort 3 */
@@ -386,79 +393,36 @@ void main()
 	rast_port3.BitMap = &bit_map3;	
 
 	/* Create the display */
-	vp_error = MakeVPort(&my_view, &view_port1); /* Prepare ViewPort 1 */
-	vp_error = MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
-	vp_error = MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
+	MakeVPort(&my_view, &view_port1); /* Prepare ViewPort 1 */
+	MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
+	MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
 
-	setLogoCopperlist(&view_port1);
-	setTextLinerCopperlist(&view_port3);
+	printf("...more stuff\n");
 
-	WaitTOF();
+	/*	Load the assets */
+	drawMandarineLogo(&bit_map1, 0);
+	free_allocated_bitmap(bitmap_logo);
 
-	MrgCop(&my_view);
+	printf("...even more stuff\n");
 
-	/* 8. Show the new View: */
-	LoadView( &my_view );
+	loadTextWriterFont();
+	// loadBobBitmaps();
+	SetAPen(&rast_port2, 0);
+	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
+	drawCheckerboard(&bit_map2, &rast_port2);
+	free_allocated_bitmap(bitmap_checkerboard);
+	loadShipBitmap();
+	drawShip(&bit_map2b);
+	free_allocated_bitmap(bitmap_ship);
 
-	OFF_SPRITE;
+	printf("...done!\n");
 
-	loadBuddhaBitmaps();
 	initMusicLibrary();
-
-	drawBuddha(&rast_port1, &bit_map1, 0);
-
-	text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)loading_string[0]);
-	font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, 1, (UBYTE *)loading_string[0]);
-
-	/*
-		Fade in
-	*/
-	for(loop = 0; loop < COLOURS3; loop++)
-		font_palRGB4[loop] = RGB8toRGB4(addRGB8Colors(RGB4toRGB8(font_palRGB4[loop]), COLOUR_PURPLE));
-
-	for(loop = 0; loop <= 16; loop++)
-	{
-		WaitTOF();
-		WaitTOF();
-		WaitTOF();
-		WaitTOF();
-		fadeRGB4Palette(&view_port1, (UWORD *)buddhaPaletteRGB4, COLOURS1, 16 - loop);
-		fadeRGB4Palette(&view_port3, (UWORD *)font_palRGB4, COLOURS3, 16 - loop);
-	}
-
-	fileHandle = Open((UBYTE *)"assets/brazil-by-med.mod", MODE_OLDFILE);
-
-	mod = (UBYTE *)AllocMem(413506, MEMF_CHIP);
-	tmp_ptr = mod;
-
-	loop = 0;
-	while(loop < (1 << 6))
-	{
-		Read(fileHandle, tmp_ptr, (413506 >> 6));
-		WaitTOF();
-		drawBuddha(&rast_port1, &bit_map1, loop << 3);
-		loop++;
-		tmp_ptr += (413506 >> 6);
-	}
-
-	Close(fileHandle);
-
-	/*
-		Fade out
-	*/
-	for(loop = 0; loop <= 16; loop++)
-	{
-		WaitTOF();
-		WaitTOF();
-		WaitTOF();
-		WaitTOF();
-		// fadeRGB4Palette(&view_port1, (UWORD *)buddhaPaletteRGB4, COLOURS1, loop);
-		fadeRGB4PaletteToRGB8Color(&view_port1, (UWORD *)buddhaPaletteRGB4, COLOURS1, COLOUR_PURPLE, loop * 16);
-	}
-
 	setLogoCopperlist(&view_port1);
 	setTextLinerCopperlist(&view_port3);
 	setCheckerboardCopperlist(&view_port2);
+
+	OFF_SPRITE;
 
 	WaitTOF();
 
@@ -467,33 +431,26 @@ void main()
 	/* 8. Show the new View: */
 	LoadView( &my_view );	
 
-	loadTextWriterFont();
-	loadBobBitmaps();
-
 	for( loop = 0; loop < COLOURS1; loop++)
-		SetRGB4(&view_port1, loop, 0, 0, 0);
+	{
+		tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE, RGB4toRGB8(mandarine_logoPaletteRGB4[loop])));
+		SetRGB4(&view_port1, loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	}
 
-	// for( loop = 0; loop < COLOURS2b; loop++)
-	// 	SetRGB4(&view_port2, COLOURS2 + loop, (bob_32PaletteRGB4[loop] & 0x0f00) >> 8, (bob_32PaletteRGB4[loop] & 0x00f0) >> 4, bob_32PaletteRGB4[loop] & 0x000f);	
-	// for( loop = 0; loop < COLOURS1; loop++)
-	// 	SetRGB32(&view_port1, loop, (RGB4toRGB8(mandarine_logoPaletteRGB4[loop]) & 0xff0000) << 8, 
-	// 								(RGB4toRGB8(mandarine_logoPaletteRGB4[loop]) & 0x00ff00) << 16, 
-	// 								(RGB4toRGB8(mandarine_logoPaletteRGB4[loop]) & 0x00ff) << 24);;
+	for( loop = 0; loop < COLOURS3; loop++)
+	{
+		tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE, RGB4toRGB8(font_palRGB4[loop])));
+		SetRGB4(&view_port3, loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	}	
 
-	drawMandarineLogo(&bit_map1, 0);
-
-	SetAPen(&rast_port2, 0);
-	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
-	drawCheckerboard(&bit_map2, &rast_port2);
 
 	playMusic();
-
 
 	Forbid();
 	Disable();
 	WaitBlit();
-	// OwnBlitter();	
 
+	update_sw = 0;
 	palette_fade = 0; 
 	palette_idx = 0;
 	ubob_figure = 0;
@@ -510,92 +467,98 @@ void main()
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
 		WaitTOF();
+		update_sw = !update_sw;
+
 		scrollLogoBackground();
 		updateCheckerboard();
 
-		switch(mode_switch)
-		{
-			case DMODE_SW_INTRO:
-				for(palette_idx = 0; palette_idx < COLOURS1 >> 1; palette_idx++)
-				{
-					tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
-					tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
-	        		SetRGB32(&view_port1, palette_idx, (tmp_col & 0xff0000L) << 8, (tmp_col & 0x00ff00L) << 16, (tmp_col & 0x00ffL) << 24);
-				}
+		// switch(mode_switch)
+		// {
+		// 	case DMODE_SW_INTRO:
+		// 		// for(palette_idx = 0; palette_idx < COLOURS1 >> 1; palette_idx++)
+		// 		// {
+		// 		// 	tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
+		// 		// 	tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
+	 //   //      		SetRGB4(&view_port1, palette_idx, (tmp_col & 0xff0000L) >> 20, (tmp_col & 0x00ff00L) >> 16, (tmp_col & 0x00ffL) >> 12);
+		// 		// }
 
-				palette_fade += 4;
-				if (palette_fade > (1 << 8))
-					mode_switch = DMODE_SW_UBOB;
-				// mode_switch = DMODE_SW_UBOB;
-				break;
+		// 		// palette_fade += 4;
+		// 		// if (palette_fade > (1 << 8))
+		// 		// 	mode_switch = DMODE_SW_UBOB;
+		// 		mode_switch = DMODE_SW_UBOB;
+		// 		break;
 
-			case DMODE_SW_UBOB:
-				if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0 && text_switch == TEXTMODE_SW_WAIT)
-				{
-					if (ubob_figure == ((ubob_figure >> 1) << 1))
-						mode_switch = DMODE_SW_CLEAR_FROM_TOP;
-					else
-						mode_switch = DMODE_SW_CLEAR_FROM_BOTTOM;
-				}
-				break;
+		// 	case DMODE_SW_UBOB:
+		// 		if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0 && text_switch == TEXTMODE_SW_WAIT)
+		// 		{
+		// 			// if (ubob_figure == (ubob_figure & 0xFE))
+		// 			// 	mode_switch = DMODE_SW_CLEAR_FROM_TOP;
+		// 			// else
+		// 				mode_switch = DMODE_SW_CLEAR_FROM_BOTTOM;
+		// 		}
+		// 		break;
 
-			case DMODE_SW_CLEAR_FROM_TOP:
-				if (clearPlayfieldLineByLineFromTop(&rast_port2b) == 0)
-					mode_switch = DMODE_SW_UBOB;
-				break;
+		// 	case DMODE_SW_CLEAR_FROM_TOP:
+		// 		if (clearPlayfieldLineByLineFromTop(&rast_port2b) == 0)
+		// 			mode_switch = DMODE_SW_UBOB;
+		// 		break;
 
-			case DMODE_SW_CLEAR_FROM_BOTTOM:
-				if (clearPlayfieldLineByLineFromBottom(&rast_port2b) == 0)
-					mode_switch = DMODE_SW_UBOB;
-				break;
-		}
+		// 	case DMODE_SW_CLEAR_FROM_BOTTOM:
+		// 		if (clearPlayfieldLineByLineFromBottom(&rast_port2b) == 0)
+		// 			mode_switch = DMODE_SW_UBOB;
+		// 		break;
+		// }
 
-		switch(text_switch)
-		{
+		// if (!update_sw)
+			switch(text_switch)
+			{
 
-			case TEXTMODE_SW_WAIT:
-				counter_before_next_text++;
-				if(counter_before_next_text > text_duration
-					&& mode_switch != DMODE_SW_CLEAR_FROM_TOP
-					&& mode_switch != DMODE_SW_CLEAR_FROM_BOTTOM)
-				{
-					text_switch = TEXTMODE_SW_CLEAR;
-					if (vp3_target_y == 0)
-						vp3_target_y = DISPL_HEIGHT3;
-					else
-						vp3_target_y = 0;
-				}
-				break;
+				case TEXTMODE_SW_WAIT:
+					counter_before_next_text++;
+					if(counter_before_next_text > text_duration
+						&& mode_switch != DMODE_SW_CLEAR_FROM_TOP
+						&& mode_switch != DMODE_SW_CLEAR_FROM_BOTTOM)
+					{
+						text_switch = TEXTMODE_SW_CLEAR;
+						if (vp3_target_y == 0)
+							vp3_target_y = DISPL_HEIGHT3;
+						else
+							vp3_target_y = 0;
+					}
+					break;
 
-			case TEXTMODE_SW_CLEAR:
-				SetAPen(&rast_port3, 0);
-				RectFill(&rast_port3, 
-	            0, vp3_target_y, WIDTH3 - 1, vp3_target_y + DISPL_HEIGHT3 - 1);
+				case TEXTMODE_SW_CLEAR:
+					SetAPen(&rast_port3, 0);
+					RectFill(&rast_port3, 
+		            0, vp3_target_y, WIDTH3 - 1, vp3_target_y + DISPL_HEIGHT3 - 1);
 
-				text_switch = TEXTMODE_SW_DRAW;
-				break;
+					text_switch = TEXTMODE_SW_PRECALC;
+					break;
 
-			case TEXTMODE_SW_DRAW:
-				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
-				text_duration = text_width + 5;
-				font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]);
+				case TEXTMODE_SW_PRECALC:
+					text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
+					text_switch = TEXTMODE_SW_DRAW;
+					break;
 
-				demo_string_index++;
-				if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
-					demo_string_index = 0;
+				case TEXTMODE_SW_DRAW:
+					text_duration = text_width + 5;
+					font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]);
 
-				counter_before_next_text = 0;
-				text_switch = TEXTMODE_SW_SCROLL;
-				break;
+					demo_string_index++;
+					if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
+						demo_string_index = 0;
 
-			case TEXTMODE_SW_SCROLL:
-				if (scrollTextViewport(vp3_target_y) == 0)
-					text_switch = TEXTMODE_SW_WAIT;
-				break;
-		}
+					counter_before_next_text = 0;
+					text_switch = TEXTMODE_SW_SCROLL;
+					break;
+
+				case TEXTMODE_SW_SCROLL:
+					if (scrollTextViewport(vp3_target_y) == 0)
+						text_switch = TEXTMODE_SW_WAIT;
+					break;
+			}
 	}
 
-	// DisownBlitter();
 	Enable();
 	Permit();
 

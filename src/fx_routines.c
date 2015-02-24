@@ -26,7 +26,7 @@ extern struct  BitMap *bitmap_logo;
 extern struct  BitMap *bitmap_checkerboard;
 extern struct  BitMap *bitmap_bob;
 extern struct  BitMap *bitmap_bob_mask;
-extern struct  BitMap *bitmap_ship;
+// extern struct  BitMap *bitmap_ship;
 
 extern struct Custom far custom;
 
@@ -215,7 +215,7 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
         for (c = 0; c < COLOURS2b; c++)
             CMOVE(copper, custom.color[c], RGB8toRGB4(addRGB8Colors(pal[c], COLOUR_PURPLE)));
 
-        CMOVE(copper, custom.color[(COLOURS2 * 2) + 2], RGB8toRGB4(addRGB8Colors(pal[0], COLOUR_PURPLE)));
+        // CMOVE(copper, custom.color[(COLOURS2 * 2) + 2], RGB8toRGB4(addRGB8Colors(pal[0], COLOUR_PURPLE)));
     }
 
     CEND(copper);
@@ -240,13 +240,13 @@ __inline void updateCheckerboard(void) // UBYTE update_sw)
     ubob_hscroll_phase &= 0x1FF;
 
     view_port2.RasInfo->Next->RxOffset = (WIDTH2b - DISPL_WIDTH2b) + ((tsin[ubob_hscroll_phase] + 512) * (WIDTH2b - DISPL_WIDTH2b)) >> 10;
-    // view_port2.RasInfo->Next->RyOffset = ubob_vscroll;
+    view_port2.RasInfo->Next->RyOffset = ubob_vscroll;
 
     ScrollVPort(&view_port2);
 
-    // ubob_vscroll += DISPL_HEIGHT2b;
-    // if (ubob_vscroll >= HEIGHT2b)
-    //     ubob_vscroll = 0;    
+    ubob_vscroll += DISPL_HEIGHT2b;
+    if (ubob_vscroll >= HEIGHT2b)
+        ubob_vscroll = 0;    
 }
 
 void loadBobBitmaps(void)
@@ -257,15 +257,15 @@ void loadBobBitmaps(void)
 
 void loadShipBitmap(void)
 {
-    bitmap_ship = load_file_as_bitmap("assets/ship0.bin", 1800 << 1, ship0.Width, ship0.Height, ship0.Depth);
+    // bitmap_ship = load_file_as_bitmap("assets/ship0.bin", 1800 << 1, ship0.Width, ship0.Height, ship0.Depth);
 }
 
 void drawShip(struct BitMap *dest_bitmap)
 {
-    BltBitMap(bitmap_ship, 0, 0,
-        dest_bitmap, (WIDTH2b - ship0.Width) >> 1, (DISPL_HEIGHT2b >> 1) - 16,
-        ship0.Width, ship0.Height,
-        0xC0, 0xFF, NULL);
+    // BltBitMap(bitmap_ship, 0, 0,
+    //     dest_bitmap, (WIDTH2b - ship0.Width) >> 1, (DISPL_HEIGHT2b >> 1) - 16,
+    //     ship0.Width, ship0.Height,
+    //     0xC0, 0xFF, NULL);
 }
 
 __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) // struct BitMap* dest_bitmap)

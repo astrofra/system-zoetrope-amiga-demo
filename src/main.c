@@ -91,7 +91,7 @@ struct BitMap *bitmap_checkerboard = NULL;
 struct BitMap *bitmap_font = NULL;
 struct BitMap *bitmap_bob = NULL;
 struct BitMap *bitmap_bob_mask = NULL;
-struct BitMap *bitmap_ship = NULL;
+// struct BitMap *bitmap_ship = NULL;
 // struct BitMap *bitmap_buddha = NULL;
 // struct BitMap *bitmap_zzz = NULL;
 
@@ -159,8 +159,8 @@ void close_demo(STRPTR message)
 	// free_allocated_bitmap(bitmap_logo);
 	// free_allocated_bitmap(bitmap_checkerboard);
 	free_allocated_bitmap(bitmap_font);
-	// free_allocated_bitmap(bitmap_bob);
-	// free_allocated_bitmap(bitmap_bob_mask);
+	free_allocated_bitmap(bitmap_bob);
+	free_allocated_bitmap(bitmap_bob_mask);
 	// free_allocated_bitmap(bitmap_ship);
 	// free_allocated_bitmap(bitmap_buddha);
 	// free_allocated_bitmap(bitmap_zzz);
@@ -406,14 +406,14 @@ void main()
 	printf("...even more stuff\n");
 
 	loadTextWriterFont();
-	// loadBobBitmaps();
+	loadBobBitmaps();
 	SetAPen(&rast_port2, 0);
 	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
 	drawCheckerboard(&bit_map2, &rast_port2);
 	free_allocated_bitmap(bitmap_checkerboard);
-	loadShipBitmap();
-	drawShip(&bit_map2b);
-	free_allocated_bitmap(bitmap_ship);
+	// loadShipBitmap();
+	// drawShip(&bit_map2b);
+	// free_allocated_bitmap(bitmap_ship);
 
 	printf("...done!\n");
 
@@ -472,42 +472,42 @@ void main()
 		scrollLogoBackground();
 		updateCheckerboard();
 
-		// switch(mode_switch)
-		// {
-		// 	case DMODE_SW_INTRO:
-		// 		// for(palette_idx = 0; palette_idx < COLOURS1 >> 1; palette_idx++)
-		// 		// {
-		// 		// 	tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
-		// 		// 	tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
-	 //   //      		SetRGB4(&view_port1, palette_idx, (tmp_col & 0xff0000L) >> 20, (tmp_col & 0x00ff00L) >> 16, (tmp_col & 0x00ffL) >> 12);
-		// 		// }
+		switch(mode_switch)
+		{
+			case DMODE_SW_INTRO:
+				// for(palette_idx = 0; palette_idx < COLOURS1 >> 1; palette_idx++)
+				// {
+				// 	tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
+				// 	tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
+	   //      		SetRGB4(&view_port1, palette_idx, (tmp_col & 0xff0000L) >> 20, (tmp_col & 0x00ff00L) >> 16, (tmp_col & 0x00ffL) >> 12);
+				// }
 
-		// 		// palette_fade += 4;
-		// 		// if (palette_fade > (1 << 8))
-		// 		// 	mode_switch = DMODE_SW_UBOB;
-		// 		mode_switch = DMODE_SW_UBOB;
-		// 		break;
+				// palette_fade += 4;
+				// if (palette_fade > (1 << 8))
+				// 	mode_switch = DMODE_SW_UBOB;
+				mode_switch = DMODE_SW_UBOB;
+				break;
 
-		// 	case DMODE_SW_UBOB:
-		// 		if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0 && text_switch == TEXTMODE_SW_WAIT)
-		// 		{
-		// 			// if (ubob_figure == (ubob_figure & 0xFE))
-		// 			// 	mode_switch = DMODE_SW_CLEAR_FROM_TOP;
-		// 			// else
-		// 				mode_switch = DMODE_SW_CLEAR_FROM_BOTTOM;
-		// 		}
-		// 		break;
+			case DMODE_SW_UBOB:
+				if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0 && text_switch == TEXTMODE_SW_WAIT)
+				{
+					// if (ubob_figure == (ubob_figure & 0xFE))
+					// 	mode_switch = DMODE_SW_CLEAR_FROM_TOP;
+					// else
+						mode_switch = DMODE_SW_CLEAR_FROM_BOTTOM;
+				}
+				break;
 
-		// 	case DMODE_SW_CLEAR_FROM_TOP:
-		// 		if (clearPlayfieldLineByLineFromTop(&rast_port2b) == 0)
-		// 			mode_switch = DMODE_SW_UBOB;
-		// 		break;
+			case DMODE_SW_CLEAR_FROM_TOP:
+				if (clearPlayfieldLineByLineFromTop(&rast_port2b) == 0)
+					mode_switch = DMODE_SW_UBOB;
+				break;
 
-		// 	case DMODE_SW_CLEAR_FROM_BOTTOM:
-		// 		if (clearPlayfieldLineByLineFromBottom(&rast_port2b) == 0)
-		// 			mode_switch = DMODE_SW_UBOB;
-		// 		break;
-		// }
+			case DMODE_SW_CLEAR_FROM_BOTTOM:
+				if (clearPlayfieldLineByLineFromBottom(&rast_port2b) == 0)
+					mode_switch = DMODE_SW_UBOB;
+				break;
+		}
 
 		// if (!update_sw)
 			switch(text_switch)

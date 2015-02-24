@@ -19,7 +19,7 @@
 #define COLOURS2   (1 << DEPTH2)
 
 /* ViewPort 2b */
-#define ANIM_STRIPEb 1
+#define ANIM_STRIPEb 8
 #define WIDTH2b   384
 #define DISPL_WIDTH2b   DEFAULT_DISP_WIDTH
 #define DISPL_HEIGHT2b   150

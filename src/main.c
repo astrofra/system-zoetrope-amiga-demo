@@ -7,6 +7,7 @@
 #include <intuition/intuition.h>
 #include <graphics/gfxbase.h>
 #include <hardware/dmabits.h>
+#include <hardware/intbits.h>
 #include <hardware/custom.h>
 #include <graphics/gfxmacros.h>
 
@@ -201,6 +202,7 @@ void main()
 	UWORD counter_before_next_text, text_width, text_duration;
 	UWORD vp3_target_y;
 	UBYTE update_sw;
+	USHORT v_counter;
 
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
@@ -444,7 +446,9 @@ void main()
 	}	
 
 
-	playMusic();
+	// playMusic();
+	WaitTOF();
+	WaitTOF();
 
 	Forbid();
 	Disable();
@@ -464,10 +468,18 @@ void main()
 
 	// printf("DEMO_STRINGS_MAX_INDEX = %i\n", DEMO_STRINGS_MAX_INDEX);
 
+	OFF_VBLANK;
+
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
-		WaitTOF();
-		update_sw = !update_sw;
+		// update_sw = !update_sw;
+		// WaitTOF();
+		// do
+		// {
+		// v_counter = ((*(ULONG *)0xdff004) & 0x1ff00) >> 8;
+		// }
+		// while(v_counter < 128);
+		// printf("%d\n", v_counter);
 
 		scrollLogoBackground();
 		updateCheckerboard();
@@ -491,9 +503,9 @@ void main()
 			case DMODE_SW_UBOB:
 				if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0 && text_switch == TEXTMODE_SW_WAIT)
 				{
-					// if (ubob_figure == (ubob_figure & 0xFE))
-					// 	mode_switch = DMODE_SW_CLEAR_FROM_TOP;
-					// else
+					if (ubob_figure == (ubob_figure & 0xFE))
+						mode_switch = DMODE_SW_CLEAR_FROM_TOP;
+					else
 						mode_switch = DMODE_SW_CLEAR_FROM_BOTTOM;
 				}
 				break;
@@ -509,54 +521,57 @@ void main()
 				break;
 		}
 
-		// if (!update_sw)
-			switch(text_switch)
-			{
+		// if (update_sw)
+		switch(text_switch)
+		{
 
-				case TEXTMODE_SW_WAIT:
-					counter_before_next_text++;
-					if(counter_before_next_text > text_duration
-						&& mode_switch != DMODE_SW_CLEAR_FROM_TOP
-						&& mode_switch != DMODE_SW_CLEAR_FROM_BOTTOM)
-					{
-						text_switch = TEXTMODE_SW_CLEAR;
-						if (vp3_target_y == 0)
-							vp3_target_y = DISPL_HEIGHT3;
-						else
-							vp3_target_y = 0;
-					}
-					break;
+			case TEXTMODE_SW_WAIT:
+				counter_before_next_text++;
+				if(counter_before_next_text > text_duration
+					&& mode_switch != DMODE_SW_CLEAR_FROM_TOP
+					&& mode_switch != DMODE_SW_CLEAR_FROM_BOTTOM)
+				{
+					text_switch = TEXTMODE_SW_CLEAR;
+					if (vp3_target_y == 0)
+						vp3_target_y = DISPL_HEIGHT3;
+					else
+						vp3_target_y = 0;
+				}
+				break;
 
-				case TEXTMODE_SW_CLEAR:
-					SetAPen(&rast_port3, 0);
-					RectFill(&rast_port3, 
-		            0, vp3_target_y, WIDTH3 - 1, vp3_target_y + DISPL_HEIGHT3 - 1);
+			case TEXTMODE_SW_CLEAR:
+				SetAPen(&rast_port3, 0);
+				RectFill(&rast_port3, 
+	            0, vp3_target_y, WIDTH3 - 1, vp3_target_y + DISPL_HEIGHT3 - 1);
 
-					text_switch = TEXTMODE_SW_PRECALC;
-					break;
+				text_switch = TEXTMODE_SW_PRECALC;
+				break;
 
-				case TEXTMODE_SW_PRECALC:
-					text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
-					text_switch = TEXTMODE_SW_DRAW;
-					break;
-
-				case TEXTMODE_SW_DRAW:
+			case TEXTMODE_SW_PRECALC:
+				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
+				if (text_width > 0)
+				{
 					text_duration = text_width + 5;
-					font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]);
+					text_switch = TEXTMODE_SW_DRAW;
+				}
+				break;
 
-					demo_string_index++;
-					if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
-						demo_string_index = 0;
+			case TEXTMODE_SW_DRAW:
+				font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]);
 
-					counter_before_next_text = 0;
-					text_switch = TEXTMODE_SW_SCROLL;
-					break;
+				demo_string_index++;
+				if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
+					demo_string_index = 0;
 
-				case TEXTMODE_SW_SCROLL:
-					if (scrollTextViewport(vp3_target_y) == 0)
-						text_switch = TEXTMODE_SW_WAIT;
-					break;
-			}
+				counter_before_next_text = 0;
+				text_switch = TEXTMODE_SW_SCROLL;
+				break;
+
+			case TEXTMODE_SW_SCROLL:
+				if (scrollTextViewport(vp3_target_y) == 0)
+					text_switch = TEXTMODE_SW_WAIT;
+				break;
+		}		
 	}
 
 	Enable();

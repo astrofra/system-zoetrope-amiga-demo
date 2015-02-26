@@ -476,9 +476,9 @@ void main()
 		// WaitTOF();
 		// do
 		// {
-		// v_counter = ((*(ULONG *)0xdff004) & 0x1ff00) >> 8;
+		// 	v_counter = ((*(ULONG *)0xdff004) & 0x1ff00) >> 8;
 		// }
-		// while(v_counter < 128);
+		// while(v_counter < 255);
 		// printf("%d\n", v_counter);
 
 		scrollLogoBackground();
@@ -540,38 +540,47 @@ void main()
 				break;
 
 			case TEXTMODE_SW_CLEAR:
-				SetAPen(&rast_port3, 0);
-				RectFill(&rast_port3, 
-	            0, vp3_target_y, WIDTH3 - 1, vp3_target_y + DISPL_HEIGHT3 - 1);
+				if (((*(ULONG *)0xdff004) & 0x1ff00) >> 8 < 190)
+				{
+					SetAPen(&rast_port3, 0);
+					RectFill(&rast_port3, 
+		            0, vp3_target_y, WIDTH3 - 1, vp3_target_y + DISPL_HEIGHT3 - 1);
 
-				text_switch = TEXTMODE_SW_PRECALC;
+					text_switch = TEXTMODE_SW_PRECALC;
+				}
 				break;
 
 			case TEXTMODE_SW_PRECALC:
-				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
-				if (text_width > 0)
+				if (((*(ULONG *)0xdff004) & 0x1ff00) >> 8 < 128)
 				{
-					text_duration = text_width + 5;
-					text_switch = TEXTMODE_SW_DRAW;
+					text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
+					if (text_width > 0)
+					{
+						text_duration = text_width + 5;
+						text_switch = TEXTMODE_SW_DRAW;
+					}
 				}
 				break;
 
 			case TEXTMODE_SW_DRAW:
-				font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]);
+				if (((*(ULONG *)0xdff004) & 0x1ff00) >> 8 < 64)
+				{
+					font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]);
 
-				demo_string_index++;
-				if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
-					demo_string_index = 0;
+					demo_string_index++;
+					if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
+						demo_string_index = 0;
 
-				counter_before_next_text = 0;
-				text_switch = TEXTMODE_SW_SCROLL;
+					counter_before_next_text = 0;
+					text_switch = TEXTMODE_SW_SCROLL;
+				}
 				break;
 
 			case TEXTMODE_SW_SCROLL:
 				if (scrollTextViewport(vp3_target_y) == 0)
 					text_switch = TEXTMODE_SW_WAIT;
 				break;
-		}		
+		}
 	}
 
 	Enable();

@@ -23,7 +23,9 @@
 #define MINVOLUME     0
 #define NORMALRATE    0
 
-extern CPTR PrepareSound(STRPTR file);
+extern struct SoundInfo;
+
+extern struct SoundInfo *PrepareSound(STRPTR file);
 extern BOOL PlaySound(struct SoundInfo *info, UWORD volume, UBYTE channel, WORD delta_rate, UWORD repeat);
 extern void StopSound(UBYTE channel);
 extern void RemoveSound(struct SoundInfo *info);

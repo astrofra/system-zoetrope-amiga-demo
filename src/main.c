@@ -24,6 +24,7 @@ Routines
 */
 #include "bitmap_routines.h"
 #include "font_routines.h"
+#include "sound_routines.h"
 
 /*
 Graphic assets
@@ -96,8 +97,12 @@ struct BitMap *bitmap_bob_mask = NULL;
 // struct BitMap *bitmap_buddha = NULL;
 // struct BitMap *bitmap_zzz = NULL;
 
-void initMusicLibrary(void)
+// #define PTREPLAY_MUSIC
+struct SoundInfo *background = NULL;
+
+void initMusic(void)
 {
+#ifdef PTREPLAY_MUSIC
 	if (SysBase->LibNode.lib_Version >= 36)
 		if (!AssignPath("Libs","Libs"))
 			exit(0); //FIXME // init_conerr((UBYTE *)"Failed to Assign the local Libs drawer. Please copy ptreplay.library into your Libs: drawer.\n");
@@ -108,15 +113,31 @@ void initMusicLibrary(void)
 	}
 
 	mod = load_getchipmem((UBYTE *)"assets/A_SYNTH.mod", 20092);
+#else
+	background = PrepareSound( "assets/background.snd" );
+	if( !background )
+	{
+		printf( "Could not prepare the sound effect!\n" );
+		exit(0); //FIXME
+	}
+#endif
 }
 
 void playMusic(void)
 {
+#ifdef PTREPLAY_MUSIC
 	if (mod != NULL)
 	{
 		theMod = PTSetupMod((APTR)mod);
 		PTPlay(theMod);
 	}
+#else
+	if (background != NULL)
+	{
+		PlaySound( background, MAXVOLUME/2, LEFT0, NORMALRATE, NONSTOP );
+		PlaySound( background, MAXVOLUME/2, RIGHT0, NORMALRATE, NONSTOP );
+	}
+#endif
 }
 
 void print_ascci_art_logo(void)
@@ -166,6 +187,7 @@ void close_demo(STRPTR message)
 	// free_allocated_bitmap(bitmap_buddha);
 	// free_allocated_bitmap(bitmap_zzz);
 
+#ifdef PTREPLAY_MUSIC
 	/*	Stop music */
 	if (mod != NULL)
 	{
@@ -175,7 +197,14 @@ void close_demo(STRPTR message)
 	}
 
 	if (PTReplayBase) CloseLibrary(PTReplayBase);
-
+#else
+	if (background != NULL)
+	{
+		StopSound( LEFT0 );
+		StopSound( RIGHT0 );
+		RemoveSound( background );
+	}
+#endif
 	/* Close the Graphics library: */
 	if(GfxBase)
 		CloseLibrary((struct Library *)GfxBase);
@@ -216,7 +245,7 @@ void main()
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
 
-	print_ascci_art_logo();
+	// print_ascci_art_logo();
 
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
@@ -419,7 +448,7 @@ void main()
 
 	printf("...done!\n");
 
-	initMusicLibrary();
+	initMusic();
 	setLogoCopperlist(&view_port1);
 	setTextLinerCopperlist(&view_port3);
 	setCheckerboardCopperlist(&view_port2);
@@ -446,7 +475,7 @@ void main()
 	}	
 
 
-	// playMusic();
+	playMusic();
 	WaitTOF();
 	WaitTOF();
 
@@ -468,7 +497,7 @@ void main()
 
 	// printf("DEMO_STRINGS_MAX_INDEX = %i\n", DEMO_STRINGS_MAX_INDEX);
 
-	OFF_VBLANK;
+	// OFF_VBLANK;
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{

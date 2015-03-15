@@ -60,7 +60,7 @@ typedef struct
 
 
 /* Declare the functions we are going to use: */
-CPTR PrepareSound(STRPTR file);
+struct SoundInfo *PrepareSound(STRPTR file);
 BOOL PlaySound(struct SoundInfo *info, UWORD volume, UBYTE channel, WORD delta_rate, UWORD repeat);
 void StopSound(UBYTE channel);
 void RemoveSound();
@@ -89,7 +89,7 @@ BOOL MoveTo( STRPTR check_string, FILE *file_ptr );
 /* filename: (STRPTR) Pointer to a string containing the name of the    */
 /*           sound file. For example "df0:Explosion.snd".               */
 
-CPTR PrepareSound(STRPTR file)
+struct SoundInfo *PrepareSound(STRPTR file)
 {
   /* Declare a pointer to a SoundInfo structure: */
   struct SoundInfo *info;
@@ -130,7 +130,7 @@ CPTR PrepareSound(STRPTR file)
           
 					/* Return a pointer to the SoundInfo structure. (We return a */
 					/* normal memory pointer.)                                   */
-					return( (CPTR) info ); /* OK! */
+					return(info); // return( (CPTR) info ); /* OK! */
         }
 				else
         {

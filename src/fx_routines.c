@@ -26,7 +26,6 @@ extern struct  BitMap *bitmap_logo;
 extern struct  BitMap *bitmap_checkerboard;
 extern struct  BitMap *bitmap_bob;
 extern struct  BitMap *bitmap_bob_mask;
-// extern struct  BitMap *bitmap_ship;
 
 extern struct Custom far custom;
 
@@ -51,28 +50,6 @@ UWORD chip blank_pointer[4]=
     0x0000, 0x0000,
     0x0000, 0x0000
 };
-
-/*
-    Preaload (Buddha)
-*/
-// void loadBuddhaBitmaps(void)
-// {
-//     bitmap_buddha = load_array_as_bitmap(buddhaData, 192 << 1, buddha.Width, buddha.Height, buddha.Depth);
-//     bitmap_zzz = load_array_as_bitmap(buddha_zzData, 48 << 1, buddha_zz.Width, buddha_zz.Height, buddha_zz.Depth);
-// }
-
-// void drawBuddha(struct RastPort *dest_rp, struct BitMap *dest_bitmap, UWORD phase)
-// {
-//     UWORD x, y, offset_y;
-//     offset_y = 8 + ((tcos[phase & 0x1FF] + 512) * 8) >> 10;
-//     x = (DISPL_WIDTH1 - buddha_zz.Width) >> 1;
-//     y = HEIGHT1 - buddha.Height - buddha_zz.Height - 12 + offset_y;
-//     SetAPen(dest_rp, 0);
-//     RectFill(dest_rp, 
-//        x, y - 1, x + buddha_zz.Width - 1, y + buddha_zz.Height + 2);    
-//     BLIT_BITMAP_S(bitmap_zzz, dest_bitmap, buddha_zz.Width, buddha_zz.Height, x, y); 
-//     BLIT_BITMAP_S(bitmap_buddha, dest_bitmap, buddha.Width, buddha.Height, (DISPL_WIDTH1 - buddha.Width) >> 1, HEIGHT1 - buddha.Height - 4); 
-// }
 
 /*	
 	Viewport 1, 
@@ -255,19 +232,6 @@ void loadBobBitmaps(void)
     bitmap_bob_mask = load_file_as_bitmap("assets/bob_sphere_mask.bin", 128, bob_32_mask.Width, bob_32_mask.Height, bob_32_mask.Depth);
 }
 
-void loadShipBitmap(void)
-{
-    // bitmap_ship = load_file_as_bitmap("assets/ship0.bin", 1800 << 1, ship0.Width, ship0.Height, ship0.Depth);
-}
-
-void drawShip(struct BitMap *dest_bitmap)
-{
-    // BltBitMap(bitmap_ship, 0, 0,
-    //     dest_bitmap, (WIDTH2b - ship0.Width) >> 1, (DISPL_HEIGHT2b >> 1) - 16,
-    //     ship0.Width, ship0.Height,
-    //     0xC0, 0xFF, NULL);
-}
-
 __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) // struct BitMap* dest_bitmap)
 {
     UWORD x, y;
@@ -307,12 +271,6 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
 
     if (ubob_phase_x > (COSINE_TABLE_LEN << 1) && ubob_phase_y > (COSINE_TABLE_LEN << 1))
     {
-        (*figure_mode)++;
-        if (*figure_mode > 4)
-            *figure_mode = 0;
-        ubob_phase_x = 0;
-        ubob_phase_y = 0;
-        ubob_scale = 0;
         return 0;
     }    
 
@@ -330,9 +288,22 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
     return 1;
 }
 
+__inline void setNextUnlimitedBobs(UBYTE *figure_mode)
+{
+    (*figure_mode)++;
+    if (*figure_mode > 4)
+        *figure_mode = 0;
+    
+    ubob_phase_x = 0;
+    ubob_phase_y = 0;
+    ubob_scale = 0;
+}
+
 __inline UBYTE clearPlayfieldLineByLineFromTop(struct RastPort *dest_rp)
 {
     UWORD y;
+
+    // printf("clearPlayfieldLineByLineFromTop()\n");
 
     if (clr_screen_y >= DISPL_HEIGHT2b - 8)
     {
@@ -358,6 +329,8 @@ __inline UBYTE clearPlayfieldLineByLineFromTop(struct RastPort *dest_rp)
 __inline UBYTE clearPlayfieldLineByLineFromBottom(struct RastPort *dest_rp)
 {
     UWORD y, bottom_y;
+
+    // printf("clearPlayfieldLineByLineFromBottom()\n");
 
     if (clr_screen_y >= DISPL_HEIGHT2b - 8)
     {

@@ -125,8 +125,10 @@ struct SoundInfo *PrepareSound(STRPTR file)
 					/* Old FutureSound files were saved in kHz. If the record rate */
 					/* is less than one hundered, we know it is an old FutureSound */
 					/* file, and simply multiply the rate with one thousand:       */
-          if( info->RecordRate < 100 )
+          /* Astrofra : removed suspicious patch inherited from the past century */
+          /* if( info->RecordRate < 100 )
             info->RecordRate *= 1000;
+          */
           
 					/* Return a pointer to the SoundInfo structure. (We return a */
 					/* normal memory pointer.)                                   */
@@ -338,13 +340,15 @@ BOOL PrepareIOA( UWORD period,UWORD volume,UWORD cycles, UBYTE channel, struct S
         IOA[ channel ]->ioa_Volume = volume;
         IOA[ channel ]->ioa_Cycles = cycles;
 
-        /* The Audion Chip can of some strange reason not play sampled  */
-				/* sound that is longer than 131KB. So if the sound is to long, */
+        /* The Audio Chip can of some strange reason not play sampled  */
+				/* sound that is longer than 131KB. So if the sound is too long, */
 				/* we simply cut it off:                                        */
         if( info->FileLength > 131000 )
           IOA[ channel ]->ioa_Length = 131000;
         else
           IOA[ channel ]->ioa_Length = info->FileLength;
+
+        // printf("PrepareIOA() ioa_Length = %d\n", IOA[ channel ]->ioa_Length);
 
         IOA[ channel ]->ioa_Data = info->SoundBuffer;
 
@@ -420,6 +424,7 @@ UWORD LoadSound( STRPTR filename, struct SoundInfo *info )
     fclose( file_ptr );
 
     /* Return the record rate: */
+    // printf("LoadSound() record_rate = %d\n", record_rate);    
     return( record_rate );
   }
 }
@@ -462,6 +467,7 @@ ULONG GetSize(STRPTR filename)
     /* Close the file: */
     fclose( file_ptr );
   }
+  // printf("GetSize() length = %d\n", length);
   return( length );
 }
 
@@ -503,6 +509,8 @@ ULONG SizeIFF( STRPTR filename )
 
     		/* Close the file, and return the length: */
         fclose( file_ptr );
+
+        // printf("SizeIFF() oneShotHiSamples + repeatHiSamples = %d\n", Header.oneShotHiSamples + Header.repeatHiSamples);        
         return( Header.oneShotHiSamples + Header.repeatHiSamples );
       }
     }
@@ -558,6 +566,8 @@ UWORD ReadIFF( STRPTR filename, struct SoundInfo *info )
 
     		/* Close the file, and return the record rate: */
         fclose( file_ptr );
+
+        // printf("ReadIFF() samplesPerSec = %d\n", Header.samplesPerSec);
         return( Header.samplesPerSec );
       }
     }

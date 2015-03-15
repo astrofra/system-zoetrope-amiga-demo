@@ -1,13 +1,12 @@
 const char *demo_string[] = {
 	"SYSTEM ZOETROPE\0",
 	"    \0",
-	"AN AMIGA DEMO BY MANKIND AND MANDARINE\0",	
-	"MUSIC BY ERK\0",
-	"GRAPHICS BY PTOING\0",
-	// "BUDDHA PORTRAIT BY GWEN\0",
-	"CODE BY FRA\0",
+	"AN AMIGA DEMO BY MANDARINE\0",	
+	"MUSIC BY ILDEBE\0",
+	// "GRAPHICS BY PTOING\0",
+	"CODE AND PIXELS BY FRA\0",
 	"A DEMO ENTIRELY WRITTEN IN C\0",
-	"USING THE GRAPHICS.LIBRARY V39\0",
+	"USING THE GRAPHICS.LIBRARY\0",
 	"NO HARDWARE BANGING - SYSTEM CALLS ONLY!\0",
 	"GREETINGS TO MANKIND\0",
 	"CONDENSE\0",
@@ -71,7 +70,8 @@ const char *demo_string[] = {
 	"IN 2014, I FOUND THE C CODE OF AN OLD DEMO\0",
 	"IT WAS LIKE A BOOTSTRAP TO ME!\0",
 	"TEXT WILL NOW LOOP! BYE BYE :)\0",
-	"  \0"
+	"\0"
+
 };
 
 const char *loading_string[] = {
@@ -80,19 +80,19 @@ const char *loading_string[] = {
 
 const char *ascii_art[] = {
 "\n",	
-"   _____    _______   ____  __._______  ________\n",  
-"  /     \\   \\      \\ |    |/ _|\\      \\ \\______ \\\n",   
-" /  \\ /  \\  /   |   \\|      <  /   |   \\ |    |  \\\n", 
-"/    Y    \\/    |    \\    |  \\/    |    \\|    `   \\\n",
-"\\____|__  /\\____|__  /____|__ \\____|__  /_______  /\n",
-"        \\/         \\/        \\/       \\/        \\/\n",  
+// "   _____    _______   ____  __._______  ________\n",  
+// "  /     \\   \\      \\ |    |/ _|\\      \\ \\______ \\\n",   
+// " /  \\ /  \\  /   |   \\|      <  /   |   \\ |    |  \\\n", 
+// "/    Y    \\/    |    \\    |  \\/    |    \\|    `   \\\n",
+// "\\____|__  /\\____|__  /____|__ \\____|__  /_______  /\n",
+// "        \\/         \\/        \\/       \\/        \\/\n",  
 "   _____    _______  ________ __________  _______\n",  
 "  /     \\   \\      \\ \\______ \\_____ _   \\ \\      \\\n", 
 " /  \\ /  \\  /   |   \\ |    |  \\|       _/ /   |   \\\n", 
 "/    Y    \\/    |    \\|    `   \\    |   \\/    |    \\\n",
 "\\____|__  /\\____|__  /_______  /____|_  /\\____|__  /\n",
 "        \\/         \\/        \\/       \\/         \\/\n",
-"DEMO IS LOADING STUFF\n",
+"MANDARINE 2015 - DEMO IS LOADING STUFF\n",
 ""
 };
 

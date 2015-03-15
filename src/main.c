@@ -114,7 +114,7 @@ void initMusic(void)
 
 	mod = load_getchipmem((UBYTE *)"assets/A_SYNTH.mod", 20092);
 #else
-	background = PrepareSound( "assets/background.snd" );
+	background = PrepareSound( "assets/music_loop.8svx" );
 	if( !background )
 	{
 		printf( "Could not prepare the sound effect!\n" );
@@ -134,8 +134,8 @@ void playMusic(void)
 #else
 	if (background != NULL)
 	{
-		PlaySound( background, MAXVOLUME/2, LEFT0, NORMALRATE, NONSTOP );
-		PlaySound( background, MAXVOLUME/2, RIGHT0, NORMALRATE, NONSTOP );
+		PlaySound( background, MAXVOLUME, LEFT0, NORMALRATE, NONSTOP );
+		PlaySound( background, MAXVOLUME, RIGHT0, NORMALRATE, NONSTOP );
 	}
 #endif
 }
@@ -245,7 +245,7 @@ void main()
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
 
-	// print_ascci_art_logo();
+	print_ascci_art_logo();
 
 	/* Save the current View, so we can restore it later: */
 	my_old_view = GfxBase->ActiView;
@@ -459,6 +459,9 @@ void main()
 
 	MrgCop(&my_view);
 
+	for(loop = 0; loop < 25; loop++)
+		WaitTOF();
+
 	/* 8. Show the new View: */
 	LoadView( &my_view );	
 
@@ -472,12 +475,16 @@ void main()
 	{
 		tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE, RGB4toRGB8(font_palRGB4[loop])));
 		SetRGB4(&view_port3, loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-	}	
-
+	}
 
 	playMusic();
+
 	WaitTOF();
 	WaitTOF();
+	WaitTOF();
+	WaitTOF();
+	WaitTOF();
+	WaitTOF();		
 
 	Forbid();
 	Disable();
@@ -501,7 +508,6 @@ void main()
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
-		// update_sw = !update_sw;
 		// WaitTOF();
 		// do
 		// {
@@ -532,6 +538,7 @@ void main()
 			case DMODE_SW_UBOB:
 				if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0 && text_switch == TEXTMODE_SW_WAIT)
 				{
+					// printf("ubob_figure = %d, ubob_figure & 0xFE = %d\n", ubob_figure, (ubob_figure & 0xFE));
 					if (ubob_figure == (ubob_figure & 0xFE))
 						mode_switch = DMODE_SW_CLEAR_FROM_TOP;
 					else
@@ -541,12 +548,17 @@ void main()
 
 			case DMODE_SW_CLEAR_FROM_TOP:
 				if (clearPlayfieldLineByLineFromTop(&rast_port2b) == 0)
-					mode_switch = DMODE_SW_UBOB;
+					mode_switch = DMODE_SW_NEXT_UBOB;
 				break;
 
 			case DMODE_SW_CLEAR_FROM_BOTTOM:
 				if (clearPlayfieldLineByLineFromBottom(&rast_port2b) == 0)
-					mode_switch = DMODE_SW_UBOB;
+					mode_switch = DMODE_SW_NEXT_UBOB;
+				break;
+
+			case DMODE_SW_NEXT_UBOB:
+				setNextUnlimitedBobs(&ubob_figure);
+				mode_switch = DMODE_SW_UBOB;
 				break;
 		}
 
@@ -597,8 +609,11 @@ void main()
 					font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]);
 
 					demo_string_index++;
-					if (demo_string_index >= DEMO_STRINGS_MAX_INDEX)
+					if (demo_string_index > DEMO_STRINGS_MAX_INDEX)
+					{
+						printf("text_duration = %d\n", text_duration);
 						demo_string_index = 0;
+					}
 
 					counter_before_next_text = 0;
 					text_switch = TEXTMODE_SW_SCROLL;
@@ -611,6 +626,13 @@ void main()
 				break;
 		}
 	}
+
+	/*	Wait for mouse up
+		to prevent the mouse up event
+		to mess with the OS gui
+	*/
+	while(!((*(UBYTE *)0xBFE001) & 0x40))
+		WaitTOF();
 
 	Enable();
 	Permit();

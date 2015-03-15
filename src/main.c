@@ -93,9 +93,6 @@ struct BitMap *bitmap_checkerboard = NULL;
 struct BitMap *bitmap_font = NULL;
 struct BitMap *bitmap_bob = NULL;
 struct BitMap *bitmap_bob_mask = NULL;
-// struct BitMap *bitmap_ship = NULL;
-// struct BitMap *bitmap_buddha = NULL;
-// struct BitMap *bitmap_zzz = NULL;
 
 // #define PTREPLAY_MUSIC
 struct SoundInfo *background = NULL;
@@ -178,14 +175,9 @@ void close_demo(STRPTR message)
 	if( view_port3.ColorMap ) FreeColorMap( view_port3.ColorMap );
 
 	/* Deallocate various bitmaps */
-	// free_allocated_bitmap(bitmap_logo);
-	// free_allocated_bitmap(bitmap_checkerboard);
 	free_allocated_bitmap(bitmap_font);
 	free_allocated_bitmap(bitmap_bob);
 	free_allocated_bitmap(bitmap_bob_mask);
-	// free_allocated_bitmap(bitmap_ship);
-	// free_allocated_bitmap(bitmap_buddha);
-	// free_allocated_bitmap(bitmap_zzz);
 
 #ifdef PTREPLAY_MUSIC
 	/*	Stop music */
@@ -230,7 +222,6 @@ void main()
 	UBYTE mode_switch, ubob_figure, text_switch;
 	UWORD counter_before_next_text, text_width, text_duration;
 	UWORD vp3_target_y;
-	UBYTE update_sw;
 	USHORT v_counter;
 
 	/* Open the Intuition library: */
@@ -293,35 +284,24 @@ void main()
 	view_port1.ColorMap = (struct ColorMap *) GetColorMap(COLOURS1);
 	if( view_port1.ColorMap == NULL )
 		close_demo( "Could NOT get a ColorMap!" );
-	/* Get a pointer to the colour map: */
-	// pointer = (UWORD *) view_port1.ColorMap->ColorTable;
-	/* Set the colours: */
-	// for( loop = 0; loop < COLOURS1; loop++ )
-	// 	*pointer++ = mandarine_logoPaletteRGB4[ loop ];
+
 	for( loop = 0; loop < 8; loop++)
-		SetRGB4(&view_port1, loop, 0, 0, 0); // (buddhaPaletteRGB4[loop] & 0x0f00) >> 8, (buddhaPaletteRGB4[loop] & 0x00f0) >> 4, buddhaPaletteRGB4[loop] & 0x000f);
+		SetRGB4(&view_port1, loop, 0, 0, 0);
 
 	/* ViewPort 2 */
 	view_port2.ColorMap = (struct ColorMap *) GetColorMap(COLOURS2 * 4);
 	if( view_port2.ColorMap == NULL )
 		close_demo( "Could NOT get a ColorMap!" );
-	/* Get a pointer to the colour map: */
-	// pointer = (UWORD *) view_port2.ColorMap->ColorTable;
 
 	/* ViewPort 3 */
 	view_port3.ColorMap = (struct ColorMap *) GetColorMap(COLOURS3);
 	if( view_port3.ColorMap == NULL )
 		close_demo( "Could NOT get a ColorMap!" );
-	/* Get a pointer to the colour map: */
-	// pointer = (UWORD *) view_port3.ColorMap->ColorTable;
-	/* Set the colours: */
-	// for( loop = 0; loop < COLOURS3; loop++ )
-	// 	*pointer++ = font_palRGB4[ loop ];
+
 	for( loop = 0; loop < COLOURS3; loop++)
-		SetRGB4(&view_port3, loop, 0, 0, 0); // (font_palRGB4[loop] & 0x0f00) >> 8, (font_palRGB4[loop] & 0x00f0) >> 4, font_palRGB4[loop] & 0x000f);
+		SetRGB4(&view_port3, loop, 0, 0, 0);
 
 	/* Prepare the BitMap */
-
 	/* ViewPort 1 */
 	InitBitMap( &bit_map1, DEPTH1, WIDTH1, HEIGHT1 );
 	/* Allocate memory for the Raster: */ 
@@ -362,7 +342,7 @@ void main()
 		tmp_col = RGB4toRGB8(ship0PaletteRGB4[loop]);
 		tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
 		tmp_col = RGB8toRGB4(tmp_col);
-		// printf("bob_32PaletteRGB4 = %x\n", tmp_col);
+
 		SetRGB4(&view_port2, (COLOURS2 * 2) + loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
 	}
 
@@ -428,13 +408,13 @@ void main()
 	MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
 	MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
 
-	printf("...more stuff\n");
+	printf("...MORE STUFF\n");
 
 	/*	Load the assets */
 	drawMandarineLogo(&bit_map1, 0);
 	free_allocated_bitmap(bitmap_logo);
 
-	printf("...even more stuff\n");
+	printf("....EVEN MORE STUFF\n");
 
 	loadTextWriterFont();
 	loadBobBitmaps();
@@ -442,11 +422,8 @@ void main()
 	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
 	drawCheckerboard(&bit_map2, &rast_port2);
 	free_allocated_bitmap(bitmap_checkerboard);
-	// loadShipBitmap();
-	// drawShip(&bit_map2b);
-	// free_allocated_bitmap(bitmap_ship);
 
-	printf("...done!\n");
+	printf("....DONE!\n");
 
 	initMusic();
 	setLogoCopperlist(&view_port1);
@@ -459,7 +436,7 @@ void main()
 
 	MrgCop(&my_view);
 
-	for(loop = 0; loop < 25; loop++)
+	for(loop = 0; loop < 150; loop++)
 		WaitTOF();
 
 	/* 8. Show the new View: */
@@ -481,16 +458,11 @@ void main()
 
 	WaitTOF();
 	WaitTOF();
-	WaitTOF();
-	WaitTOF();
-	WaitTOF();
-	WaitTOF();		
 
 	Forbid();
 	Disable();
 	WaitBlit();
 
-	update_sw = 0;
 	palette_fade = 0; 
 	palette_idx = 0;
 	ubob_figure = 0;
@@ -502,20 +474,11 @@ void main()
 	text_duration = 0;
 	vp3_target_y = 0;
 
-	// printf("DEMO_STRINGS_MAX_INDEX = %i\n", DEMO_STRINGS_MAX_INDEX);
-
 	// OFF_VBLANK;
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
 		// WaitTOF();
-		// do
-		// {
-		// 	v_counter = ((*(ULONG *)0xdff004) & 0x1ff00) >> 8;
-		// }
-		// while(v_counter < 255);
-		// printf("%d\n", v_counter);
-
 		scrollLogoBackground();
 		updateCheckerboard();
 
@@ -538,7 +501,6 @@ void main()
 			case DMODE_SW_UBOB:
 				if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0 && text_switch == TEXTMODE_SW_WAIT)
 				{
-					// printf("ubob_figure = %d, ubob_figure & 0xFE = %d\n", ubob_figure, (ubob_figure & 0xFE));
 					if (ubob_figure == (ubob_figure & 0xFE))
 						mode_switch = DMODE_SW_CLEAR_FROM_TOP;
 					else
@@ -562,7 +524,6 @@ void main()
 				break;
 		}
 
-		// if (update_sw)
 		switch(text_switch)
 		{
 

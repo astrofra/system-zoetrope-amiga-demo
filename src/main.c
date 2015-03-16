@@ -542,39 +542,30 @@ void main()
 				break;
 
 			case TEXTMODE_SW_CLEAR:
-				if (((*(ULONG *)0xdff004) & 0x1ff00) >> 8 < 190)
-				{
-					SetAPen(&rast_port3, 0);
-					RectFill(&rast_port3, 
-		            0, vp3_target_y, WIDTH3 - 1, vp3_target_y + DISPL_HEIGHT3 - 1);
+				SetAPen(&rast_port3, 0);
+				RectFill(&rast_port3, 
+	            0, vp3_target_y, WIDTH3 - 1, vp3_target_y + DISPL_HEIGHT3 - 1);
 
-					text_switch = TEXTMODE_SW_PRECALC;
-				}
+				text_switch = TEXTMODE_SW_PRECALC;
 				break;
 
 			case TEXTMODE_SW_PRECALC:
-				if (((*(ULONG *)0xdff004) & 0x1ff00) >> 8 < 128)
+				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
+				if (text_width > 0)
 				{
-					text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
-					if (text_width > 0)
-					{
-						text_duration = text_width + 5;
-						text_switch = TEXTMODE_SW_DRAW;
-					}
+					text_duration = text_width + 5;
+					text_switch = TEXTMODE_SW_DRAW;
 				}
 				break;
 
 			case TEXTMODE_SW_DRAW:
-				if (((*(ULONG *)0xdff004) & 0x1ff00) >> 8 < 64)
+				if (mode_switch != DMODE_SW_CLEAR_FROM_TOP && mode_switch != DMODE_SW_CLEAR_FROM_BOTTOM)
 				{
 					font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]);
 
 					demo_string_index++;
 					if (demo_string_index > DEMO_STRINGS_MAX_INDEX)
-					{
-						printf("text_duration = %d\n", text_duration);
 						demo_string_index = 0;
-					}
 
 					counter_before_next_text = 0;
 					text_switch = TEXTMODE_SW_SCROLL;
@@ -586,6 +577,8 @@ void main()
 					text_switch = TEXTMODE_SW_WAIT;
 				break;
 		}
+
+		// WaitTOF();
 	}
 
 	/*	Wait for mouse up

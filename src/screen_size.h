@@ -5,7 +5,7 @@
 /* ViewPort 1 */
 #define WIDTH1   384
 #define DISPL_WIDTH1   DEFAULT_DISP_WIDTH
-#define HEIGHT1  80
+#define HEIGHT1  79
 #define DEPTH1     3
 #define COLOURS1  (1 << DEPTH1)
 
@@ -29,7 +29,7 @@
 
 /* ViewPort 3 */
 #define WIDTH3   DEFAULT_DISP_WIDTH
-#define DISPL_HEIGHT3   12
+#define DISPL_HEIGHT3   13
 #define HEIGHT3  (DISPL_HEIGHT3 << 1)
 #define DEPTH3     1
 #define COLOURS3  (1 << DEPTH3)

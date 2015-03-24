@@ -474,7 +474,7 @@ void main()
 	text_duration = 0;
 	vp3_target_y = 0;
 
-	// OFF_VBLANK;
+	OFF_VBLANK;
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
@@ -581,12 +581,15 @@ void main()
 		// WaitTOF();
 	}
 
+	ON_VBLANK;
+
 	/*	Wait for mouse up
 		to prevent the mouse up event
 		to mess with the OS gui
 	*/
 	while(!((*(UBYTE *)0xBFE001) & 0x40))
 		WaitTOF();
+
 
 	Enable();
 	Permit();

@@ -376,5 +376,5 @@ void setTextLinerCopperlist(struct ViewPort *vp)
 
 void loadTextWriterFont(void)
 {
-    bitmap_font = load_array_as_bitmap(font_data, 320 << 1, font_image.Width, font_image.Height, font_image.Depth);
+    bitmap_font = load_array_as_bitmap(font_data, 288 << 1, font_image.Width, font_image.Height, font_image.Depth);
 }

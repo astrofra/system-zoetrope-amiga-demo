@@ -54,9 +54,9 @@ void font_blit_string(struct BitMap *font_BitMap, struct BitMap *font_BitMap_dar
 				break;
 
 			/*	,	*/
-			case ',':
-				cur_x += 2;		
-				break;				
+			// case ',':
+			// 	cur_x += 2;		
+			// 	break;				
 
 			/*	Switch to the default font	*/
 			case '\1':

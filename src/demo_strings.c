@@ -16,7 +16,7 @@ const char *demo_string[] = {
 	"RSI\0",
 	"AMYCODERS\0",
 	"THE AMIGA DEMOSCENE ARCHIVE\0",
-	"PHOTON, ZCHRIS, PIRU\0",
+	"PHOTON, ZCHRIS, PIRU, NORI,\0",
 	"KRABOB, GWENN, TEX, NORECESS,\0",
 	"CYG, DBUG, BAUDSURFER, SAM, DEN...\0",	
 	"  \0",	

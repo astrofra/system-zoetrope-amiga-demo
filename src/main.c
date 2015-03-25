@@ -42,8 +42,6 @@ Graphic assets
 extern UWORD checkerboard_PaletteRGB4[8];
 extern UWORD bob_32PaletteRGB4[8];
 extern UWORD morph_iso_0PaletteRGB4[8];
-extern UWORD ship0PaletteRGB4[4];
-// extern UWORD buddhaPaletteRGB4[8];
 
 /* Music */
 struct Library *PTReplayBase;
@@ -339,9 +337,9 @@ void main()
 
 	for( loop = 0; loop < COLOURS2b; loop++)
 	{
-		tmp_col = RGB4toRGB8(ship0PaletteRGB4[loop]);
-		tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
-		tmp_col = RGB8toRGB4(tmp_col);
+		tmp_col = bob_32PaletteRGB4[loop]; // RGB4toRGB8(bob_32PaletteRGB4[loop]);
+		// tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
+		// tmp_col = RGB8toRGB4(tmp_col);
 
 		SetRGB4(&view_port2, (COLOURS2 * 2) + loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
 	}
@@ -520,8 +518,18 @@ void main()
 
 			case DMODE_SW_NEXT_UBOB:
 				setNextUnlimitedBobs(&ubob_figure);
-				mode_switch = DMODE_SW_UBOB;
+				mode_switch = DMODE_SW_CHANGE_UBOB_PALETTE;
 				break;
+
+			case DMODE_SW_CHANGE_UBOB_PALETTE:
+				tmp_col = bob_32PaletteRGB4[(ubob_figure << 2) + 1];
+				SetRGB4(&view_port2, (COLOURS2 << 1) + 1, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+				tmp_col = bob_32PaletteRGB4[(ubob_figure << 2) + 2];
+				SetRGB4(&view_port2, (COLOURS2 << 1) + 2, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+				tmp_col = bob_32PaletteRGB4[(ubob_figure << 2) + 3];
+				SetRGB4(&view_port2, (COLOURS2 << 1) + 3, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);								
+				mode_switch = DMODE_SW_UBOB;
+				break;			
 		}
 
 		switch(text_switch)

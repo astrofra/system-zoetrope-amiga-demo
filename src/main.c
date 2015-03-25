@@ -216,7 +216,7 @@ void main()
 	USHORT loop, palette_idx;
 	UWORD palette_fade;
 	ULONG tmp_col;
-	int demo_string_index;
+	UWORD demo_string_index;
 	UBYTE mode_switch, ubob_figure, text_switch;
 	UWORD counter_before_next_text, text_width, text_duration;
 	UWORD vp3_target_y;
@@ -518,17 +518,16 @@ void main()
 
 			case DMODE_SW_NEXT_UBOB:
 				setNextUnlimitedBobs(&ubob_figure);
+				palette_idx = 1;
 				mode_switch = DMODE_SW_CHANGE_UBOB_PALETTE;
 				break;
 
 			case DMODE_SW_CHANGE_UBOB_PALETTE:
-				tmp_col = bob_32PaletteRGB4[(ubob_figure << 2) + 1];
-				SetRGB4(&view_port2, (COLOURS2 << 1) + 1, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-				tmp_col = bob_32PaletteRGB4[(ubob_figure << 2) + 2];
-				SetRGB4(&view_port2, (COLOURS2 << 1) + 2, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-				tmp_col = bob_32PaletteRGB4[(ubob_figure << 2) + 3];
-				SetRGB4(&view_port2, (COLOURS2 << 1) + 3, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);								
-				mode_switch = DMODE_SW_UBOB;
+				tmp_col = bob_32PaletteRGB4[(ubob_figure << 2) + palette_idx];
+				SetRGB4(&view_port2, (COLOURS2 << 1) + palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+				palette_idx++;
+				if (palette_idx > 3)							
+					mode_switch = DMODE_SW_UBOB;
 				break;			
 		}
 

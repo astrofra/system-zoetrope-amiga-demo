@@ -78,6 +78,9 @@ __inline void scrollLogoBackground(void)
 
 __inline UBYTE scrollTextViewport(UWORD y_target)
 {
+    if (scrolltext_y_offset == y_target)
+        return 0;
+ 
     if (scrolltext_y_offset > y_target)
         scrolltext_y_offset--;
     else
@@ -87,9 +90,6 @@ __inline UBYTE scrollTextViewport(UWORD y_target)
     view_port3.RasInfo->RxOffset = 0;
     view_port3.RasInfo->RyOffset = scrolltext_y_offset;
     ScrollVPort(&view_port3);
-
-    if (scrolltext_y_offset == y_target)
-        return 0;
 
     return 1;
 }

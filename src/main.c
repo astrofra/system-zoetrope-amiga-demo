@@ -558,7 +558,7 @@ void main()
 
 			case TEXTMODE_SW_PRECALC:
 				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
-				if (text_width > 0)
+				if (text_width >= 0)
 				{
 					text_duration = text_width + 5;
 					text_switch = TEXTMODE_SW_DRAW;

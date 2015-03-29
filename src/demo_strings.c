@@ -14,11 +14,13 @@ const char *demo_string[] = {
 	"CONDENSE\0",
 	"LOGON SYSTEM\0",	
 	"RSI\0",
+	"LNX\0",	
 	"AMYCODERS\0",
 	"THE AMIGA DEMOSCENE ARCHIVE\0",
 	"PHOTON, ZCHRIS, RAY-PWL, PIRU, NORI,\0",
 	"KRABOB, GWENN, TEX, NORECESS, UKKO,\0",
-	"CYG, DBUG, BAUDSURFER, SAM, DEN...\0",	
+	"TITEIKO, CYG, DBUG,\0"
+	"BAUDSURFER, SAM, DEN\0",	
 	"  \0",	
 	"  \0",	
 	"NOW LET ME TELL YOU\0",
@@ -96,8 +98,8 @@ const char *demo_string[] = {
 	"SO THE GAME DEVELOPPERS\0",
 	"WOULD BE ABLE TO GET THE MOST OF THE AMIGA!\0"	
 	"TEXT WILL NOW LOOP! BYE BYE :)\0",
+	"\0",
 	"\0"
-
 };
 
 const char *loading_string[] = {

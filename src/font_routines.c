@@ -51,12 +51,7 @@ void font_blit_string(struct BitMap *font_BitMap, struct BitMap *font_BitMap_dar
 			/*	Space	*/
 			case ' ':
 				cur_x += 3;		
-				break;
-
-			/*	,	*/
-			// case ',':
-			// 	cur_x += 2;		
-			// 	break;				
+				break;			
 
 			/*	Switch to the default font	*/
 			case '\1':
@@ -124,11 +119,6 @@ UWORD font_get_string_width(const char *glyph_array, const short *x_pos_array, U
 				cur_x += 3;		
 				break;
 
-			/*	,	*/
-			case ',':
-				cur_x += 2;		
-				break;	
-
 			/*	Line feed + carriage return	*/
 			case '\n':
 	
@@ -151,7 +141,6 @@ UWORD font_get_string_width(const char *glyph_array, const short *x_pos_array, U
 				if (glyph_index >= 0 && glyph_index < 512)
 				{
 					glyph_w = x_pos_array[glyph_index + 1] - (UWORD)x_pos_array[glyph_index] - 1;
-					// if (glyph_w > 16) printf("glyph_w = %c, %i, ", (char)text_string[i], glyph_w);
 					cur_x += (glyph_w);
 				}			
 				break;

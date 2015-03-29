@@ -567,9 +567,12 @@ void main()
 
 			case TEXTMODE_SW_DRAW:
 				if (mode_switch != DMODE_SW_CLEAR_FROM_TOP && mode_switch != DMODE_SW_CLEAR_FROM_BOTTOM)
-				{
-					font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]);
+					text_switch = TEXTMODE_SW_DRAW_LOOP;
+				break;
 
+			case TEXTMODE_SW_DRAW_LOOP:
+				if (font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]) == 0)
+				{
 					demo_string_index++;
 					if (demo_string_index > DEMO_STRINGS_MAX_INDEX)
 						demo_string_index = 0;

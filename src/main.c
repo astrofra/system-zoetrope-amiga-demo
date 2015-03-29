@@ -428,7 +428,6 @@ void main()
 	setTextLinerCopperlist(&view_port3);
 	setCheckerboardCopperlist(&view_port2);
 
-	OFF_SPRITE;
 
 	WaitTOF();
 
@@ -472,6 +471,7 @@ void main()
 	text_duration = 0;
 	vp3_target_y = 0;
 
+	OFF_SPRITE;
 	OFF_VBLANK;
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
@@ -597,11 +597,11 @@ void main()
 	while(!((*(UBYTE *)0xBFE001) & 0x40))
 		WaitTOF();
 
+	ON_SPRITE;
 
 	Enable();
 	Permit();
 
-	ON_SPRITE;
 
 	close_demo("My friend the end!");
 }

@@ -162,7 +162,7 @@ void close_demo(STRPTR message)
 			FreeRaster( bit_map2.Planes[ loop ], WIDTH2, HEIGHT2 );
 	for( loop = 0; loop < DEPTH2b; loop++ )
 		if( bit_map2b.Planes[ loop ] )
-			FreeRaster( bit_map2b.Planes[ loop ], WIDTH2b, HEIGHT2b );		
+			FreeRaster( bit_map2b.Planes[ loop ], WIDTH2b, (HEIGHT2b + HEIGHT2b_PAD));		
 	for( loop = 0; loop < DEPTH3; loop++ )
 		if( bit_map3.Planes[ loop ] )
 			FreeRaster( bit_map3.Planes[ loop ], WIDTH3, HEIGHT3 );
@@ -218,7 +218,8 @@ void main()
 	ULONG tmp_col;
 	UWORD demo_string_index;
 	UBYTE mode_switch, ubob_figure, text_switch;
-	UWORD counter_before_next_text, text_width, text_duration;
+	UWORD counter_before_next_text, text_duration;
+	short text_width;
 	UWORD vp3_target_y;
 	USHORT v_counter;
 
@@ -324,15 +325,15 @@ void main()
 		BltClear( bit_map2.Planes[ loop ], RASSIZE( WIDTH2, HEIGHT2 ), 0 );
 	}	
 
-	InitBitMap( &bit_map2b, DEPTH2b, WIDTH2b, HEIGHT2b );
+	InitBitMap( &bit_map2b, DEPTH2b, WIDTH2b, (HEIGHT2b + HEIGHT2b_PAD));
 	/* Allocate memory for the Raster: */ 
 	for( loop = 0; loop < DEPTH2b; loop++ )
 	{
-		bit_map2b.Planes[ loop ] = (PLANEPTR) AllocRaster( WIDTH2b, HEIGHT2b );
+		bit_map2b.Planes[ loop ] = (PLANEPTR) AllocRaster( WIDTH2b, (HEIGHT2b + HEIGHT2b_PAD));
 		if( bit_map2b.Planes[ loop ] == NULL )
 			close_demo( "Could NOT allocate enough memory for the raster!" );
 		/* Clear the display memory with help of the Blitter: */
-		BltClear( bit_map2b.Planes[ loop ], RASSIZE( WIDTH2b, HEIGHT2b ), 0 );
+		BltClear( bit_map2b.Planes[ loop ], RASSIZE( WIDTH2b, (HEIGHT2b + HEIGHT2b_PAD)), 0 );
 	}
 
 	for( loop = 0; loop < COLOURS2b; loop++)
@@ -558,9 +559,9 @@ void main()
 
 			case TEXTMODE_SW_PRECALC:
 				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
-				if (text_width >= 0)
+				if (text_width > 0)
 				{
-					text_duration = text_width + 5;
+					text_duration = (UWORD)text_width + 5;
 					text_switch = TEXTMODE_SW_DRAW;
 				}
 				break;
@@ -571,7 +572,7 @@ void main()
 				break;
 
 			case TEXTMODE_SW_DRAW_LOOP:
-				if (font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]) == 0)
+				if (font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - (UWORD)text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]) == 0)
 				{
 					demo_string_index++;
 					if (demo_string_index > DEMO_STRINGS_MAX_INDEX)

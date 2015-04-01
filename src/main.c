@@ -460,7 +460,8 @@ void main()
 	for( loop = 0; loop < COLOURS1; loop++)
 	{
 		tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE, RGB4toRGB8(mandarine_logoPaletteRGB4[loop])));
-		SetRGB4(&view_port1, loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+		mandarine_logoPaletteRGB4[loop] = tmp_col;
+		SetRGB4(&view_port1, loop, (COLOUR_PURPLE_RGB4 & 0x0f00) >> 8, (COLOUR_PURPLE_RGB4 & 0x00f0) >> 4, COLOUR_PURPLE_RGB4 & 0x000f);
 	}
 
 	for( loop = 0; loop < COLOURS3; loop++)
@@ -482,7 +483,7 @@ void main()
 	palette_idx = 0;
 	ubob_figure = 0;
 	demo_string_index = 0;
-	mode_switch = 0;
+	mode_switch = DMODE_SW_INTRO;
 
 	text_switch = 0;
 	counter_before_next_text = 0;
@@ -501,17 +502,22 @@ void main()
 		switch(mode_switch)
 		{
 			case DMODE_SW_INTRO:
-				// for(palette_idx = 0; palette_idx < COLOURS1 >> 1; palette_idx++)
-				// {
-				// 	tmp_col = mixRGB8Colors(0x000, RGB4toRGB8(mandarine_logoPaletteRGB4[palette_idx]), palette_fade);
-				// 	tmp_col = addRGB8Colors(tmp_col, COLOUR_PURPLE);
-	   //      		SetRGB4(&view_port1, palette_idx, (tmp_col & 0xff0000L) >> 20, (tmp_col & 0x00ff00L) >> 16, (tmp_col & 0x00ffL) >> 12);
-				// }
+				tmp_col = mixRGB4Colors(COLOUR_PURPLE_RGB4, mandarine_logoPaletteRGB4[palette_idx], palette_fade);
+        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	        	palette_idx++;
 
-				// palette_fade += 4;
-				// if (palette_fade > (1 << 8))
-				// 	mode_switch = DMODE_SW_UBOB;
-				mode_switch = DMODE_SW_UBOB;
+				tmp_col = mixRGB4Colors(COLOUR_PURPLE_RGB4, mandarine_logoPaletteRGB4[palette_idx], palette_fade);
+        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	        	palette_idx++;
+	
+	        	if (palette_idx >= COLOURS1)
+	        	{
+	        		palette_idx = 0;
+					palette_fade++;
+					if (palette_fade > 15)
+						mode_switch = DMODE_SW_UBOB;
+	        	}
+				// mode_switch = DMODE_SW_UBOB;
 				break;
 
 			case DMODE_SW_UBOB:
@@ -606,8 +612,8 @@ void main()
 				break;
 		}
 
-		if (faster_machine)
-			WaitTOF();
+		// if (faster_machine)
+		// 	WaitTOF();
 	}
 
 	if (!faster_machine)
@@ -624,7 +630,6 @@ void main()
 
 	Enable();
 	Permit();
-
 
 	close_demo("My friend the end!");
 }

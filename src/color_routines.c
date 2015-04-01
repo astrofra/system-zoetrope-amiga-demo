@@ -23,37 +23,50 @@ extern struct ViewPort view_port3;
 
 UWORD mixRGB4Colors(UWORD A, UWORD B, UBYTE n)
 {
-    UWORD r,g,b;
+    UWORD   r,g,b,
+            x,y,z;
 
-    /*
-        Blends A into B, n times
-    */
-    while(n--)
-    {
-        r = (A & 0x0f00) >> 8;
-        g = (A & 0x00f0) >> 4;
-        b = A & 0x000f;
+    if (n == 0)
+        return A;
 
-        r += (B & 0x0f00) >> 8;
-        g += (B & 0x00f0) >> 4;
-        b += B & 0x000f;
+    if (n >= 15)
+        return B;
 
-        r = r >> 1;
-        g = g >> 1;
-        b = b >> 1;
+    x = (B & 0x0f00) >> 8;
+    y = (B & 0x00f0) >> 4;
+    z = B & 0x000f;
 
-        if (r > 0xf) r = 0xf;
-        if (g > 0xf) g = 0xf;
-        if (b > 0xf) b = 0xf;
+    x *= n;
+    y *= n;
+    z *= n;
 
-        r = r & 0xf;
-        g = g & 0xf;
-        b = b & 0xf;
+    n = 15 - n;
 
-        A = (UWORD)((r << 8) | (g << 4) | b);
-    }
+    r = (A & 0x0f00) >> 8;
+    g = (A & 0x00f0) >> 4;
+    b = A & 0x000f;
 
-    return A;
+    r *= n;
+    g *= n;
+    b *= n;
+
+    r += x;
+    g += y;
+    b += z;
+
+    r >>= 4;
+    g >>= 4;
+    b >>= 4;
+
+    if (r > 0xf) r = 0xf;
+    if (g > 0xf) g = 0xf;
+    if (b > 0xf) b = 0xf;
+
+    r = r & 0xf;
+    g = g & 0xf;
+    b = b & 0xf;
+
+    return (UWORD)((r << 8) | (g << 4) | b);
 }
 
 ULONG RGB4toRGB8(UWORD A)

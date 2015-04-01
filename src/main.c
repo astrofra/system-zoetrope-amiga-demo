@@ -95,6 +95,20 @@ struct BitMap *bitmap_bob_mask = NULL;
 // #define PTREPLAY_MUSIC
 struct SoundInfo *background = NULL;
 
+UBYTE is_cpu_a_020(void)
+{
+	printf("Kickstart v%d, ", SysBase->LibNode.lib_Version);
+
+	if (SysBase->AttnFlags && AFF_68020)
+	{
+		printf("CPU is a 68020 or superior.\n");
+		return 1;
+	}
+
+	printf("CPU is a 68000 or 68010.\n");
+	return 0;
+}
+
 void initMusic(void)
 {
 #ifdef PTREPLAY_MUSIC
@@ -222,6 +236,7 @@ void main()
 	short text_width;
 	UWORD vp3_target_y;
 	USHORT v_counter;
+	UBYTE faster_machine;
 
 	/* Open the Intuition library: */
 	IntuitionBase = (struct IntuitionBase *)
@@ -234,6 +249,8 @@ void main()
 	OpenLibrary( "graphics.library", 0 );
 	if( !GfxBase )
 		close_demo( "Could NOT open the Graphics library!" );
+
+	faster_machine = is_cpu_a_020();
 
 	print_ascci_art_logo();
 
@@ -473,11 +490,11 @@ void main()
 	vp3_target_y = 0;
 
 	OFF_SPRITE;
-	OFF_VBLANK;
+	if (!faster_machine)
+		OFF_VBLANK;
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
-		// WaitTOF();
 		scrollLogoBackground();
 		updateCheckerboard();
 
@@ -589,10 +606,12 @@ void main()
 				break;
 		}
 
-		// WaitTOF();
+		if (faster_machine)
+			WaitTOF();
 	}
 
-	ON_VBLANK;
+	if (!faster_machine)
+		ON_VBLANK;
 
 	/*	Wait for mouse up
 		to prevent the mouse up event

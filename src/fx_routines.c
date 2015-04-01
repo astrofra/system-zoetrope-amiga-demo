@@ -61,7 +61,7 @@ void drawMandarineLogo(struct BitMap *dest_bitmap, UWORD offset_y)
 {
 	// bitmap_logo = load_array_as_bitmap(mandarine_logoData, 6400 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
 
-    bitmap_logo = load_file_as_bitmap("assets/mandarine_logo.bin", 4800 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
+    bitmap_logo = load_file_as_bitmap("assets/mandarine_logo.bin", 5760 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
 	BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (WIDTH1 - mandarine_logo.Width) >> 1, offset_y);
 }
 

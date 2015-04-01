@@ -101,13 +101,20 @@ UBYTE is_cpu_a_020(void)
 
 	if (SysBase->AttnFlags && AFF_68020)
 	{
-		printf("CPU is a 68020 or superior.\n");
+		printf("CPU is a 68020 or higher.\n");
 		return 1;
 	}
 
 	printf("CPU is a 68000 or 68010.\n");
 	return 0;
 }
+
+// void list_avail_memory(void)
+// {
+// 	printf("%d Chip mem, ", AvailMem(MEMF_CHIP));
+// 	printf("%d Fast mem, ", AvailMem(MEMF_FAST));
+// 	printf("%d Total mem.\n", AvailMem(MEMF_CHIP) + AvailMem(MEMF_FAST));
+// }
 
 void initMusic(void)
 {
@@ -221,8 +228,21 @@ void close_demo(STRPTR message)
 	LoadView( my_old_view );
 
 	/* Print the message and leave: */
-	printf( "%s\n", message ); 
+	printf( "%s\n", message );
+
 	exit(0);
+}
+
+__inline void cWaitTOF(void)
+{
+	struct Node wait_process;
+	wait_process.ln_Name = (char *)FindTask(NULL);
+	SetSignal(0, SIGF_SINGLE);
+	Disable();
+	AddTail((struct List *)&GfxBase->TOF_WaitQ, (struct Node *)&wait_process);
+	Wait(SIGF_SINGLE);
+	Remove((struct Node *)&wait_process);
+	Enable();
 }
 
 void main()
@@ -424,33 +444,35 @@ void main()
 	MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
 	MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
 
-	printf("...MORE STUFF\n");
+	// printf("...MORE STUFF\n");
 
 	/*	Load the assets */
 	drawMandarineLogo(&bit_map1, 0);
+	WaitBlit();
 	free_allocated_bitmap(bitmap_logo);
 
-	printf("....EVEN MORE STUFF\n");
+	// printf("....EVEN MORE STUFF\n");
 
 	loadTextWriterFont();
 	loadBobBitmaps();
 	SetAPen(&rast_port2, 0);
 	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
 	drawCheckerboard(&bit_map2, &rast_port2);
+	WaitBlit();
 	free_allocated_bitmap(bitmap_checkerboard);
 
-	printf("....DONE!\n");
+	// printf("....DONE!\n");
 
 	initMusic();
 	setLogoCopperlist(&view_port1);
 	setTextLinerCopperlist(&view_port3);
 	setCheckerboardCopperlist(&view_port2);
 
-
 	WaitTOF();
 
 	MrgCop(&my_view);
 
+	/*	Wait until the DF0: motor stops */
 	for(loop = 0; loop < 150; loop++)
 		WaitTOF();
 
@@ -612,8 +634,8 @@ void main()
 				break;
 		}
 
-		// if (faster_machine)
-		// 	WaitTOF();
+		if (faster_machine)
+			cWaitTOF();
 	}
 
 	if (!faster_machine)

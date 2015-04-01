@@ -19,10 +19,13 @@ const char *demo_string[] = {
 	"LNX\0",	
 	"AMYCODERS\0",
 	"THE AMIGA DEMOSCENE ARCHIVE\0",
+	"THE AROS PROJECT\0",
 	"PHOTON, ZCHRIS, RAY-PWL, PIRU, NORI,\0",
 	"KRABOB, GWENN, TEX, NORECESS, UKKO,\0",
 	"TITEIKO, CYG, DBUG, P0KY, MARA,\0"
-	"BAUDSURFER, SAM, DEN, ZERKMAN\0",	
+	"BAUDSURFER, SAM, DEN, ZERKMAN\0",
+	"THANKS TO HUGGYONE\0",
+	"FOR THE HARDWARE TESTING!\0",
 	"  \0",	
 	"  \0",	
 	"NOW LET ME TELL YOU\0",
@@ -114,12 +117,12 @@ const char *ascii_art[] = {
 // "\\____|__  /\\____|__  /____|__ \\____|__  /_______  /\n",
 // "        \\/         \\/        \\/       \\/        \\/\n",  
 "         _____    _______  ________ __________  _______\n",  
-"        /     \\   \\      \\ \\______ \\_____ _   \\ \\      \\\n", 
-"       /  \\ /  \\  /   |   \\ |    |  \\|       _/ /   |   \\\n", 
-"      /    Y    \\/    |    \\|    `   \\    |   \\/    |    \\\n",
-"      \\____|__  /\\____|__  /_______  /____|_  /\\____|__  /\n",
-"              \\/         \\/        \\/       \\/         \\/\n",
-"            MANDARINE 2015 - DEMO IS LOADING STUFF\n",
+"       /     \\   \\      \\ \\______ \\_____ _   \\ \\      \\\n", 
+"      /  \\ /  \\  /   |   \\ |    |  \\|       _/ /   |   \\\n", 
+"     /    Y    \\/    |    \\|    `   \\    |   \\/    |    \\\n",
+"     \\____|__  /\\____|__  /_______  /____|_  /\\____|__  /\n",
+"             \\/         \\/        \\/       \\/         \\/\n",
+"           MANDARINE 2015 - DEMO IS LOADING STUFF\n",
 ""
 };
 

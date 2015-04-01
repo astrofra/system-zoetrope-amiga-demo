@@ -24,7 +24,7 @@
 #define DISPL_WIDTH2b   DEFAULT_DISP_WIDTH
 #define DISPL_HEIGHT2b   150
 #define HEIGHT2b (DISPL_HEIGHT2b * ANIM_STRIPEb) 
-#define HEIGHT2b_PAD 16                      
+#define HEIGHT2b_PAD 8                      
 #define DEPTH2b     2
 #define COLOURS2b   (1 << DEPTH2b)
 

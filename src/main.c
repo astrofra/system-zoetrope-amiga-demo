@@ -444,14 +444,10 @@ void main()
 	MakeVPort(&my_view, &view_port2); /* Prepare ViewPort 2 */
 	MakeVPort(&my_view, &view_port3); /* Prepare ViewPort 2 */
 
-	// printf("...MORE STUFF\n");
-
 	/*	Load the assets */
 	drawMandarineLogo(&bit_map1, 0);
 	WaitBlit();
 	free_allocated_bitmap(bitmap_logo);
-
-	// printf("....EVEN MORE STUFF\n");
 
 	loadTextWriterFont();
 	loadBobBitmaps();
@@ -460,8 +456,6 @@ void main()
 	drawCheckerboard(&bit_map2, &rast_port2);
 	WaitBlit();
 	free_allocated_bitmap(bitmap_checkerboard);
-
-	// printf("....DONE!\n");
 
 	initMusic();
 	setLogoCopperlist(&view_port1);
@@ -604,7 +598,7 @@ void main()
 
 			case TEXTMODE_SW_PRECALC:
 				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
-				if (text_width > 0)
+				if (text_width >= 0)
 				{
 					text_duration = (UWORD)text_width + 5;
 					text_switch = TEXTMODE_SW_DRAW;

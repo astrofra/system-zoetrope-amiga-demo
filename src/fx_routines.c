@@ -6,9 +6,10 @@
 
 #include "board.h"
 #include "screen_size.h"
+#include "cosine_table.h"
 #include "color_routines.h"
 #include "bitmap_routines.h"
-#include "cosine_table.h"
+#include "3d_routines.h"
 #include "mandarine_logo.h"
 #include "checkerboard_strip.h"
 #include "bob_bitmaps.h"
@@ -16,6 +17,7 @@
 #include "vert_copper_palettes.h"
 #include "font_desc.h"
 #include "font_bitmap.h"
+#include "3d_objects.h"
 
 extern struct GfxBase *GfxBase;
 extern struct ViewPort view_port1;
@@ -30,6 +32,10 @@ extern struct  BitMap *bitmap_bob_mask;
 extern struct Custom far custom;
 
 extern struct BitMap *bitmap_font;
+
+/* 3D */
+extern struct obj_3d o;
+extern short *verts_tr;
 
 /*	Viewport 1, Mandarine Logo */
 UWORD bg_scroll_phase = 0;
@@ -227,6 +233,9 @@ __inline void updateCheckerboard(void) // UBYTE update_sw)
         ubob_vscroll = 0;    
 }
 
+/*
+    Unlimited Bobs
+*/
 void loadBobBitmaps(void)
 {   
     bitmap_bob = load_file_as_bitmap("assets/bob_sphere.bin", 256, bob_32.Width, bob_32.Height, bob_32.Depth);
@@ -267,7 +276,7 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
             ubob_phase_x += 1;
             ubob_phase_y += 2;
             // ubob_morph_idx = 0;         
-            break;                         
+            break;                      
     }
 
     if (ubob_phase_x > (COSINE_TABLE_LEN << 1) && ubob_phase_y > (COSINE_TABLE_LEN << 1))
@@ -351,6 +360,20 @@ __inline UBYTE clearPlayfieldLineByLineFromBottom(struct RastPort *dest_rp)
 
     clr_screen_y += 8;
     return 1;
+}
+
+/* 
+    3D-related routines
+*/
+void prepareMesh(void)
+{
+    PREPARE_3D_MESH(o, object_amiga_verts, object_amiga_faces, 256, 256, 0);    
+}
+
+__inline void renderMesh(struct RastPort *dest_rp, UWORD clock, UWORD y_offset)
+{
+    printf("renderMesh(dest_rp = %x, clock = %d)\n", dest_rp, clock);
+    Draw3DMesh(dest_rp, clock & (COSINE_TABLE_LEN - 1), clock & (COSINE_TABLE_LEN - 1), y_offset);
 }
 
 /*  

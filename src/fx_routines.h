@@ -17,6 +17,8 @@ UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode);
 void setNextUnlimitedBobs(UBYTE *figure_mode);
 UBYTE clearPlayfieldLineByLineFromTop(struct RastPort *dest_rp);
 UBYTE clearPlayfieldLineByLineFromBottom(struct RastPort *dest_rp);
+void prepareMesh(void);
+void renderMesh(struct RastPort *dest_rp, UWORD clock, UWORD y_offset);
 void setTextLinerCopperlist(struct ViewPort *vp);
 void loadTextWriterFont(void);
 

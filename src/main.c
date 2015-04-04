@@ -34,6 +34,7 @@ Graphic assets
 #include "mandarine_logo.h"
 #include "font_desc.h"
 #include "font_bitmap.h"
+#include "3d_routines.h"
 #include "color_routines.h"
 #include "font_routines.h"
 #include "demo_strings.h"
@@ -167,6 +168,8 @@ void print_ascci_art_logo(void)
 void close_demo(STRPTR message)
 {
 	int loop;
+
+	Delete3DVertexList();
 
 	/* Free automatically allocated display structures: */
 	FreeVPortCopLists( &view_port1 );
@@ -510,6 +513,11 @@ void main()
 	if (!faster_machine)
 		OFF_VBLANK;
 
+	Prepare3DVertexList();
+	prepareMesh();
+	for(loop = 0; loop < ANIM_STRIPEb; loop++)
+		renderMesh(&rast_port2b, loop << 2, loop * DISPL_HEIGHT2b);
+
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
 		scrollLogoBackground();
@@ -531,7 +539,7 @@ void main()
 	        		palette_idx = 0;
 					palette_fade++;
 					if (palette_fade > 15)
-						mode_switch = DMODE_SW_UBOB;
+						mode_switch = DMODE_SW_END; // DMODE_SW_UBOB;
 	        	}
 				// mode_switch = DMODE_SW_UBOB;
 				break;

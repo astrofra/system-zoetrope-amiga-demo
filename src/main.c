@@ -233,18 +233,6 @@ void close_demo(STRPTR message)
 	exit(0);
 }
 
-__inline void cWaitTOF(void)
-{
-	struct Node wait_process;
-	wait_process.ln_Name = (char *)FindTask(NULL);
-	SetSignal(0, SIGF_SINGLE);
-	Disable();
-	AddTail((struct List *)&GfxBase->TOF_WaitQ, (struct Node *)&wait_process);
-	Wait(SIGF_SINGLE);
-	Remove((struct Node *)&wait_process);
-	Enable();
-}
-
 void main()
 {
 	USHORT loop, palette_idx;
@@ -629,7 +617,7 @@ void main()
 		}
 
 		if (faster_machine)
-			cWaitTOF();
+			WaitTOF();
 	}
 
 	if (!faster_machine)

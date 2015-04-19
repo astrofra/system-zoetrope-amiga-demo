@@ -49,10 +49,10 @@ def parse_obj_face(_string):
 	return _face
 
 def main():
-	filename_out = 'c_files/3d_objects.h'
+	filename_out = '../../../src/3d_objects.h'
 	fh = codecs.open(filename_out, 'w')
 
-	filename_out = 'c_files/3d_objects.c'
+	filename_out = '../../../src/3d_objects.c'
 	fc = codecs.open(filename_out, 'w')
 
 	for filename_in in filename_list:

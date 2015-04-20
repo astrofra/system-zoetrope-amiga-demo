@@ -240,8 +240,8 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
     switch(*figure_mode)
     {
         case 0:
-            ubob_phase_x++;
-            ubob_phase_y++;
+            ubob_phase_x += 3;
+            ubob_phase_y += 2;
             // ubob_morph_idx = 3;
             break;
 
@@ -267,7 +267,13 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
             ubob_phase_x += 1;
             ubob_phase_y += 2;
             // ubob_morph_idx = 0;         
-            break;                         
+            break;
+
+        case 5:
+            ubob_phase_x++;
+            ubob_phase_y++;
+            // ubob_morph_idx = 3;
+            break;                             
     }
 
     if (ubob_phase_x > (COSINE_TABLE_LEN << 1) && ubob_phase_y > (COSINE_TABLE_LEN << 1))
@@ -290,7 +296,7 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
 __inline void setNextUnlimitedBobs(UBYTE *figure_mode)
 {
     (*figure_mode)++;
-    if (*figure_mode > 4)
+    if (*figure_mode > 5)
         *figure_mode = 0;
     
     ubob_phase_x = 0;

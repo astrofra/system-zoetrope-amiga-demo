@@ -463,7 +463,10 @@ void main()
 
 	for( loop = 0; loop < COLOURS1; loop++)
 	{
-		tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE, RGB4toRGB8(mandarine_logoPaletteRGB4[loop])));
+		if(loop == 0)
+			tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE, RGB4toRGB8(mandarine_logoPaletteRGB4[loop])));
+		else
+			tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE_DARK, RGB4toRGB8(mandarine_logoPaletteRGB4[loop])));
 		mandarine_logoPaletteRGB4[loop] = tmp_col;
 		SetRGB4(&view_port1, loop, (COLOUR_PURPLE_RGB4 & 0x0f00) >> 8, (COLOUR_PURPLE_RGB4 & 0x00f0) >> 4, COLOUR_PURPLE_RGB4 & 0x000f);
 	}

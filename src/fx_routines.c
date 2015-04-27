@@ -238,8 +238,8 @@ void loadBobBitmaps(void)
     bitmap_bob = load_file_as_bitmap("assets/bob_sphere.bin", 256, bob_32.Width, bob_32.Height, bob_32.Depth);
     bitmap_bob_mask = load_file_as_bitmap("assets/bob_sphere_mask.bin", 128, bob_32_mask.Width, bob_32_mask.Height, bob_32_mask.Depth);
 
-    bitmap_torus = load_file_as_bitmap("assets/bob_torus.bin", 2048, bob_32.Width, bob_32.Height, bob_32.Depth);
-    bitmap_torus_mask = load_file_as_bitmap("assets/bob_torus_mask.bin", 1024, bob_32_mask.Width, bob_32_mask.Height, bob_32_mask.Depth);
+    bitmap_torus = load_file_as_bitmap("assets/bob_torus.bin", 2048, torus_32.Width, torus_32.Height, torus_32.Depth);
+    bitmap_torus_mask = load_file_as_bitmap("assets/bob_torus_mask.bin", 1024, torus_32_mask.Width, torus_32_mask.Height, torus_32_mask.Depth);
 }
 
 __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) // struct BitMap* dest_bitmap)
@@ -279,14 +279,14 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
         case 4:
             ubob_phase_x += 1;
             ubob_phase_y += 2;
-            ubob_mode = UBOB_SW_SPHERE;
+            ubob_mode = UBOB_SW_TORUS;
             // ubob_morph_idx = 0;         
             break;
 
         case 5:
             ubob_phase_x++;
             ubob_phase_y++;
-            ubob_mode = UBOB_SW_TORUS;
+            ubob_mode = UBOB_SW_SPHERE;
             // ubob_morph_idx = 3;
             break;                             
     }

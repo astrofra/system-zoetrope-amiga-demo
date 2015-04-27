@@ -8,7 +8,7 @@ extern UWORD bob_32PaletteRGB4[4*6];
 struct Image bob_32 =
 {
 	0, 0,		/* LeftEdge, TopEdge */
-	32, 32, 2,	/* Width, Height, Depth */
+	32, 32 * 8, 2,	/* Width, Height, Depth */
 	NULL,	/* ImageData */
 	0x0003, 0x0000,	/* PlanePick, PlaneOnOff */
 	NULL		/* NextImage */
@@ -19,7 +19,7 @@ extern UWORD chip bob_32_maskData[64];
 struct Image bob_32_mask =
 {
 	0, 0,		/* LeftEdge, TopEdge */
-	32, 32, 1,	/* Width, Height, Depth */
+	32, 32 * 8, 1,	/* Width, Height, Depth */
 	NULL,	/* ImageData */
 	0x0001, 0x0000,	/* PlanePick, PlaneOnOff */
 	NULL		/* NextImage */

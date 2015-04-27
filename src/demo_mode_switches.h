@@ -14,4 +14,7 @@
 #define	TEXTMODE_SW_DRAW 3
 #define TEXTMODE_SW_DRAW_LOOP 4
 #define TEXTMODE_SW_SCROLL 5
+
+#define UBOB_SW_SPHERE 0
+#define UBOB_SW_TORUS 1
 #endif

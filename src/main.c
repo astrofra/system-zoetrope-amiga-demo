@@ -91,6 +91,8 @@ struct BitMap *bitmap_checkerboard = NULL;
 struct BitMap *bitmap_font = NULL;
 struct BitMap *bitmap_bob = NULL;
 struct BitMap *bitmap_bob_mask = NULL;
+struct  BitMap *bitmap_torus = NULL;
+struct  BitMap *bitmap_torus_mask = NULL;
 
 // #define PTREPLAY_MUSIC
 struct SoundInfo *background = NULL;
@@ -197,6 +199,8 @@ void close_demo(STRPTR message)
 	free_allocated_bitmap(bitmap_font);
 	free_allocated_bitmap(bitmap_bob);
 	free_allocated_bitmap(bitmap_bob_mask);
+	free_allocated_bitmap(bitmap_torus);
+	free_allocated_bitmap(bitmap_torus_mask);	
 
 #ifdef PTREPLAY_MUSIC
 	/*	Stop music */

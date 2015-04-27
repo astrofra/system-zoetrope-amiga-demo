@@ -12,10 +12,10 @@
 #include "mandarine_logo.h"
 #include "checkerboard_strip.h"
 #include "bob_bitmaps.h"
-// #include "buddha_bitmaps.h"
 #include "vert_copper_palettes.h"
 #include "font_desc.h"
 #include "font_bitmap.h"
+#include "demo_mode_switches.h"
 
 extern struct GfxBase *GfxBase;
 extern struct ViewPort view_port1;
@@ -26,6 +26,8 @@ extern struct  BitMap *bitmap_logo;
 extern struct  BitMap *bitmap_checkerboard;
 extern struct  BitMap *bitmap_bob;
 extern struct  BitMap *bitmap_bob_mask;
+extern struct  BitMap *bitmap_torus;
+extern struct  BitMap *bitmap_torus_mask;
 
 extern struct Custom far custom;
 
@@ -43,6 +45,9 @@ UWORD checkerboard_scroll_offset = 0;
 UWORD scrolltext_y_offset = 0;
 UWORD ubob_scale = 0;
 UBYTE ubob_morph_idx = 0;
+UWORD ubob_frame_y = 0;
+UBYTE ubob_inc_every = 0;
+UBYTE ubob_mode = UBOB_SW_SPHERE;
 struct UCopList *copper;
 
 UWORD chip blank_pointer[4]=
@@ -224,13 +229,17 @@ __inline void updateCheckerboard(void) // UBYTE update_sw)
 
     ubob_vscroll += DISPL_HEIGHT2b;
     if (ubob_vscroll >= HEIGHT2b)
-        ubob_vscroll = 0;    
+        ubob_vscroll = 0;   
+
 }
 
 void loadBobBitmaps(void)
 {   
     bitmap_bob = load_file_as_bitmap("assets/bob_sphere.bin", 256, bob_32.Width, bob_32.Height, bob_32.Depth);
     bitmap_bob_mask = load_file_as_bitmap("assets/bob_sphere_mask.bin", 128, bob_32_mask.Width, bob_32_mask.Height, bob_32_mask.Depth);
+
+    bitmap_torus = load_file_as_bitmap("assets/bob_torus.bin", 2048, bob_32.Width, bob_32.Height, bob_32.Depth);
+    bitmap_torus_mask = load_file_as_bitmap("assets/bob_torus_mask.bin", 1024, bob_32_mask.Width, bob_32_mask.Height, bob_32_mask.Depth);
 }
 
 __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) // struct BitMap* dest_bitmap)
@@ -242,36 +251,42 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
         case 0:
             ubob_phase_x += 3;
             ubob_phase_y += 2;
+            ubob_mode = UBOB_SW_SPHERE;
             // ubob_morph_idx = 3;
             break;
 
         case 1:
             ubob_phase_x += 2;
             ubob_phase_y += 3;
+            ubob_mode = UBOB_SW_TORUS;
             // ubob_morph_idx = 2;
             break;
 
         case 2:
             ubob_phase_x += 3;
             ubob_phase_y += 1;
+            ubob_mode = UBOB_SW_SPHERE;
             // ubob_morph_idx = 1;
             break;
 
         case 3:
             ubob_phase_x += 1;
             ubob_phase_y += 5;
+            ubob_mode = UBOB_SW_TORUS;
             // ubob_morph_idx = 3;         
             break;
 
         case 4:
             ubob_phase_x += 1;
             ubob_phase_y += 2;
+            ubob_mode = UBOB_SW_SPHERE;
             // ubob_morph_idx = 0;         
             break;
 
         case 5:
             ubob_phase_x++;
             ubob_phase_y++;
+            ubob_mode = UBOB_SW_TORUS;
             // ubob_morph_idx = 3;
             break;                             
     }
@@ -285,10 +300,33 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
     x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 24 + ubob_scale + (((tcos[ubob_phase_x & 0x1FF] + 512) * (DISPL_WIDTH2b - 8 - 64 - ubob_scale - ubob_scale)) >> 10);
     y = 8 + ubob_scale + (((tsin[ubob_phase_y & 0x1FF] + 512) * (DISPL_HEIGHT2b - 16 - 32 - ubob_scale - ubob_scale)) >> 10);
 
-    BltMaskBitMapRastPort(bitmap_bob, 0, 0,
-            dest_rp, x, y + ubob_vscroll,
-            32, 32,
-            (ABC|ABNC|ANBC), bitmap_bob_mask->Planes[0]);
+    switch (ubob_mode)
+    {
+        case UBOB_SW_SPHERE:
+            BltMaskBitMapRastPort(bitmap_bob, 0, 0,
+                    dest_rp, x, y + ubob_vscroll,
+                    32, 32,
+                    (ABC|ABNC|ANBC), bitmap_bob_mask->Planes[0]);
+            break;
+
+        case UBOB_SW_TORUS:
+            BltMaskBitMapRastPort(bitmap_torus, 0, ubob_frame_y,
+                    dest_rp, x, y + ubob_vscroll,
+                    32, 32,
+                    (ABC|ABNC|ANBC), bitmap_torus_mask->Planes[0]);
+
+            ubob_inc_every++;
+
+            if (ubob_inc_every > 4)
+            {
+                ubob_inc_every = 0;
+                ubob_frame_y += 32;
+                if (ubob_frame_y > 7 * 32)
+                    ubob_frame_y = 0;              
+            }
+
+            break;
+    }
 
     return 1;
 }

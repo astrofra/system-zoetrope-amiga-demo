@@ -3,7 +3,7 @@
 
 extern const char *loading_string[1];
 
-#define	DEMO_STRINGS_MAX_INDEX	108
+#define	DEMO_STRINGS_MAX_INDEX	107
 extern const char *demo_string[DEMO_STRINGS_MAX_INDEX];
 
 #define ASCII_ART_MAX_INDEX 8

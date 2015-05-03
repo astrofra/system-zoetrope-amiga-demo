@@ -245,9 +245,8 @@ void main()
 	UWORD demo_string_index;
 	UBYTE mode_switch, ubob_figure, text_switch;
 	UWORD counter_before_next_text, text_duration;
-	short text_width;
+	short text_width = 0;
 	UWORD vp3_target_y;
-	USHORT v_counter;
 	UBYTE faster_machine;
 
 	/* Open the Intuition library: */
@@ -279,7 +278,7 @@ void main()
 	/* ViewPort 1 */
 	InitVPort( &view_port1 );
 	view_port1.DWidth = DISPL_WIDTH1;      /* Set the width.                */
-	view_port1.DHeight = HEIGHT1;    /* Set the height.               */
+	view_port1.DHeight = DISPL_HEIGHT1;    /* Set the height.               */
 	view_port1.DxOffset = 0;         /* X position.                   */
 	view_port1.DyOffset = 0;         /* Y position.                   */
 	view_port1.RasInfo = &ras_info1; /* Give it a pointer to RasInfo. */
@@ -291,7 +290,7 @@ void main()
 	view_port3.DWidth = WIDTH3;      /* Set the width.                */
 	view_port3.DHeight = DISPL_HEIGHT3;    /* Set the height.               */
 	view_port3.DxOffset = 0;         /* X position.                   */
-	view_port3.DyOffset = HEIGHT1 + 2; /* Y position (5 lines under).   */
+	view_port3.DyOffset = DISPL_HEIGHT1 + 2; /* Y position (5 lines under).   */
 	view_port3.RasInfo = &ras_info3; /* Give it a pointer to RasInfo. */
 	view_port3.Modes = NULL;        /* High resolution.              */
 	view_port3.Next = &view_port2;          /* Last ViewPort in the list.    */
@@ -301,7 +300,7 @@ void main()
 	view_port2.DWidth = DISPL_WIDTH2;      /* Set the width.                */
 	view_port2.DHeight = DISPL_HEIGHT2;    /* Set the height.               */
 	view_port2.DxOffset = WIDTH2 - DISPL_WIDTH2;         /* X position.                   */
-	view_port2.DyOffset = HEIGHT1 + DISPL_HEIGHT3 + 4; /* Y position (5 lines under).   */
+	view_port2.DyOffset = DISPL_HEIGHT1 + DISPL_HEIGHT3 + 4; /* Y position (5 lines under).   */
 	view_port2.RasInfo = &ras_info2; /* Give it a pointer to RasInfo. */
 	view_port2.Modes = DUALPF|PFBA; 
 	view_port2.Next = NULL;          /* Last ViewPort in the list.    */

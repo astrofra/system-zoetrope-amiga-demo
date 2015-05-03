@@ -67,7 +67,11 @@ void drawMandarineLogo(struct BitMap *dest_bitmap, UWORD offset_y)
 	// bitmap_logo = load_array_as_bitmap(mandarine_logoData, 6400 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
 
     bitmap_logo = load_file_as_bitmap("assets/mandarine_logo.bin", 5760 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
-	BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (WIDTH1 - mandarine_logo.Width) >> 1, offset_y);
+	// BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (WIDTH1 - mandarine_logo.Width) >> 1, offset_y);
+
+    WaitBlit();
+    load_file_into_existing_bitmap(bitmap_logo, "assets/zoetrope_logo.bin", 5760 << 1, zoetrope_logo.Depth);
+    BLIT_BITMAP_S(bitmap_logo, dest_bitmap, zoetrope_logo.Width, zoetrope_logo.Height, (WIDTH1 - zoetrope_logo.Width) >> 1, offset_y);
 }
 
 /*	Scrolls the Mandarine Logo, ping pong from left to right */

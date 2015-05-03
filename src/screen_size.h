@@ -4,8 +4,9 @@
 #define DEFAULT_DISP_WIDTH 320
 /* ViewPort 1 */
 #define WIDTH1   384
+#define HEIGHT1  160
 #define DISPL_WIDTH1   DEFAULT_DISP_WIDTH
-#define HEIGHT1  79
+#define DISPL_HEIGHT1  79
 #define DEPTH1     3
 #define COLOURS1  (1 << DEPTH1)
 

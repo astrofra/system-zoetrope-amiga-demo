@@ -464,6 +464,11 @@ void main()
 	/* 8. Show the new View: */
 	LoadView( &my_view );	
 
+	/*	Force the logo screen to the background palette */
+	for( loop = 0; loop < COLOURS1; loop++)
+		SetRGB4(&view_port1, loop, (COLOUR_PURPLE_RGB4 & 0x0f00) >> 8, (COLOUR_PURPLE_RGB4 & 0x00f0) >> 4, COLOUR_PURPLE_RGB4 & 0x000f);
+
+	/*	Improve the Mandarine's logo palette */
 	for( loop = 0; loop < COLOURS1; loop++)
 	{
 		if(loop == 0)
@@ -471,8 +476,10 @@ void main()
 		else
 			tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE_DARK, RGB4toRGB8(mandarine_logoPaletteRGB4[loop])));
 		mandarine_logoPaletteRGB4[loop] = tmp_col;
-		SetRGB4(&view_port1, loop, (COLOUR_PURPLE_RGB4 & 0x0f00) >> 8, (COLOUR_PURPLE_RGB4 & 0x00f0) >> 4, COLOUR_PURPLE_RGB4 & 0x000f);
 	}
+
+	/*	Improve the Mandarine's logo palette */
+	zoetrope_logoPaletteRGB4[0] = tmp_col = RGB8toRGB4(COLOUR_PURPLE);
 
 	for( loop = 0; loop < COLOURS3; loop++)
 	{
@@ -512,6 +519,12 @@ void main()
 		switch(mode_switch)
 		{
 			case DMODE_SW_INTRO:
+				palette_fade = 0;
+				palette_idx = 0;
+				mode_switch = DMODE_SW_FADE_IN_MLOGO;
+				break;
+
+			case DMODE_SW_FADE_IN_MLOGO:
 				tmp_col = mixRGB4Colors(COLOUR_PURPLE_RGB4, mandarine_logoPaletteRGB4[palette_idx], palette_fade);
         		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
 	        	palette_idx++;
@@ -525,10 +538,62 @@ void main()
 	        		palette_idx = 0;
 					palette_fade++;
 					if (palette_fade > 15)
+					{
+						palette_fade = 0;
+						palette_idx = 0;
 						mode_switch = DMODE_SW_UBOB;
+					}
+	        	}
+				break;
+
+			case DMODE_SW_FADE_IN_ZLOGO:
+				tmp_col = mixRGB4Colors(COLOUR_PURPLE_RGB4, zoetrope_logoPaletteRGB4[palette_idx], palette_fade);
+        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	        	palette_idx++;
+
+				tmp_col = mixRGB4Colors(COLOUR_PURPLE_RGB4, zoetrope_logoPaletteRGB4[palette_idx], palette_fade);
+        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	        	palette_idx++;
+	
+	        	if (palette_idx >= COLOURS1)
+	        	{
+	        		palette_idx = 0;
+					palette_fade++;
+					if (palette_fade > 15)
+					{
+						palette_fade = 0;
+						palette_idx = 0;
+						mode_switch = DMODE_SW_UBOB;
+					}
+	        	}
+				break;				
+
+			case DMODE_SW_FADE_OUT_MLOGO:
+				tmp_col = mixRGB4Colors(mandarine_logoPaletteRGB4[palette_idx], COLOUR_PURPLE_RGB4, palette_fade);
+        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	        	palette_idx++;
+
+				tmp_col = mixRGB4Colors(mandarine_logoPaletteRGB4[palette_idx], COLOUR_PURPLE_RGB4, palette_fade);
+        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
+	        	palette_idx++;
+	
+	        	if (palette_idx >= COLOURS1)
+	        	{
+	        		palette_idx = 0;
+					palette_fade++;
+					if (palette_fade > 15)
+					{
+						
+						palette_fade = 0;
+						palette_idx = 0;
+						if (swapLogoBackgroundOffset())
+							mode_switch = DMODE_SW_FADE_IN_MLOGO;
+						else
+							mode_switch = DMODE_SW_FADE_IN_ZLOGO;
+					}
 	        	}
 				// mode_switch = DMODE_SW_UBOB;
-				break;
+				break;				
 
 			case DMODE_SW_UBOB:
 				if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0 && text_switch == TEXTMODE_SW_WAIT)
@@ -560,8 +625,14 @@ void main()
 				tmp_col = bob_32PaletteRGB4[(ubob_figure << 2) + palette_idx];
 				SetRGB4(&view_port2, (COLOURS2 << 1) + palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
 				palette_idx++;
-				if (palette_idx > 3)							
-					mode_switch = DMODE_SW_UBOB;
+				if (palette_idx > 3)
+				{
+					if ((ubob_figure & 0x1) == 0x1)
+						mode_switch = DMODE_SW_FADE_OUT_MLOGO; 
+					else
+						mode_switch = DMODE_SW_UBOB;
+				}
+
 				break;			
 		}
 
@@ -594,7 +665,7 @@ void main()
 				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
 				if (text_width >= 0)
 				{
-					text_duration = (UWORD)text_width; // + 5;
+					text_duration = (UWORD)text_width >> 2; // + 5;
 					text_switch = TEXTMODE_SW_DRAW;
 				}
 				break;

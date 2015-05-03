@@ -35,6 +35,7 @@ extern struct BitMap *bitmap_font;
 
 /*	Viewport 1, Mandarine Logo */
 UWORD bg_scroll_phase = 0;
+UBYTE bg_scroll_y = 0;
 
 /*  Viewport 2, checkerboard and sprites animation */
 UWORD ubob_phase_x = 0, ubob_phase_y = 0;
@@ -67,11 +68,12 @@ void drawMandarineLogo(struct BitMap *dest_bitmap, UWORD offset_y)
 	// bitmap_logo = load_array_as_bitmap(mandarine_logoData, 6400 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
 
     bitmap_logo = load_file_as_bitmap("assets/mandarine_logo.bin", 5760 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
-	// BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (WIDTH1 - mandarine_logo.Width) >> 1, offset_y);
+	BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (WIDTH1 - mandarine_logo.Width) >> 1, offset_y);
 
     WaitBlit();
+
     load_file_into_existing_bitmap(bitmap_logo, "assets/zoetrope_logo.bin", 5760 << 1, zoetrope_logo.Depth);
-    BLIT_BITMAP_S(bitmap_logo, dest_bitmap, zoetrope_logo.Width, zoetrope_logo.Height, (WIDTH1 - zoetrope_logo.Width) >> 1, offset_y);
+    BLIT_BITMAP_S(bitmap_logo, dest_bitmap, zoetrope_logo.Width, zoetrope_logo.Height, (WIDTH1 - zoetrope_logo.Width) >> 1, mandarine_logo.Height + offset_y);
 }
 
 /*	Scrolls the Mandarine Logo, ping pong from left to right */
@@ -81,8 +83,22 @@ __inline void scrollLogoBackground(void)
     bg_scroll_phase &= 0x1FF;
 
     view_port1.RasInfo->RxOffset = (WIDTH1 - DISPL_WIDTH1) + ((tcos[bg_scroll_phase] + 512) * (WIDTH1 - DISPL_WIDTH1)) >> 10;
-    view_port1.RasInfo->RyOffset = 0;
+    view_port1.RasInfo->RyOffset = bg_scroll_y;
     ScrollVPort(&view_port1);
+}
+
+BOOL swapLogoBackgroundOffset(void)
+{
+    if (bg_scroll_y >= mandarine_logo.Height)
+    {
+        bg_scroll_y = 0;
+        return TRUE;
+    }
+    else
+    {
+        bg_scroll_y = mandarine_logo.Height;
+        return FALSE;
+    }
 }
 
 __inline UBYTE scrollTextViewport(UWORD y_target)
@@ -283,7 +299,7 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
         case 4:
             ubob_phase_x += 1;
             ubob_phase_y += 2;
-            ubob_mode = UBOB_SW_TORUS;
+            ubob_mode = UBOB_SW_SPHERE;
             // ubob_morph_idx = 0;         
             break;
 

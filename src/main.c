@@ -261,6 +261,7 @@ void main()
 	UWORD demo_string_index;
 	UBYTE mode_switch, ubob_figure, text_switch;
 	UWORD counter_before_next_text, text_duration;
+	BOOL text_draw_switch = FALSE;
 	BOOL logo_switch = FALSE;
 	short text_width = 0;
 	UWORD vp3_target_y;
@@ -685,15 +686,19 @@ void main()
 				break;
 
 			case TEXTMODE_SW_DRAW_LOOP:
-				if (font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - (UWORD)text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]) == 0)
+				if (text_draw_switch)
 				{
-					demo_string_index++;
-					if (demo_string_index > DEMO_STRINGS_MAX_INDEX)
-						demo_string_index = 0;
+					if (font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - (UWORD)text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]) == 0)
+					{
+						demo_string_index++;
+						if (demo_string_index > DEMO_STRINGS_MAX_INDEX)
+							demo_string_index = 0;
 
-					counter_before_next_text = 0;
-					text_switch = TEXTMODE_SW_SCROLL;
+						counter_before_next_text = 0;
+						text_switch = TEXTMODE_SW_SCROLL;
+					}
 				}
+				text_draw_switch = !text_draw_switch;
 				break;
 
 			case TEXTMODE_SW_SCROLL:

@@ -70,6 +70,12 @@ UWORD color_table1[] =
 	0x00F, 0x00D, 0x00B, 0x009, 0x007, 0x005, 0x003, 0x001
 };
 
+UWORD *mlogo_fade_in_pal = NULL;
+UWORD *mlogo_fade_out_pal = NULL;
+
+UWORD *zlogo_fade_in_pal = NULL;
+UWORD *zlogo_fade_out_pal = NULL;
+
 /* ViewPort 2 */
 struct ViewPort view_port2;
 struct RasInfo ras_info2;
@@ -200,7 +206,17 @@ void close_demo(STRPTR message)
 	free_allocated_bitmap(bitmap_bob);
 	free_allocated_bitmap(bitmap_bob_mask);
 	free_allocated_bitmap(bitmap_torus);
-	free_allocated_bitmap(bitmap_torus_mask);	
+	free_allocated_bitmap(bitmap_torus_mask);
+
+	/* Free fade in/out palettes */
+	if (mlogo_fade_in_pal != NULL)
+		FreeMem(mlogo_fade_in_pal, sizeof(UWORD) * 8 * 16);
+	if (mlogo_fade_out_pal != NULL)
+		FreeMem(mlogo_fade_out_pal, sizeof(UWORD) * 8 * 16);
+	if (zlogo_fade_in_pal != NULL)
+		FreeMem(zlogo_fade_in_pal, sizeof(UWORD) * 8 * 16);
+	if (zlogo_fade_out_pal != NULL)
+		FreeMem(zlogo_fade_out_pal, sizeof(UWORD) * 8 * 16);
 
 #ifdef PTREPLAY_MUSIC
 	/*	Stop music */
@@ -245,6 +261,7 @@ void main()
 	UWORD demo_string_index;
 	UBYTE mode_switch, ubob_figure, text_switch;
 	UWORD counter_before_next_text, text_duration;
+	BOOL logo_switch = FALSE;
 	short text_width = 0;
 	UWORD vp3_target_y;
 	UBYTE faster_machine;
@@ -487,6 +504,28 @@ void main()
 		SetRGB4(&view_port3, loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
 	}
 
+	/* Precalc the fade in/out */
+	/* Free fade in/out palettes */
+	mlogo_fade_in_pal = AllocMem(sizeof(UWORD) * 8 * 16, MEMF_CLEAR);
+	for(palette_fade = 0; palette_fade < 16; palette_fade++)
+		for(palette_idx = 0; palette_idx < 8; palette_idx++)
+			mlogo_fade_in_pal[palette_idx + palette_fade * 8] = mixRGB4Colors(COLOUR_PURPLE_RGB4, mandarine_logoPaletteRGB4[palette_idx], palette_fade);
+
+	mlogo_fade_out_pal = AllocMem(sizeof(UWORD) * 8 * 16, MEMF_CLEAR);
+	for(palette_fade = 0; palette_fade < 16; palette_fade++)
+		for(palette_idx = 0; palette_idx < 8; palette_idx++)
+			mlogo_fade_out_pal[palette_idx + palette_fade * 8] = mixRGB4Colors(mandarine_logoPaletteRGB4[palette_idx], COLOUR_PURPLE_RGB4, palette_fade);
+
+	zlogo_fade_in_pal = AllocMem(sizeof(UWORD) * 8 * 16, MEMF_CLEAR);
+	for(palette_fade = 0; palette_fade < 16; palette_fade++)
+		for(palette_idx = 0; palette_idx < 8; palette_idx++)
+			zlogo_fade_in_pal[palette_idx + palette_fade * 8] = mixRGB4Colors(COLOUR_PURPLE_RGB4, zoetrope_logoPaletteRGB4[palette_idx], palette_fade);
+
+	zlogo_fade_out_pal = AllocMem(sizeof(UWORD) * 8 * 16, MEMF_CLEAR);
+	for(palette_fade = 0; palette_fade < 16; palette_fade++)
+		for(palette_idx = 0; palette_idx < 8; palette_idx++)
+			zlogo_fade_out_pal[palette_idx + palette_fade * 8] = mixRGB4Colors(zoetrope_logoPaletteRGB4[palette_idx], COLOUR_PURPLE_RGB4, palette_fade);	
+
 	playMusic();
 
 	WaitTOF();
@@ -525,74 +564,44 @@ void main()
 				break;
 
 			case DMODE_SW_FADE_IN_MLOGO:
-				tmp_col = mixRGB4Colors(COLOUR_PURPLE_RGB4, mandarine_logoPaletteRGB4[palette_idx], palette_fade);
-        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-	        	palette_idx++;
+				LoadRGB4(&view_port1, mlogo_fade_in_pal + (8 * palette_fade), 8);
 
-				tmp_col = mixRGB4Colors(COLOUR_PURPLE_RGB4, mandarine_logoPaletteRGB4[palette_idx], palette_fade);
-        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-	        	palette_idx++;
-	
-	        	if (palette_idx >= COLOURS1)
-	        	{
-	        		palette_idx = 0;
-					palette_fade++;
-					if (palette_fade > 15)
-					{
-						palette_fade = 0;
-						palette_idx = 0;
-						mode_switch = DMODE_SW_UBOB;
-					}
-	        	}
+				palette_fade++;
+				if (palette_fade > 15)
+				{
+					palette_fade = 0;
+					mode_switch = DMODE_SW_UBOB;
+				}
 				break;
 
 			case DMODE_SW_FADE_IN_ZLOGO:
-				tmp_col = mixRGB4Colors(COLOUR_PURPLE_RGB4, zoetrope_logoPaletteRGB4[palette_idx], palette_fade);
-        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-	        	palette_idx++;
+				LoadRGB4(&view_port1, zlogo_fade_in_pal + (8 * palette_fade), 8);
 
-				tmp_col = mixRGB4Colors(COLOUR_PURPLE_RGB4, zoetrope_logoPaletteRGB4[palette_idx], palette_fade);
-        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-	        	palette_idx++;
-	
-	        	if (palette_idx >= COLOURS1)
-	        	{
-	        		palette_idx = 0;
-					palette_fade++;
-					if (palette_fade > 15)
-					{
-						palette_fade = 0;
-						palette_idx = 0;
-						mode_switch = DMODE_SW_UBOB;
-					}
-	        	}
+				palette_fade++;
+				if (palette_fade > 15)
+				{
+					palette_fade = 0;
+					mode_switch = DMODE_SW_UBOB;
+				}			
 				break;				
 
 			case DMODE_SW_FADE_OUT_MLOGO:
-				tmp_col = mixRGB4Colors(mandarine_logoPaletteRGB4[palette_idx], COLOUR_PURPLE_RGB4, palette_fade);
-        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-	        	palette_idx++;
+				if (!logo_switch)
+					LoadRGB4(&view_port1, mlogo_fade_out_pal + (8 * palette_fade), 8);
+				else
+					LoadRGB4(&view_port1, zlogo_fade_out_pal + (8 * palette_fade), 8);
 
-				tmp_col = mixRGB4Colors(mandarine_logoPaletteRGB4[palette_idx], COLOUR_PURPLE_RGB4, palette_fade);
-        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-	        	palette_idx++;
-	
-	        	if (palette_idx >= COLOURS1)
-	        	{
-	        		palette_idx = 0;
-					palette_fade++;
-					if (palette_fade > 15)
-					{
-						
-						palette_fade = 0;
-						palette_idx = 0;
-						if (swapLogoBackgroundOffset())
-							mode_switch = DMODE_SW_FADE_IN_MLOGO;
-						else
-							mode_switch = DMODE_SW_FADE_IN_ZLOGO;
-					}
-	        	}
-				// mode_switch = DMODE_SW_UBOB;
+				palette_fade++;
+				if (palette_fade > 15)
+				{
+					
+					palette_fade = 0;
+					palette_idx = 0;
+					if (logo_switch = swapLogoBackgroundOffset())
+						mode_switch = DMODE_SW_FADE_IN_MLOGO;
+					else
+						mode_switch = DMODE_SW_FADE_IN_ZLOGO;
+				}
 				break;				
 
 			case DMODE_SW_UBOB:

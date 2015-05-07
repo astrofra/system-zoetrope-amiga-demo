@@ -610,7 +610,7 @@ void main()
 				break;				
 
 			case DMODE_SW_FADE_OUT_MLOGO:
-				if (!logo_switch)
+				if (logo_switch)
 					LoadRGB4(&view_port1, mlogo_fade_out_pal + (8 * palette_fade), 8);
 				else
 					LoadRGB4(&view_port1, zlogo_fade_out_pal + (8 * palette_fade), 8);
@@ -731,12 +731,12 @@ void main()
 				break;
 
 			case TEXTMODE_SW_SCROLL:
-				// if (scrolltext_switch)
-				// {
+				if (scrolltext_switch)
+				{
 					if (scrollTextViewport(vp3_target_y) == 0)
 						text_switch = TEXTMODE_SW_WAIT;
-				// }
-				// scrolltext_switch = !scrolltext_switch;
+				}
+				scrolltext_switch = !scrolltext_switch;
 				break;
 		}
 

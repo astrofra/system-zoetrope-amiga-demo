@@ -76,6 +76,8 @@ UWORD *mlogo_fade_out_pal = NULL;
 UWORD *zlogo_fade_in_pal = NULL;
 UWORD *zlogo_fade_out_pal = NULL;
 
+short *text_width_cache = NULL; 
+
 /* ViewPort 2 */
 struct ViewPort view_port2;
 struct RasInfo ras_info2;
@@ -218,6 +220,10 @@ void close_demo(STRPTR message)
 	if (zlogo_fade_out_pal != NULL)
 		FreeMem(zlogo_fade_out_pal, sizeof(UWORD) * 8 * 16);
 
+	/* Free text width cache */
+	if (text_width_cache != NULL)
+		FreeMem(text_width_cache, sizeof(short) * DEMO_STRINGS_MAX_INDEX);
+
 #ifdef PTREPLAY_MUSIC
 	/*	Stop music */
 	if (mod != NULL)
@@ -263,6 +269,7 @@ void main()
 	UWORD counter_before_next_text, text_duration;
 	BOOL text_draw_switch = FALSE;
 	BOOL logo_switch = FALSE;
+	BOOL scrolltext_switch = FALSE;
 	short text_width = 0;
 	UWORD vp3_target_y;
 	UBYTE faster_machine;
@@ -458,7 +465,23 @@ void main()
 	WaitBlit();
 	free_allocated_bitmap(bitmap_logo);
 
+	/*	Prepare the font */
+	/*	Load the bitmap */
 	loadTextWriterFont();
+
+	/*	Precalculate the width (in pixels) of each string */
+	text_width_cache = AllocMem(sizeof(short) * DEMO_STRINGS_MAX_INDEX, MEMF_CLEAR);
+	for(loop = 0; loop < DEMO_STRINGS_MAX_INDEX; loop++)
+	{
+		do
+		{
+			text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[loop]);
+		}
+		while(text_width < 0);
+
+		text_width_cache[loop] = text_width;
+	}
+
 	loadBobBitmaps();
 	SetAPen(&rast_port2, 0);
 	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
@@ -672,12 +695,18 @@ void main()
 				break;
 
 			case TEXTMODE_SW_PRECALC:
-				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
-				if (text_width >= 0)
-				{
-					text_duration = (UWORD)text_width >> 2; // + 5;
-					text_switch = TEXTMODE_SW_DRAW;
-				}
+				// text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
+				// if (text_width >= 0)
+				// {
+				// 	text_duration = (UWORD)text_width >> 2; // + 5;
+				// 	text_switch = TEXTMODE_SW_DRAW;
+				// }
+				text_width = text_width_cache[demo_string_index];
+				if ((text_width_cache[demo_string_index + 1] >> 2) < text_width)
+					text_duration = text_width - (text_width_cache[demo_string_index + 1] >> 2);
+				else
+					text_duration = text_width;
+				text_switch = TEXTMODE_SW_DRAW;
 				break;
 
 			case TEXTMODE_SW_DRAW:
@@ -702,8 +731,12 @@ void main()
 				break;
 
 			case TEXTMODE_SW_SCROLL:
-				if (scrollTextViewport(vp3_target_y) == 0)
-					text_switch = TEXTMODE_SW_WAIT;
+				// if (scrolltext_switch)
+				// {
+					if (scrollTextViewport(vp3_target_y) == 0)
+						text_switch = TEXTMODE_SW_WAIT;
+				// }
+				// scrolltext_switch = !scrolltext_switch;
 				break;
 		}
 

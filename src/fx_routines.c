@@ -47,7 +47,6 @@ UWORD scrolltext_y_offset = 0;
 UWORD ubob_scale = 0;
 UBYTE ubob_morph_idx = 0;
 UWORD ubob_frame_y = 0;
-UBYTE ubob_inc_every = 0;
 UBYTE ubob_mode = UBOB_SW_SPHERE;
 struct UCopList *copper;
 
@@ -228,16 +227,13 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     free(pal);
 }
 
-__inline void updateCheckerboard(void) // UBYTE update_sw)
+__inline void updateCheckerboard(void)
 {
-    // if (update_sw)
-    // {
-        checkerboard_scroll_offset += DISPL_HEIGHT2;
-        if (checkerboard_scroll_offset >= HEIGHT2)
-            checkerboard_scroll_offset = 0;
-        view_port2.RasInfo->RxOffset = 0;
-        view_port2.RasInfo->RyOffset = checkerboard_scroll_offset;
-    // }
+    checkerboard_scroll_offset += DISPL_HEIGHT2;
+    if (checkerboard_scroll_offset >= HEIGHT2)
+        checkerboard_scroll_offset = 0;
+    view_port2.RasInfo->RxOffset = 0;
+    view_port2.RasInfo->RyOffset = checkerboard_scroll_offset;
 
     ubob_hscroll_phase += 3;
     ubob_hscroll_phase &= 0x1FF;
@@ -262,7 +258,7 @@ void loadBobBitmaps(void)
     bitmap_torus_mask = load_file_as_bitmap("assets/bob_torus_mask.bin", 1024, torus_32_mask.Width, torus_32_mask.Height, torus_32_mask.Depth);
 }
 
-__inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) // struct BitMap* dest_bitmap)
+__inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode)
 {
     UWORD x, y;
 
@@ -272,42 +268,36 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
             ubob_phase_x += 3;
             ubob_phase_y += 2;
             ubob_mode = UBOB_SW_SPHERE;
-            // ubob_morph_idx = 3;
             break;
 
         case 1:
             ubob_phase_x += 2;
             ubob_phase_y += 3;
             ubob_mode = UBOB_SW_TORUS;
-            // ubob_morph_idx = 2;
             break;
 
         case 2:
             ubob_phase_x += 3;
             ubob_phase_y += 1;
             ubob_mode = UBOB_SW_SPHERE;
-            // ubob_morph_idx = 1;
             break;
 
         case 3:
             ubob_phase_x += 1;
             ubob_phase_y += 5;
             ubob_mode = UBOB_SW_TORUS;
-            // ubob_morph_idx = 3;         
             break;
 
         case 4:
             ubob_phase_x += 1;
             ubob_phase_y += 2;
             ubob_mode = UBOB_SW_SPHERE;
-            // ubob_morph_idx = 0;         
             break;
 
         case 5:
             ubob_phase_x++;
             ubob_phase_y++;
             ubob_mode = UBOB_SW_SPHERE;
-            // ubob_morph_idx = 3;
             break;                             
     }
 
@@ -330,14 +320,12 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
             break;
 
         case UBOB_SW_TORUS:
-            BltMaskBitMapRastPort(bitmap_torus, 0, ubob_frame_y & 0x1E0,
+            BltMaskBitMapRastPort(bitmap_torus, 0, ubob_frame_y & 0xE0,
                     dest_rp, x, y + ubob_vscroll,
                     32, 32,
                     (ABC|ABNC|ANBC), bitmap_torus_mask->Planes[0]);
 
             ubob_frame_y += 4;
-            ubob_frame_y &= (32 * 8) - 1;
-
             break;
     }
 
@@ -353,6 +341,7 @@ __inline void setNextUnlimitedBobs(UBYTE *figure_mode)
     ubob_phase_x = 0;
     ubob_phase_y = 0;
     ubob_scale = 0;
+    ubob_frame_y = 0;
 }
 
 __inline UBYTE clearPlayfieldLineByLineFromTop(struct RastPort *dest_rp)

@@ -569,7 +569,7 @@ void main()
 	counter_before_next_text = 0;
 	text_duration = 0;
 	vp3_target_y = 0;
-
+	
 	OFF_SPRITE;
 	if (!faster_machine)
 		OFF_VBLANK;
@@ -588,7 +588,7 @@ void main()
 				break;
 
 			case DMODE_SW_FADE_IN_MLOGO:
-				LoadRGB4(&view_port1, mlogo_fade_in_pal + (8 * palette_fade), 8);
+				LoadRGB4(&view_port1, mlogo_fade_in_pal + (palette_fade << 3), 8);
 
 				palette_fade++;
 				if (palette_fade > 15)
@@ -599,7 +599,7 @@ void main()
 				break;
 
 			case DMODE_SW_FADE_IN_ZLOGO:
-				LoadRGB4(&view_port1, zlogo_fade_in_pal + (8 * palette_fade), 8);
+				LoadRGB4(&view_port1, zlogo_fade_in_pal + (palette_fade << 3), 8);
 
 				palette_fade++;
 				if (palette_fade > 15)
@@ -609,11 +609,11 @@ void main()
 				}			
 				break;				
 
-			case DMODE_SW_FADE_OUT_MLOGO:
+			case DMODE_SW_FADE_OUT_LOGO:
 				if (logo_switch)
-					LoadRGB4(&view_port1, mlogo_fade_out_pal + (8 * palette_fade), 8);
+					LoadRGB4(&view_port1, mlogo_fade_out_pal + (palette_fade << 3), 8);
 				else
-					LoadRGB4(&view_port1, zlogo_fade_out_pal + (8 * palette_fade), 8);
+					LoadRGB4(&view_port1, zlogo_fade_out_pal + (palette_fade << 3), 8);
 
 				palette_fade++;
 				if (palette_fade > 15)
@@ -661,7 +661,7 @@ void main()
 				if (palette_idx > 3)
 				{
 					if ((ubob_figure & 0x1) == 0x1)
-						mode_switch = DMODE_SW_FADE_OUT_MLOGO; 
+						mode_switch = DMODE_SW_FADE_OUT_LOGO; 
 					else
 						mode_switch = DMODE_SW_UBOB;
 				}

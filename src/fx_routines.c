@@ -330,20 +330,13 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
             break;
 
         case UBOB_SW_TORUS:
-            BltMaskBitMapRastPort(bitmap_torus, 0, ubob_frame_y,
+            BltMaskBitMapRastPort(bitmap_torus, 0, ubob_frame_y & 0x1E0,
                     dest_rp, x, y + ubob_vscroll,
                     32, 32,
                     (ABC|ABNC|ANBC), bitmap_torus_mask->Planes[0]);
 
-            ubob_inc_every++;
-
-            if (ubob_inc_every > 4)
-            {
-                ubob_inc_every = 0;
-                ubob_frame_y += 32;
-                if (ubob_frame_y > 7 * 32)
-                    ubob_frame_y = 0;              
-            }
+            ubob_frame_y += 4;
+            ubob_frame_y &= (32 * 8) - 1;
 
             break;
     }

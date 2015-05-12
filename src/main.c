@@ -706,6 +706,7 @@ void main()
 					text_duration = text_width - (text_width_cache[demo_string_index + 1] >> 2);
 				else
 					text_duration = text_width;
+				text_duration >>= 1;
 				text_switch = TEXTMODE_SW_DRAW;
 				break;
 

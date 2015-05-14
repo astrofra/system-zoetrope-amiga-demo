@@ -760,5 +760,5 @@ void main()
 	Enable();
 	Permit();
 
-	close_demo("My friend the end!");
+	close_demo("Stay 16/32!");
 }

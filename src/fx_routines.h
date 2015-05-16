@@ -10,6 +10,7 @@ void drawCheckerboard(struct BitMap *dest_bitmap, struct RastPort *dest_rp);
 void setLogoCopperlist(struct ViewPort *vp);
 void setCheckerboardCopperlist(struct ViewPort *vp);
 void scrollLogoBackground(void);
+BOOL swapLogoBackgroundOffset(void);
 UBYTE scrollTextViewport(UWORD y_target);
 void updateCheckerboard(void); // UBYTE update_sw);
 void loadBobBitmaps(void);

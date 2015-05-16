@@ -4,8 +4,9 @@
 #define DEFAULT_DISP_WIDTH 320
 /* ViewPort 1 */
 #define WIDTH1   384
+#define HEIGHT1  160
 #define DISPL_WIDTH1   DEFAULT_DISP_WIDTH
-#define HEIGHT1  79
+#define DISPL_HEIGHT1  79
 #define DEPTH1     3
 #define COLOURS1  (1 << DEPTH1)
 
@@ -40,5 +41,6 @@
 #define COLOUR_PURPLE_LIGHT (ULONG)0x5F004B
 
 #define COLOUR_PURPLE_RGB4 (UWORD)0x425
+#define COLOUR_PURPLE_DARK_RGB4 (UWORD)0x213
 
 #endif // #ifndef SCREEN_SIZE

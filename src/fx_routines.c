@@ -6,18 +6,16 @@
 
 #include "board.h"
 #include "screen_size.h"
-#include "cosine_table.h"
 #include "color_routines.h"
 #include "bitmap_routines.h"
-#include "3d_routines.h"
+#include "cosine_table.h"
 #include "mandarine_logo.h"
 #include "checkerboard_strip.h"
 #include "bob_bitmaps.h"
-// #include "buddha_bitmaps.h"
 #include "vert_copper_palettes.h"
 #include "font_desc.h"
 #include "font_bitmap.h"
-#include "3d_objects.h"
+#include "demo_mode_switches.h"
 
 extern struct GfxBase *GfxBase;
 extern struct ViewPort view_port1;
@@ -28,17 +26,16 @@ extern struct  BitMap *bitmap_logo;
 extern struct  BitMap *bitmap_checkerboard;
 extern struct  BitMap *bitmap_bob;
 extern struct  BitMap *bitmap_bob_mask;
+extern struct  BitMap *bitmap_torus;
+extern struct  BitMap *bitmap_torus_mask;
 
 extern struct Custom far custom;
 
 extern struct BitMap *bitmap_font;
 
-/* 3D */
-extern struct obj_3d o;
-extern short *verts_tr;
-
 /*	Viewport 1, Mandarine Logo */
 UWORD bg_scroll_phase = 0;
+UBYTE bg_scroll_y = 0;
 
 /*  Viewport 2, checkerboard and sprites animation */
 UWORD ubob_phase_x = 0, ubob_phase_y = 0;
@@ -49,6 +46,8 @@ UWORD checkerboard_scroll_offset = 0;
 UWORD scrolltext_y_offset = 0;
 UWORD ubob_scale = 0;
 UBYTE ubob_morph_idx = 0;
+UWORD ubob_frame_y = 0;
+UBYTE ubob_mode = UBOB_SW_SPHERE;
 struct UCopList *copper;
 
 UWORD chip blank_pointer[4]=
@@ -69,6 +68,11 @@ void drawMandarineLogo(struct BitMap *dest_bitmap, UWORD offset_y)
 
     bitmap_logo = load_file_as_bitmap("assets/mandarine_logo.bin", 5760 << 1, mandarine_logo.Width, mandarine_logo.Height, mandarine_logo.Depth);
 	BLIT_BITMAP_S(bitmap_logo, dest_bitmap, mandarine_logo.Width, mandarine_logo.Height, (WIDTH1 - mandarine_logo.Width) >> 1, offset_y);
+
+    WaitBlit();
+
+    load_file_into_existing_bitmap(bitmap_logo, "assets/zoetrope_logo.bin", 5760 << 1, zoetrope_logo.Depth);
+    BLIT_BITMAP_S(bitmap_logo, dest_bitmap, zoetrope_logo.Width, zoetrope_logo.Height, (WIDTH1 - zoetrope_logo.Width) >> 1, mandarine_logo.Height + offset_y);
 }
 
 /*	Scrolls the Mandarine Logo, ping pong from left to right */
@@ -78,8 +82,22 @@ __inline void scrollLogoBackground(void)
     bg_scroll_phase &= 0x1FF;
 
     view_port1.RasInfo->RxOffset = (WIDTH1 - DISPL_WIDTH1) + ((tcos[bg_scroll_phase] + 512) * (WIDTH1 - DISPL_WIDTH1)) >> 10;
-    view_port1.RasInfo->RyOffset = 0;
+    view_port1.RasInfo->RyOffset = bg_scroll_y;
     ScrollVPort(&view_port1);
+}
+
+BOOL swapLogoBackgroundOffset(void)
+{
+    if (bg_scroll_y >= mandarine_logo.Height)
+    {
+        bg_scroll_y = 0;
+        return TRUE;
+    }
+    else
+    {
+        bg_scroll_y = mandarine_logo.Height;
+        return FALSE;
+    }
 }
 
 __inline UBYTE scrollTextViewport(UWORD y_target)
@@ -209,16 +227,13 @@ void setCheckerboardCopperlist(struct ViewPort *vp)
     free(pal);
 }
 
-__inline void updateCheckerboard(void) // UBYTE update_sw)
+__inline void updateCheckerboard(void)
 {
-    // if (update_sw)
-    // {
-        checkerboard_scroll_offset += DISPL_HEIGHT2;
-        if (checkerboard_scroll_offset >= HEIGHT2)
-            checkerboard_scroll_offset = 0;
-        view_port2.RasInfo->RxOffset = 0;
-        view_port2.RasInfo->RyOffset = checkerboard_scroll_offset;
-    // }
+    checkerboard_scroll_offset += DISPL_HEIGHT2;
+    if (checkerboard_scroll_offset >= HEIGHT2)
+        checkerboard_scroll_offset = 0;
+    view_port2.RasInfo->RxOffset = 0;
+    view_port2.RasInfo->RyOffset = checkerboard_scroll_offset;
 
     ubob_hscroll_phase += 3;
     ubob_hscroll_phase &= 0x1FF;
@@ -230,53 +245,60 @@ __inline void updateCheckerboard(void) // UBYTE update_sw)
 
     ubob_vscroll += DISPL_HEIGHT2b;
     if (ubob_vscroll >= HEIGHT2b)
-        ubob_vscroll = 0;    
+        ubob_vscroll = 0;   
+
 }
 
-/*
-    Unlimited Bobs
-*/
 void loadBobBitmaps(void)
 {   
     bitmap_bob = load_file_as_bitmap("assets/bob_sphere.bin", 256, bob_32.Width, bob_32.Height, bob_32.Depth);
     bitmap_bob_mask = load_file_as_bitmap("assets/bob_sphere_mask.bin", 128, bob_32_mask.Width, bob_32_mask.Height, bob_32_mask.Depth);
+
+    bitmap_torus = load_file_as_bitmap("assets/bob_torus.bin", 2048, torus_32.Width, torus_32.Height, torus_32.Depth);
+    bitmap_torus_mask = load_file_as_bitmap("assets/bob_torus_mask.bin", 1024, torus_32_mask.Width, torus_32_mask.Height, torus_32_mask.Depth);
 }
 
-__inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) // struct BitMap* dest_bitmap)
+__inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode)
 {
     UWORD x, y;
 
     switch(*figure_mode)
     {
         case 0:
-            ubob_phase_x++;
-            ubob_phase_y++;
-            // ubob_morph_idx = 3;
+            ubob_phase_x += 3;
+            ubob_phase_y += 2;
+            ubob_mode = UBOB_SW_SPHERE;
             break;
 
         case 1:
             ubob_phase_x += 2;
             ubob_phase_y += 3;
-            // ubob_morph_idx = 2;
+            ubob_mode = UBOB_SW_TORUS;
             break;
 
         case 2:
             ubob_phase_x += 3;
             ubob_phase_y += 1;
-            // ubob_morph_idx = 1;
+            ubob_mode = UBOB_SW_SPHERE;
             break;
 
         case 3:
             ubob_phase_x += 1;
             ubob_phase_y += 5;
-            // ubob_morph_idx = 3;         
+            ubob_mode = UBOB_SW_TORUS;
             break;
 
         case 4:
             ubob_phase_x += 1;
             ubob_phase_y += 2;
-            // ubob_morph_idx = 0;         
-            break;                      
+            ubob_mode = UBOB_SW_SPHERE;
+            break;
+
+        case 5:
+            ubob_phase_x++;
+            ubob_phase_y++;
+            ubob_mode = UBOB_SW_SPHERE;
+            break;                             
     }
 
     if (ubob_phase_x > (COSINE_TABLE_LEN << 1) && ubob_phase_y > (COSINE_TABLE_LEN << 1))
@@ -288,10 +310,24 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
     x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 24 + ubob_scale + (((tcos[ubob_phase_x & 0x1FF] + 512) * (DISPL_WIDTH2b - 8 - 64 - ubob_scale - ubob_scale)) >> 10);
     y = 8 + ubob_scale + (((tsin[ubob_phase_y & 0x1FF] + 512) * (DISPL_HEIGHT2b - 16 - 32 - ubob_scale - ubob_scale)) >> 10);
 
-    BltMaskBitMapRastPort(bitmap_bob, 0, 0,
-            dest_rp, x, y + ubob_vscroll,
-            32, 32,
-            (ABC|ABNC|ANBC), bitmap_bob_mask->Planes[0]);
+    switch (ubob_mode)
+    {
+        case UBOB_SW_SPHERE:
+            BltMaskBitMapRastPort(bitmap_bob, 0, 0,
+                    dest_rp, x, y + ubob_vscroll,
+                    32, 32,
+                    (ABC|ABNC|ANBC), bitmap_bob_mask->Planes[0]);
+            break;
+
+        case UBOB_SW_TORUS:
+            BltMaskBitMapRastPort(bitmap_torus, 0, ubob_frame_y & 0xE0,
+                    dest_rp, x, y + ubob_vscroll,
+                    32, 32,
+                    (ABC|ABNC|ANBC), bitmap_torus_mask->Planes[0]);
+
+            ubob_frame_y += 4;
+            break;
+    }
 
     return 1;
 }
@@ -299,12 +335,13 @@ __inline UBYTE drawUnlimitedBobs(struct RastPort *dest_rp, UBYTE *figure_mode) /
 __inline void setNextUnlimitedBobs(UBYTE *figure_mode)
 {
     (*figure_mode)++;
-    if (*figure_mode > 4)
+    if (*figure_mode > 5)
         *figure_mode = 0;
     
     ubob_phase_x = 0;
     ubob_phase_y = 0;
     ubob_scale = 0;
+    ubob_frame_y = 0;
 }
 
 __inline UBYTE clearPlayfieldLineByLineFromTop(struct RastPort *dest_rp)
@@ -360,20 +397,6 @@ __inline UBYTE clearPlayfieldLineByLineFromBottom(struct RastPort *dest_rp)
 
     clr_screen_y += 8;
     return 1;
-}
-
-/* 
-    3D-related routines
-*/
-void prepareMesh(void)
-{
-    PREPARE_3D_MESH(o, object_amiga_verts, object_amiga_faces, 256, 256, 0);    
-}
-
-__inline void renderMesh(struct RastPort *dest_rp, UWORD clock, UWORD y_offset)
-{
-    printf("renderMesh(dest_rp = %x, clock = %d)\n", dest_rp, clock);
-    Draw3DMesh(dest_rp, clock & (COSINE_TABLE_LEN - 1), clock & (COSINE_TABLE_LEN - 1), y_offset);
 }
 
 /*  

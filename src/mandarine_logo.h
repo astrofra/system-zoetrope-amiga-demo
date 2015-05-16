@@ -10,4 +10,7 @@
 extern UWORD mandarine_logoPaletteRGB4[8];
 extern struct Image mandarine_logo;
 
+extern UWORD zoetrope_logoPaletteRGB4[8];
+extern struct Image zoetrope_logo;
+
 #endif // #ifndef MANDARINE_LOGO

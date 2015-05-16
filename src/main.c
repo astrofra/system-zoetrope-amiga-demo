@@ -34,7 +34,6 @@ Graphic assets
 #include "mandarine_logo.h"
 #include "font_desc.h"
 #include "font_bitmap.h"
-#include "3d_routines.h"
 #include "color_routines.h"
 #include "font_routines.h"
 #include "demo_strings.h"
@@ -71,6 +70,14 @@ UWORD color_table1[] =
 	0x00F, 0x00D, 0x00B, 0x009, 0x007, 0x005, 0x003, 0x001
 };
 
+UWORD *mlogo_fade_in_pal = NULL;
+UWORD *mlogo_fade_out_pal = NULL;
+
+UWORD *zlogo_fade_in_pal = NULL;
+UWORD *zlogo_fade_out_pal = NULL;
+
+short *text_width_cache = NULL; 
+
 /* ViewPort 2 */
 struct ViewPort view_port2;
 struct RasInfo ras_info2;
@@ -92,6 +99,8 @@ struct BitMap *bitmap_checkerboard = NULL;
 struct BitMap *bitmap_font = NULL;
 struct BitMap *bitmap_bob = NULL;
 struct BitMap *bitmap_bob_mask = NULL;
+struct  BitMap *bitmap_torus = NULL;
+struct  BitMap *bitmap_torus_mask = NULL;
 
 // #define PTREPLAY_MUSIC
 struct SoundInfo *background = NULL;
@@ -169,8 +178,6 @@ void close_demo(STRPTR message)
 {
 	int loop;
 
-	Delete3DVertexList();
-
 	/* Free automatically allocated display structures: */
 	FreeVPortCopLists( &view_port1 );
 	FreeVPortCopLists( &view_port2 );
@@ -200,6 +207,22 @@ void close_demo(STRPTR message)
 	free_allocated_bitmap(bitmap_font);
 	free_allocated_bitmap(bitmap_bob);
 	free_allocated_bitmap(bitmap_bob_mask);
+	free_allocated_bitmap(bitmap_torus);
+	free_allocated_bitmap(bitmap_torus_mask);
+
+	/* Free fade in/out palettes */
+	if (mlogo_fade_in_pal != NULL)
+		FreeMem(mlogo_fade_in_pal, sizeof(UWORD) * 8 * 16);
+	if (mlogo_fade_out_pal != NULL)
+		FreeMem(mlogo_fade_out_pal, sizeof(UWORD) * 8 * 16);
+	if (zlogo_fade_in_pal != NULL)
+		FreeMem(zlogo_fade_in_pal, sizeof(UWORD) * 8 * 16);
+	if (zlogo_fade_out_pal != NULL)
+		FreeMem(zlogo_fade_out_pal, sizeof(UWORD) * 8 * 16);
+
+	/* Free text width cache */
+	if (text_width_cache != NULL)
+		FreeMem(text_width_cache, sizeof(short) * DEMO_STRINGS_MAX_INDEX);
 
 #ifdef PTREPLAY_MUSIC
 	/*	Stop music */
@@ -236,18 +259,6 @@ void close_demo(STRPTR message)
 	exit(0);
 }
 
-__inline void cWaitTOF(void)
-{
-	struct Node wait_process;
-	wait_process.ln_Name = (char *)FindTask(NULL);
-	SetSignal(0, SIGF_SINGLE);
-	Disable();
-	AddTail((struct List *)&GfxBase->TOF_WaitQ, (struct Node *)&wait_process);
-	Wait(SIGF_SINGLE);
-	Remove((struct Node *)&wait_process);
-	Enable();
-}
-
 void main()
 {
 	USHORT loop, palette_idx;
@@ -256,9 +267,11 @@ void main()
 	UWORD demo_string_index;
 	UBYTE mode_switch, ubob_figure, text_switch;
 	UWORD counter_before_next_text, text_duration;
-	short text_width;
+	BOOL text_draw_switch = FALSE;
+	BOOL logo_switch = FALSE;
+	BOOL scrolltext_switch = FALSE;
+	short text_width = 0;
 	UWORD vp3_target_y;
-	USHORT v_counter;
 	UBYTE faster_machine;
 
 	/* Open the Intuition library: */
@@ -290,7 +303,7 @@ void main()
 	/* ViewPort 1 */
 	InitVPort( &view_port1 );
 	view_port1.DWidth = DISPL_WIDTH1;      /* Set the width.                */
-	view_port1.DHeight = HEIGHT1;    /* Set the height.               */
+	view_port1.DHeight = DISPL_HEIGHT1;    /* Set the height.               */
 	view_port1.DxOffset = 0;         /* X position.                   */
 	view_port1.DyOffset = 0;         /* Y position.                   */
 	view_port1.RasInfo = &ras_info1; /* Give it a pointer to RasInfo. */
@@ -302,7 +315,7 @@ void main()
 	view_port3.DWidth = WIDTH3;      /* Set the width.                */
 	view_port3.DHeight = DISPL_HEIGHT3;    /* Set the height.               */
 	view_port3.DxOffset = 0;         /* X position.                   */
-	view_port3.DyOffset = HEIGHT1 + 2; /* Y position (5 lines under).   */
+	view_port3.DyOffset = DISPL_HEIGHT1 + 2; /* Y position (5 lines under).   */
 	view_port3.RasInfo = &ras_info3; /* Give it a pointer to RasInfo. */
 	view_port3.Modes = NULL;        /* High resolution.              */
 	view_port3.Next = &view_port2;          /* Last ViewPort in the list.    */
@@ -312,7 +325,7 @@ void main()
 	view_port2.DWidth = DISPL_WIDTH2;      /* Set the width.                */
 	view_port2.DHeight = DISPL_HEIGHT2;    /* Set the height.               */
 	view_port2.DxOffset = WIDTH2 - DISPL_WIDTH2;         /* X position.                   */
-	view_port2.DyOffset = HEIGHT1 + DISPL_HEIGHT3 + 4; /* Y position (5 lines under).   */
+	view_port2.DyOffset = DISPL_HEIGHT1 + DISPL_HEIGHT3 + 4; /* Y position (5 lines under).   */
 	view_port2.RasInfo = &ras_info2; /* Give it a pointer to RasInfo. */
 	view_port2.Modes = DUALPF|PFBA; 
 	view_port2.Next = NULL;          /* Last ViewPort in the list.    */
@@ -452,7 +465,23 @@ void main()
 	WaitBlit();
 	free_allocated_bitmap(bitmap_logo);
 
+	/*	Prepare the font */
+	/*	Load the bitmap */
 	loadTextWriterFont();
+
+	/*	Precalculate the width (in pixels) of each string */
+	text_width_cache = AllocMem(sizeof(short) * DEMO_STRINGS_MAX_INDEX, MEMF_CLEAR);
+	for(loop = 0; loop < DEMO_STRINGS_MAX_INDEX; loop++)
+	{
+		do
+		{
+			text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[loop]);
+		}
+		while(text_width < 0);
+
+		text_width_cache[loop] = text_width;
+	}
+
 	loadBobBitmaps();
 	SetAPen(&rast_port2, 0);
 	RectFill(&rast_port2, 0, 0, WIDTH2 - 1, HEIGHT2 - 1);
@@ -476,18 +505,50 @@ void main()
 	/* 8. Show the new View: */
 	LoadView( &my_view );	
 
+	/*	Force the logo screen to the background palette */
+	for( loop = 0; loop < COLOURS1; loop++)
+		SetRGB4(&view_port1, loop, (COLOUR_PURPLE_RGB4 & 0x0f00) >> 8, (COLOUR_PURPLE_RGB4 & 0x00f0) >> 4, COLOUR_PURPLE_RGB4 & 0x000f);
+
+	/*	Improve the Mandarine's logo palette */
 	for( loop = 0; loop < COLOURS1; loop++)
 	{
-		tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE, RGB4toRGB8(mandarine_logoPaletteRGB4[loop])));
+		if(loop == 0)
+			tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE, RGB4toRGB8(mandarine_logoPaletteRGB4[loop])));
+		else
+			tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE_DARK, RGB4toRGB8(mandarine_logoPaletteRGB4[loop])));
 		mandarine_logoPaletteRGB4[loop] = tmp_col;
-		SetRGB4(&view_port1, loop, (COLOUR_PURPLE_RGB4 & 0x0f00) >> 8, (COLOUR_PURPLE_RGB4 & 0x00f0) >> 4, COLOUR_PURPLE_RGB4 & 0x000f);
 	}
+
+	/*	Improve the Mandarine's logo palette */
+	zoetrope_logoPaletteRGB4[0] = tmp_col = RGB8toRGB4(COLOUR_PURPLE);
 
 	for( loop = 0; loop < COLOURS3; loop++)
 	{
 		tmp_col = RGB8toRGB4(addRGB8Colors(COLOUR_PURPLE, RGB4toRGB8(font_palRGB4[loop])));
 		SetRGB4(&view_port3, loop, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
 	}
+
+	/* Precalc the fade in/out */
+	/* Free fade in/out palettes */
+	mlogo_fade_in_pal = AllocMem(sizeof(UWORD) * 8 * 16, MEMF_CLEAR);
+	for(palette_fade = 0; palette_fade < 16; palette_fade++)
+		for(palette_idx = 0; palette_idx < 8; palette_idx++)
+			mlogo_fade_in_pal[palette_idx + palette_fade * 8] = mixRGB4Colors(COLOUR_PURPLE_RGB4, mandarine_logoPaletteRGB4[palette_idx], palette_fade);
+
+	mlogo_fade_out_pal = AllocMem(sizeof(UWORD) * 8 * 16, MEMF_CLEAR);
+	for(palette_fade = 0; palette_fade < 16; palette_fade++)
+		for(palette_idx = 0; palette_idx < 8; palette_idx++)
+			mlogo_fade_out_pal[palette_idx + palette_fade * 8] = mixRGB4Colors(mandarine_logoPaletteRGB4[palette_idx], COLOUR_PURPLE_RGB4, palette_fade);
+
+	zlogo_fade_in_pal = AllocMem(sizeof(UWORD) * 8 * 16, MEMF_CLEAR);
+	for(palette_fade = 0; palette_fade < 16; palette_fade++)
+		for(palette_idx = 0; palette_idx < 8; palette_idx++)
+			zlogo_fade_in_pal[palette_idx + palette_fade * 8] = mixRGB4Colors(COLOUR_PURPLE_RGB4, zoetrope_logoPaletteRGB4[palette_idx], palette_fade);
+
+	zlogo_fade_out_pal = AllocMem(sizeof(UWORD) * 8 * 16, MEMF_CLEAR);
+	for(palette_fade = 0; palette_fade < 16; palette_fade++)
+		for(palette_idx = 0; palette_idx < 8; palette_idx++)
+			zlogo_fade_out_pal[palette_idx + palette_fade * 8] = mixRGB4Colors(zoetrope_logoPaletteRGB4[palette_idx], COLOUR_PURPLE_RGB4, palette_fade);	
 
 	playMusic();
 
@@ -508,15 +569,10 @@ void main()
 	counter_before_next_text = 0;
 	text_duration = 0;
 	vp3_target_y = 0;
-
+	
 	OFF_SPRITE;
 	if (!faster_machine)
 		OFF_VBLANK;
-
-	Prepare3DVertexList();
-	prepareMesh();
-	for(loop = 0; loop < ANIM_STRIPEb; loop++)
-		renderMesh(&rast_port2b, loop << 2, loop * DISPL_HEIGHT2b);
 
 	while((*(UBYTE *)0xBFE001) & 0x40)
 	{
@@ -526,23 +582,51 @@ void main()
 		switch(mode_switch)
 		{
 			case DMODE_SW_INTRO:
-				tmp_col = mixRGB4Colors(COLOUR_PURPLE_RGB4, mandarine_logoPaletteRGB4[palette_idx], palette_fade);
-        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-	        	palette_idx++;
-
-				tmp_col = mixRGB4Colors(COLOUR_PURPLE_RGB4, mandarine_logoPaletteRGB4[palette_idx], palette_fade);
-        		SetRGB4(&view_port1, palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
-	        	palette_idx++;
-	
-	        	if (palette_idx >= COLOURS1)
-	        	{
-	        		palette_idx = 0;
-					palette_fade++;
-					if (palette_fade > 15)
-						mode_switch = DMODE_SW_END; // DMODE_SW_UBOB;
-	        	}
-				// mode_switch = DMODE_SW_UBOB;
+				palette_fade = 0;
+				palette_idx = 0;
+				mode_switch = DMODE_SW_FADE_IN_MLOGO;
 				break;
+
+			case DMODE_SW_FADE_IN_MLOGO:
+				LoadRGB4(&view_port1, mlogo_fade_in_pal + (palette_fade << 3), 8);
+
+				palette_fade++;
+				if (palette_fade > 15)
+				{
+					palette_fade = 0;
+					mode_switch = DMODE_SW_UBOB;
+				}
+				break;
+
+			case DMODE_SW_FADE_IN_ZLOGO:
+				LoadRGB4(&view_port1, zlogo_fade_in_pal + (palette_fade << 3), 8);
+
+				palette_fade++;
+				if (palette_fade > 15)
+				{
+					palette_fade = 0;
+					mode_switch = DMODE_SW_UBOB;
+				}			
+				break;				
+
+			case DMODE_SW_FADE_OUT_LOGO:
+				if (logo_switch)
+					LoadRGB4(&view_port1, mlogo_fade_out_pal + (palette_fade << 3), 8);
+				else
+					LoadRGB4(&view_port1, zlogo_fade_out_pal + (palette_fade << 3), 8);
+
+				palette_fade++;
+				if (palette_fade > 15)
+				{
+					
+					palette_fade = 0;
+					palette_idx = 0;
+					if (logo_switch = swapLogoBackgroundOffset())
+						mode_switch = DMODE_SW_FADE_IN_MLOGO;
+					else
+						mode_switch = DMODE_SW_FADE_IN_ZLOGO;
+				}
+				break;				
 
 			case DMODE_SW_UBOB:
 				if (drawUnlimitedBobs(&rast_port2b, &ubob_figure) == 0 && text_switch == TEXTMODE_SW_WAIT)
@@ -574,8 +658,14 @@ void main()
 				tmp_col = bob_32PaletteRGB4[(ubob_figure << 2) + palette_idx];
 				SetRGB4(&view_port2, (COLOURS2 << 1) + palette_idx, (tmp_col & 0x0f00) >> 8, (tmp_col & 0x00f0) >> 4, tmp_col & 0x000f);
 				palette_idx++;
-				if (palette_idx > 3)							
-					mode_switch = DMODE_SW_UBOB;
+				if (palette_idx > 3)
+				{
+					if ((ubob_figure & 0x1) == 0x1)
+						mode_switch = DMODE_SW_FADE_OUT_LOGO; 
+					else
+						mode_switch = DMODE_SW_UBOB;
+				}
+
 				break;			
 		}
 
@@ -605,12 +695,19 @@ void main()
 				break;
 
 			case TEXTMODE_SW_PRECALC:
-				text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
-				if (text_width >= 0)
-				{
-					text_duration = (UWORD)text_width + 5;
-					text_switch = TEXTMODE_SW_DRAW;
-				}
+				// text_width = font_get_string_width((const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (UBYTE *)demo_string[demo_string_index]);
+				// if (text_width >= 0)
+				// {
+				// 	text_duration = (UWORD)text_width >> 2; // + 5;
+				// 	text_switch = TEXTMODE_SW_DRAW;
+				// }
+				text_width = text_width_cache[demo_string_index];
+				if ((text_width_cache[demo_string_index + 1] >> 2) < text_width)
+					text_duration = text_width - (text_width_cache[demo_string_index + 1] >> 2);
+				else
+					text_duration = text_width;
+				text_duration >>= 1;
+				text_switch = TEXTMODE_SW_DRAW;
 				break;
 
 			case TEXTMODE_SW_DRAW:
@@ -619,25 +716,33 @@ void main()
 				break;
 
 			case TEXTMODE_SW_DRAW_LOOP:
-				if (font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - (UWORD)text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]) == 0)
+				if (text_draw_switch)
 				{
-					demo_string_index++;
-					if (demo_string_index > DEMO_STRINGS_MAX_INDEX)
-						demo_string_index = 0;
+					if (font_blit_string(bitmap_font, bitmap_font, &bit_map3, (const char *)&tiny_font_glyph, (const short *)&tiny_font_x_pos, (WIDTH3 - (UWORD)text_width) >> 1, vp3_target_y + 1, (UBYTE *)demo_string[demo_string_index]) == 0)
+					{
+						demo_string_index++;
+						if (demo_string_index > DEMO_STRINGS_MAX_INDEX)
+							demo_string_index = 0;
 
-					counter_before_next_text = 0;
-					text_switch = TEXTMODE_SW_SCROLL;
+						counter_before_next_text = 0;
+						text_switch = TEXTMODE_SW_SCROLL;
+					}
 				}
+				text_draw_switch = !text_draw_switch;
 				break;
 
 			case TEXTMODE_SW_SCROLL:
-				if (scrollTextViewport(vp3_target_y) == 0)
-					text_switch = TEXTMODE_SW_WAIT;
+				if (scrolltext_switch)
+				{
+					if (scrollTextViewport(vp3_target_y) == 0)
+						text_switch = TEXTMODE_SW_WAIT;
+				}
+				scrolltext_switch = !scrolltext_switch;
 				break;
 		}
 
 		if (faster_machine)
-			cWaitTOF();
+			WaitTOF();
 	}
 
 	if (!faster_machine)
@@ -655,5 +760,5 @@ void main()
 	Enable();
 	Permit();
 
-	close_demo("My friend the end!");
+	close_demo("Stay 16/32!");
 }

@@ -9,6 +9,8 @@
                 Gelmir - Moral support
                 Ildebe - Music
 
+![Screenshot](https://raw.githubusercontent.com/voitureblanche/projet-secret/master/screenshot.jpg)
+
 This demo requires an Amiga 500, with at least 1 Meg
 of RAM, or any faster configuration.
 Tested on OCS, ECS, AGA, with an 68000, 020, 030,

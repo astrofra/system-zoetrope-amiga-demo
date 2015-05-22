@@ -1,0 +1,72 @@
+                  SYSTEM: ZOETROPE
+
++---------------------------------------------------+
+
+           An AMIGA OCS demo by Mandarine
+     released during the Outline 2015 demoparty
+ 
++---------------------------------------------------+
+
+                by alphabetical order :
+
+                Fra - Code & Pixels
+                Gelmir - Moral support
+                Ildebe - Music
+
++---------------------------------------------------+
+
+This demo requires an Amiga 500, with at least 1 Meg
+of RAM, or any faster configuration.
+
+Tested on OCS, ECS, AGA, with an 68000, 020, 030,
+using the kickstart/ROMs 1.2, 1.3, 2.0.1 and 3.0.
+         
+/!\ Note  :  UAE/WinUAE  users,  please   make   sure
+the  "Cycle  Exact"  mode  is  enabled.
+
++---------------------------------------------------+
+
+Here is a small demo (it  cannot  qualify as intro in
+regards of its size) that was completely coded in C.
+
+The only originality of this production comes from its
+extensive  use  of  the  Graphics.library. All that is
+shown  on  screen  (scrolling,  copper list,  bobs...)
+uses API system calls.
+
+                No Hardware Register
+                 were harmed during
+              the coding of this demo.
+
++---------------------------------------------------+
+
+                  (A POEM TO A BEE)
+
+              THE MORNING SUN, LOVELY
+                  OH SUCH A WARM FEELING!    
+              A POEM TO A BEE,
+                  THY FLOPPY IS LOADING.    
+              DIVISIONS BY ZERO,
+                  PISS OFF MY ATARI    
+              DONT BE A BOMB HERO
+                  AND RESTORE ITS GLORY!    
+              OH RING THAT CHIPPY BELL,
+                  CATCH A RESET VECTOR!    
+              UNTIL I UNPRESS DEL,
+                  MEMORY THOU DID STORE!    
+              A POEM TO A BEE,
+                  OR SYSTEM ZOETROPE,    
+              STAY ATARI MAYBE...
+                  CLIMB UP THE FRAMERATE SLOPE.    
+              A POEM TO A BEE,
+                  HAPPY RASTER SCANLINE    
+              GO WEAR A MOUNT FUJI
+                  AND NEVER MISS OUTLINE!  
+
++---------------------------------------------------+
+ 
+                Thanks for watching!
+                    Stay  16/32!
+                Mandarine - May 2015
+
++---------------------------------------------------+

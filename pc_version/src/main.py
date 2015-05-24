@@ -53,12 +53,16 @@ def loadTextures():
 	return textures
 	# pic = gs.LoadPicture(os.path.join(os.getcwd(), "../_data/owl.jpg"))
 
+def drawMandarineLogo(logo_pic, dest_pic, offset_y):
+	dest_pic.BlitFast(logo_pic, logo_pic.GetRect(), gs.iVector2(0, offset_y))
+
+
 def add_camera():
 	global app
 	node = gs.Node()
 	node.SetName("camera")
 	transform = gs.Transform()
-	transform.SetPosition(gs.Vector3(0, 0, -3))
+	transform.SetPosition(gs.Vector3(0, 0, -3.5))
 	node.AddComponent(transform)
 
 	node.AddComponent(gs.Camera())
@@ -72,8 +76,9 @@ def add_camera():
 
 def on_frame_complete():
 	global app, demo_screen_vertices, demo_screen_tex
+	app.renderer.Clear(gs.Color(0, 1, 0, 1))
 	app.renderer.SetBlendFunc(gs.GpuRenderer.BlendSrcAlpha, gs.GpuRenderer.BlendOneMinusSrcAlpha)
-	app.renderer.EnableBlending(False)
+	app.renderer.EnableBlending(True)
 	app.renderer.BlitTexture(demo_screen_tex, demo_screen_pic)
 	app.render_system.DrawSpriteAuto(1, demo_screen_vertices, demo_screen_tex, 1.0)
 
@@ -105,10 +110,14 @@ def main():
 
 	# main texture
 	demo_screen_pic = gs.Picture(demo_screen_width, demo_screen_height, gs.Picture.RGBA8)
-	demo_screen_pic.ClearRGBA(0, 0, 0, 0)
+	demo_screen_pic.ClearRGBA(1, 0, 1, 1)
+
+	# drawMandarineLogo(demo_textures["logo_mandarine"], demo_screen_pic, 0)
 
 	demo_screen_tex = app.renderer.NewTexture("demo_screen_texture")
-	app.renderer.CreateTexture(demo_screen_tex, demo_screen_pic)
+	# res = app.renderer.CreateTexture(demo_screen_tex, demo_screen_pic)
+	res = app.renderer.CreateTexture(demo_screen_tex, demo_screen_pic.GetWidth(), demo_screen_pic.GetHeight())
+	print("res = ", res)
 
 	while app.run(update) and not gs.GetInputSystem().GetDevice("keyboard").IsDown(gs.InputDevice.KeyEscape):
 		pass

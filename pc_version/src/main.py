@@ -40,7 +40,8 @@ def main():
 	# drawMandarineLogo(demo_textures["logo_mandarine"], demo_screen_pic, 0, 16)
 	demo.drawMandarineLogo("logo_sys_zoetrope", demo_screen_pic, 0, 0)
 	demo.drawCheckerboard(demo_screen_pic, 0)
-	demo.drawUnlimitedBobs(demo_screen_pic)
+	for i in range(0,360):
+		demo.drawUnlimitedBobs(demo_screen_pic)
 	gs.SavePicture(demo_screen_pic, "output.png", "STB", "format:png")
 
 	res = egl.CreateTexture(demo_screen_tex, demo_screen_pic)

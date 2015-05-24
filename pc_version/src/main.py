@@ -5,11 +5,9 @@ from demo_simulation import demoSimulation
 
 
 def main():
-	demo_textures = None
-	demo_screen_tex = None
-	demo_screen_width = 400
-	demo_screen_height = 300
 	demo = None
+	demo_screen_width = 400
+	demo_screen_height = 300	
 
 	# mount the system file driver
 	gs.GetFilesystem().Mount(gs.StdFileDriver("pkg.core"), "@core")
@@ -36,13 +34,13 @@ def main():
 	demo_screen_pic = gs.Picture(demo_screen_width, demo_screen_height, gs.Picture.RGBA8)
 	demo_screen_pic.ClearRGBA(1, 0, 1, 1)	
 
-	demo_textures = demo.loadTextures()
+	demo.loadTextures()
 	demo_screen_tex = egl.NewTexture("demo_screen_texture")
 
 	# drawMandarineLogo(demo_textures["logo_mandarine"], demo_screen_pic, 0, 16)
-	demo.drawMandarineLogo(demo_textures["logo_sys_zoetrope"], demo_screen_pic, 0, 0)
-	demo.drawCheckerboard(demo_textures["checkerboard_strip"], demo_screen_pic, 0)
-	demo.drawUnlimitedBobs(demo_textures, demo_screen_pic)
+	demo.drawMandarineLogo("logo_sys_zoetrope", demo_screen_pic, 0, 0)
+	demo.drawCheckerboard(demo_screen_pic, 0)
+	demo.drawUnlimitedBobs(demo_screen_pic)
 	gs.SavePicture(demo_screen_pic, "output.png", "STB", "format:png")
 
 	res = egl.CreateTexture(demo_screen_tex, demo_screen_pic)

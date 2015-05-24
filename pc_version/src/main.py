@@ -1,26 +1,7 @@
 import os
 import gs
 import screen_size
-
-def loadTextures():
-	textures = {"bob_ball":None, "bob_torus":None, "checkerboard_strip":None, "logo_mandarine":None, "logo_sys_zoetrope":None, "font_sans_serif":None}
-	for texture_name in textures:
-		texture_filename = os.path.join("res", texture_name + ".png")
-		if (os.path.exists(texture_filename)):
-			textures[texture_name] = gs.LoadPicture(texture_filename)
-			print("Found texture : ", texture_filename)
-
-	return textures
-
-def drawMandarineLogo(logo_pic, dest_pic, offset_x = 0, offset_y = 0):
-	dest_pic.Blit(logo_pic, logo_pic.GetRect().Offset(offset_x, offset_y), gs.Matrix3.TranslationMatrix(gs.Vector3(-offset_x, -offset_y, 0)), False)
-
-def drawCheckerboard(checker_pic, dest_pic, frame = 0):
-	offset_y = (frame%screen_size.ANIM_STRIPE) * 100 + screen_size.DISPL_HEIGHT2
-	dest_rect = checker_pic.GetRect()
-	dest_rect.SetHeight(100)
-	dest_rect = dest_rect.Offset(0, offset_y)
-	dest_pic.Blit(checker_pic, dest_rect, gs.Matrix3.TranslationMatrix(gs.Vector3(0, -offset_y, 0)), False)
+from demo_simulation import demoSimulation
 
 
 def main():
@@ -28,6 +9,7 @@ def main():
 	demo_screen_tex = None
 	demo_screen_width = 400
 	demo_screen_height = 300
+	demo = None
 
 	# mount the system file driver
 	gs.GetFilesystem().Mount(gs.StdFileDriver("pkg.core"), "@core")
@@ -48,15 +30,19 @@ def main():
 	egl.EnableBlending(True)
 	egl.EnableDepthTest(False)
 
+	# Init demo simulation
+	demo = demoSimulation()
+
 	demo_screen_pic = gs.Picture(demo_screen_width, demo_screen_height, gs.Picture.RGBA8)
 	demo_screen_pic.ClearRGBA(1, 0, 1, 1)	
 
-	demo_textures = loadTextures()
+	demo_textures = demo.loadTextures()
 	demo_screen_tex = egl.NewTexture("demo_screen_texture")
 
 	# drawMandarineLogo(demo_textures["logo_mandarine"], demo_screen_pic, 0, 16)
-	drawMandarineLogo(demo_textures["logo_sys_zoetrope"], demo_screen_pic, 0, 0)
-	drawCheckerboard(demo_textures["checkerboard_strip"], demo_screen_pic, 0)
+	demo.drawMandarineLogo(demo_textures["logo_sys_zoetrope"], demo_screen_pic, 0, 0)
+	demo.drawCheckerboard(demo_textures["checkerboard_strip"], demo_screen_pic, 0)
+	demo.drawUnlimitedBobs(demo_textures, demo_screen_pic)
 	gs.SavePicture(demo_screen_pic, "output.png", "STB", "format:png")
 
 	res = egl.CreateTexture(demo_screen_tex, demo_screen_pic)

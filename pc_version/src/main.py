@@ -11,6 +11,9 @@ def loadTextures():
 
 	return textures
 
+def drawMandarineLogo(logo_pic, dest_pic, offset_x = 0, offset_y = 0):
+	dest_pic.Blit(logo_pic, logo_pic.GetRect().Offset(offset_x, offset_y), gs.Matrix3.TranslationMatrix(gs.Vector3(-offset_x, -offset_y, 0)), False)
+
 def main():
 	demo_textures = None
 	demo_screen_tex = None
@@ -19,6 +22,7 @@ def main():
 
 	# mount the system file driver
 	gs.GetFilesystem().Mount(gs.StdFileDriver("pkg.core"), "@core")
+	gs.MountFileDriver(gs.StdFileDriver())
 
 	# create the renderer and render system
 	egl = gs.EglRenderer()
@@ -40,6 +44,9 @@ def main():
 
 	demo_textures = loadTextures()
 	demo_screen_tex = egl.NewTexture("demo_screen_texture")
+
+	drawMandarineLogo(demo_textures["logo_mandarine"], demo_screen_pic, 0, 16)
+	gs.SavePicture(demo_screen_pic, "output.png", "STB", "format:png")
 
 	res = egl.CreateTexture(demo_screen_tex, demo_screen_pic)
 	# res = egl.CreateTexture(demo_screen_tex, demo_screen_pic.GetWidth(), demo_screen_pic.GetHeight())

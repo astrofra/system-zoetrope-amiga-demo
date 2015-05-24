@@ -1,5 +1,6 @@
 import os
 import gs
+import screen_size
 
 def loadTextures():
 	textures = {"bob_ball":None, "bob_torus":None, "checkerboard_strip":None, "logo_mandarine":None, "logo_sys_zoetrope":None, "font_sans_serif":None}
@@ -13,6 +14,14 @@ def loadTextures():
 
 def drawMandarineLogo(logo_pic, dest_pic, offset_x = 0, offset_y = 0):
 	dest_pic.Blit(logo_pic, logo_pic.GetRect().Offset(offset_x, offset_y), gs.Matrix3.TranslationMatrix(gs.Vector3(-offset_x, -offset_y, 0)), False)
+
+def drawCheckerboard(checker_pic, dest_pic, frame = 0):
+	offset_y = (frame%screen_size.ANIM_STRIPE) * 100 + screen_size.DISPL_HEIGHT2
+	dest_rect = checker_pic.GetRect()
+	dest_rect.SetHeight(100)
+	dest_rect = dest_rect.Offset(0, offset_y)
+	dest_pic.Blit(checker_pic, dest_rect, gs.Matrix3.TranslationMatrix(gs.Vector3(0, -offset_y, 0)), False)
+
 
 def main():
 	demo_textures = None
@@ -45,7 +54,9 @@ def main():
 	demo_textures = loadTextures()
 	demo_screen_tex = egl.NewTexture("demo_screen_texture")
 
-	drawMandarineLogo(demo_textures["logo_mandarine"], demo_screen_pic, 0, 16)
+	# drawMandarineLogo(demo_textures["logo_mandarine"], demo_screen_pic, 0, 16)
+	drawMandarineLogo(demo_textures["logo_sys_zoetrope"], demo_screen_pic, 0, 0)
+	drawCheckerboard(demo_textures["checkerboard_strip"], demo_screen_pic, 0)
 	gs.SavePicture(demo_screen_pic, "output.png", "STB", "format:png")
 
 	res = egl.CreateTexture(demo_screen_tex, demo_screen_pic)

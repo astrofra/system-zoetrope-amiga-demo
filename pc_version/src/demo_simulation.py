@@ -11,7 +11,13 @@ class demoSimulation:
 		self.ubob_phase_y = 0
 
 	def loadTextures(self):
-		self.textures = {"bob_ball":None, "bob_torus":None, "checkerboard_strip":None, "logo_mandarine":None, "logo_sys_zoetrope":None, "font_sans_serif":None}
+		self.textures = {
+							"bob_ball":None, "bob_torus":None, 
+							"checkerboard_strip":None, "copper_list":None,
+							"logo_mandarine":None, "logo_sys_zoetrope":None, 
+							"font_sans_serif":None
+						}
+
 		for texture_name in self.textures:
 			texture_filename = os.path.join("res", texture_name + ".png")
 			if (os.path.exists(texture_filename)):
@@ -23,8 +29,16 @@ class demoSimulation:
 		dest_pic.Blit(logo_pic, logo_pic.GetRect().Offset(offset_x, offset_y), gs.Matrix3.TranslationMatrix(gs.Vector3(-offset_x, -offset_y, 0)), False)
 
 	def drawCheckerboard(self, dest_pic, frame = 0):
+		# Draw the copper list
+		copper_pic = self.textures["copper_list"]
+		offset_y = screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3
+		dest_rect = copper_pic.GetRect()
+		dest_rect = dest_rect.Offset(0, offset_y)
+		dest_pic.Blit(copper_pic, dest_rect, gs.Matrix3.TranslationMatrix(gs.Vector3(0, -offset_y, 0)), False)
+
+		# Draw the checkboard
 		checker_pic = self.textures["checkerboard_strip"]
-		offset_y = (frame%screen_size.ANIM_STRIPE) * 100 + screen_size.DISPL_HEIGHT2
+		offset_y = (frame%screen_size.ANIM_STRIPE) * 100 + screen_size.DISPL_HEIGHT2 + screen_size.DISPL_HEIGHT3
 		dest_rect = checker_pic.GetRect()
 		dest_rect.SetHeight(100)
 		dest_rect = dest_rect.Offset(0, offset_y)

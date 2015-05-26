@@ -24,6 +24,19 @@ class demoSimulation:
 				self.textures[texture_name] = gs.LoadPicture(texture_filename)
 				print("Found texture : ", texture_filename)
 
+		# if self.textures["checkerboard_strip"] is not None:
+		# 	pixel_data = self.textures["checkerboard_strip"].GetData()
+		# 	print("len(pixel_data) = ", len(pixel_data))
+		# 	w = self.textures["checkerboard_strip"].GetWidth()
+		# 	h = self.textures["checkerboard_strip"].GetHeight()
+		# 	for y in range(0, (h / screen_size.ANIM_STRIPE) - 1):
+		# 		for x in range(0, w - 1):
+		# 			pixel_idx = (x + (y * w)) * 4
+		# 			cb_pixel = gs.Color(pixel_data[pixel_idx] / 255.0, pixel_data[pixel_idx + 1] / 255.0, pixel_data[pixel_idx + 2] / 255.0, 1.0)
+
+		# 			cb_pixel += screen_size.COLOUR_PURPLE
+		# 			self.textures["checkerboard_strip"].PutPixelRGBA(x, y, cb_pixel.r, cb_pixel.g, cb_pixel.b, cb_pixel.a)
+
 	def drawMandarineLogo(self, logo_pic_name, dest_pic, offset_x = 0, offset_y = 0):
 		logo_pic = self.textures[logo_pic_name]
 		dest_pic.Blit(logo_pic, logo_pic.GetRect().Offset(offset_x, offset_y), gs.Matrix3.TranslationMatrix(gs.Vector3(-offset_x, -offset_y, 0)), True)

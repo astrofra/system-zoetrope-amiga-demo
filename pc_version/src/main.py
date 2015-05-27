@@ -57,7 +57,7 @@ def main():
 		demo_screen_pic.ClearRGBA(screen_size.COLOUR_PURPLE.r, screen_size.COLOUR_PURPLE.g, screen_size.COLOUR_PURPLE.b, 1.0)
 
 		demo.drawMandarineLogo("logo_sys_zoetrope", demo_screen_pic, 0, 0)
-		demo.drawCheckerboard(demo_screen_pic, 0)
+		demo.drawCheckerboard(demo_screen_pic)
 		demo.drawUnlimitedBobs(demo_screen_pic)
 		egl.BlitTexture(demo_screen_tex, demo_screen_pic)
 

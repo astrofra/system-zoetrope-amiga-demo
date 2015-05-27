@@ -9,6 +9,7 @@ class demoSimulation:
 		self.screen_tex = None
 		self.ubob_phase_x = 0
 		self.ubob_phase_y = 0
+		self.frame = 0
 
 	def loadTextures(self):
 		self.textures = {
@@ -24,24 +25,28 @@ class demoSimulation:
 				self.textures[texture_name] = gs.LoadPicture(texture_filename)
 				print("Found texture : ", texture_filename)
 
-		# if self.textures["checkerboard_strip"] is not None:
-		# 	pixel_data = self.textures["checkerboard_strip"].GetData()
-		# 	print("len(pixel_data) = ", len(pixel_data))
-		# 	w = self.textures["checkerboard_strip"].GetWidth()
-		# 	h = self.textures["checkerboard_strip"].GetHeight()
-		# 	for y in range(0, (h / screen_size.ANIM_STRIPE) - 1):
-		# 		for x in range(0, w - 1):
-		# 			pixel_idx = (x + (y * w)) * 4
-		# 			cb_pixel = gs.Color(pixel_data[pixel_idx] / 255.0, pixel_data[pixel_idx + 1] / 255.0, pixel_data[pixel_idx + 2] / 255.0, 1.0)
+		if self.textures["checkerboard_strip"] is not None:
+			pixel_data = self.textures["checkerboard_strip"].GetData()
+			print("len(pixel_data) = ", len(pixel_data))
+			w = self.textures["checkerboard_strip"].GetWidth()
+			h = self.textures["checkerboard_strip"].GetHeight()
 
-		# 			cb_pixel += screen_size.COLOUR_PURPLE
-		# 			self.textures["checkerboard_strip"].PutPixelRGBA(x, y, cb_pixel.r, cb_pixel.g, cb_pixel.b, cb_pixel.a)
+			for strip_idx in range(0, screen_size.ANIM_STRIPE - 1):
+				for y in range(0, int(h / screen_size.ANIM_STRIPE)):
+					cl_pixel = self.textures["copper_list"].GetPixelRGBA(8, y + screen_size.DISPL_HEIGHT2 - 100 + 21) / 255.0
+					for x in range(0, w):
+						cb_pixel = self.textures["checkerboard_strip"].GetPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE))) / 255.0
+						cb_pixel.x = min(1.0, cb_pixel.x + cl_pixel.x)
+						cb_pixel.y = min(1.0, cb_pixel.y + cl_pixel.y)
+						cb_pixel.z = min(1.0, cb_pixel.z + cl_pixel.z)
+						cb_pixel.w = 1.0
+						self.textures["checkerboard_strip"].PutPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)), cb_pixel.x, cb_pixel.y, cb_pixel.z, cb_pixel.w)
 
 	def drawMandarineLogo(self, logo_pic_name, dest_pic, offset_x = 0, offset_y = 0):
 		logo_pic = self.textures[logo_pic_name]
 		dest_pic.Blit(logo_pic, logo_pic.GetRect().Offset(offset_x, offset_y), gs.Matrix3.TranslationMatrix(gs.Vector3(-offset_x, -offset_y, 0)), True)
 
-	def drawCheckerboard(self, dest_pic, frame = 0):
+	def drawCheckerboard(self, dest_pic):
 		# Draw the copper list
 		copper_pic = self.textures["copper_list"]
 		offset_y = screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3
@@ -53,11 +58,13 @@ class demoSimulation:
 
 		# Draw the checkboard
 		checker_pic = self.textures["checkerboard_strip"]
-		offset_y = (frame%screen_size.ANIM_STRIPE) * 100 + screen_size.DISPL_HEIGHT2 + screen_size.DISPL_HEIGHT3
+		offset_y = (self.frame%screen_size.ANIM_STRIPE) * 100 + screen_size.DISPL_HEIGHT2 + screen_size.DISPL_HEIGHT3
 		dest_rect = checker_pic.GetRect()
 		dest_rect.SetHeight(100)
 		dest_rect = dest_rect.Offset(0, offset_y)
 		dest_pic.Blit(checker_pic, dest_rect, gs.Matrix3.TranslationMatrix(gs.Vector3(0, -offset_y, 0)), True)
+
+		self.frame = 0
 
 	def drawUnlimitedBobs(self, dest_pic, figure_mode = 0):
 		x = 0

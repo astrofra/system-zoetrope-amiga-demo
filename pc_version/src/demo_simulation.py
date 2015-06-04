@@ -31,40 +31,42 @@ class demoSimulation:
 			w = self.textures["checkerboard_strip"].GetWidth()
 			h = self.textures["checkerboard_strip"].GetHeight()
 
-			# for strip_idx in range(0, screen_size.ANIM_STRIPE - 1):
-			# 	for y in range(0, int(h / screen_size.ANIM_STRIPE)):
-			# 		cl_pixel = self.textures["copper_list"].GetPixelRGBA(8, y + screen_size.DISPL_HEIGHT2 - 100 + 21) / 255.0
-			# 		for x in range(0, w):
-			# 			cb_pixel = self.textures["checkerboard_strip"].GetPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE))) / 255.0
-			# 			cb_pixel.x = min(1.0, cb_pixel.x + cl_pixel.x)
-			# 			cb_pixel.y = min(1.0, cb_pixel.y + cl_pixel.y)
-			# 			cb_pixel.z = min(1.0, cb_pixel.z + cl_pixel.z)
-			# 			cb_pixel.w = 1.0
-			# 			self.textures["checkerboard_strip"].PutPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)), cb_pixel.x, cb_pixel.y, cb_pixel.z, cb_pixel.w)
+			for strip_idx in range(0, screen_size.ANIM_STRIPE):
+				for y in range(0, int(h / screen_size.ANIM_STRIPE)):
+					cl_pixel = self.textures["copper_list"].GetPixelRGBA(8, y + screen_size.DISPL_HEIGHT2 - 100 + 21) / 255.0
+					for x in range(0, w):
+						cb_pixel = self.textures["checkerboard_strip"].GetPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE))) / 255.0
+						cb_pixel.x = min(1.0, cb_pixel.x + cl_pixel.x)
+						cb_pixel.y = min(1.0, cb_pixel.y + cl_pixel.y)
+						cb_pixel.z = min(1.0, cb_pixel.z + cl_pixel.z)
+						cb_pixel.w = 1.0
+						self.textures["checkerboard_strip"].PutPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)), cb_pixel.x, cb_pixel.y, cb_pixel.z, cb_pixel.w)
 
 	def drawMandarineLogo(self, logo_pic_name, dest_pic, offset_x = 0, offset_y = 0):
 		logo_pic = self.textures[logo_pic_name]
 		dest_pic.Blit(logo_pic, logo_pic.GetRect(), gs.iVector2(int(-offset_x), int(-offset_y)))
 
 	def drawCheckerboard(self, dest_pic):
+
 		# Draw the copper list
 		copper_pic = self.textures["copper_list"]
 		offset_y = screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3
 		source_rect = copper_pic.GetRect()
-		dest_rect = source_rect.Offset(0, offset_y)
-		dest_rect.SetWidth(dest_pic.GetWidth())
-		# dest_pic.Blit(copper_pic, dest_rect, , False)
-		dest_pic.BlitTransform(copper_pic, dest_rect, gs.Matrix3.TranslationMatrix(gs.Vector3(0, offset_y, 0)), gs.Picture.Nearest)
+		for i in range(0, int(screen_size.DISPL_WIDTH2b / source_rect.GetWidth())):
+			dest_pic.Blit(copper_pic, source_rect, gs.iVector2(i * source_rect.GetWidth(), offset_y))
 
 		# Draw the checkboard
 		checker_pic = self.textures["checkerboard_strip"]
-		offset_y = (self.frame%screen_size.ANIM_STRIPE) * 100 + screen_size.DISPL_HEIGHT2 + screen_size.DISPL_HEIGHT3
-		dest_rect = checker_pic.GetRect()
-		dest_rect = dest_rect.Offset(0, screen_size.DISPL_HEIGHT2 + screen_size.DISPL_HEIGHT3)
-		dest_rect.SetHeight(100)
-		dest_pic.Blit(checker_pic, dest_rect, gs.iVector2(0, offset_y))
 
-		# self.frame += 1
+		dest_rect = checker_pic.GetRect()
+		dest_rect.SetHeight(100)
+		dest_rect = dest_rect.Offset(0, screen_size.DISPL_HEIGHT2 + screen_size.DISPL_HEIGHT3)
+
+		src_matrix = gs.Matrix3.TranslationMatrix(gs.Vector2(0, self.frame * 100 - dest_rect.sy))
+
+		dest_pic.BlitTransform(checker_pic, dest_rect, src_matrix, gs.Picture.Nearest)
+
+		self.frame = (self.frame + 1)%screen_size.ANIM_STRIPE
 
 	def drawUnlimitedBobs(self, dest_pic, figure_mode = 0):
 		x = 0

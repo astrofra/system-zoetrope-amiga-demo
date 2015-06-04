@@ -1,4 +1,3 @@
-import os
 import gs
 import screen_size
 from demo_simulation import demoSimulation

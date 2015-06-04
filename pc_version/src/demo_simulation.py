@@ -36,9 +36,9 @@ class demoSimulation:
 					cl_pixel = self.textures["copper_list"].GetPixelRGBA(8, y + screen_size.DISPL_HEIGHT2 - 100 + 21) / 255.0
 					for x in range(0, w):
 						cb_pixel = self.textures["checkerboard_strip"].GetPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE))) / 255.0
-						cb_pixel.x = min(1.0, cb_pixel.x + cl_pixel.x)
-						cb_pixel.y = min(1.0, cb_pixel.y + cl_pixel.y)
-						cb_pixel.z = min(1.0, cb_pixel.z + cl_pixel.z)
+						cb_pixel.x = min(1.0, cb_pixel.x + cl_pixel.x * (1.0 - cb_pixel.x))
+						cb_pixel.y = min(1.0, cb_pixel.y + cl_pixel.y * (1.0 - cb_pixel.y))
+						cb_pixel.z = min(1.0, cb_pixel.z + cl_pixel.z * (1.0 - cb_pixel.z))
 						cb_pixel.w = 1.0
 						self.textures["checkerboard_strip"].PutPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)), cb_pixel.x, cb_pixel.y, cb_pixel.z, cb_pixel.w)
 

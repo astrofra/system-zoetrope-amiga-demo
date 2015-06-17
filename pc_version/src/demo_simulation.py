@@ -24,7 +24,8 @@ class demoSimulation:
 		self.logo_mode = "FADEIN"
 		self.logo_offset_phase = 0
 		self.logo_picture_name = "logo_sys_zoetrope"
-		self.logo_alpha = 1.0
+		self.logo_alpha = 0.0
+		self.logo_display_timer = 0.0
 
 		#	Unlimited bob fx
 		self.ubob_frame = 0
@@ -64,10 +65,44 @@ class demoSimulation:
 						self.pictures["checkerboard_strip"].PutPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)), cb_pixel.x, cb_pixel.y, cb_pixel.z, cb_pixel.w)
 
 	def drawPixelArtLogo(self):
+		if self.logo_mode == "FADEIN":
+			self.logo_alpha += 0.1
+
+			if self.logo_alpha > 1.0:
+				self.logo_alpha = 1.0
+				self.logo_display_timer = 0.0
+				self.logo_mode = "DISPLAY_LOGO"
+
+		if self.logo_mode == "DISPLAY_LOGO":
+			self.logo_display_timer += 0.1
+			if self.logo_display_timer > 10.0:
+				self.logo_alpha = 1.0
+				self.logo_mode = "FADEOUT"
+
+		if self.logo_mode == "FADEOUT":
+			self.logo_alpha -= 0.1
+
+			if self.logo_alpha < 0.0:
+				self.logo_alpha = 0.0
+				self.logo_mode = "CHANGE_LOGO"
+
+		if self.logo_mode == "CHANGE_LOGO":
+			if self.logo_picture_name == "logo_sys_zoetrope":
+				self.logo_picture_name = "logo_mandarine"
+			else:
+				self.logo_picture_name = "logo_sys_zoetrope"
+
+			self.logo_mode = "FADEIN"
+
 		logo_pic = self.pictures[self.logo_picture_name]
 		src_rect = logo_pic.GetRect()
-		x_margin = (self.demo_screen_width - src_rect.GetWidth()) / 2.0
-		offset_x = (math.sin(math.radians(self.logo_offset_phase)) + 1.0) * x_margin
+		if self.logo_picture_name == "logo_sys_zoetrope":
+			x_margin = (self.demo_screen_width - src_rect.GetWidth()) / 2.0
+			offset_x = (math.sin(math.radians(self.logo_offset_phase)) + 1.0) * x_margin
+		else:
+			x_margin = 32.0
+			offset_x = math.sin(math.radians(self.logo_offset_phase)) * x_margin
+
 		offset_y = 0
 		self.screen_pic.Blit(logo_pic, src_rect, gs.iVector2(int(offset_x), int(offset_y)))
 

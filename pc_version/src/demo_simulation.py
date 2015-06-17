@@ -21,7 +21,10 @@ class demoSimulation:
 		self.screen_pic.ClearRGBA(1, 0, 1, 1)
 
 		#	Logos
+		self.logo_mode = "FADEIN"
 		self.logo_offset_phase = 0
+		self.logo_picture_name = "logo_sys_zoetrope"
+		self.logo_alpha = 1.0
 
 		#	Unlimited bob fx
 		self.ubob_frame = 0
@@ -60,12 +63,21 @@ class demoSimulation:
 						cb_pixel.w = 1.0
 						self.pictures["checkerboard_strip"].PutPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)), cb_pixel.x, cb_pixel.y, cb_pixel.z, cb_pixel.w)
 
-	def drawMandarineLogo(self):
-		logo_pic_name = "logo_mandarine"
-		offset_x = math.sin(math.radians(self.logo_offset_phase)) * 32.0
+	def drawPixelArtLogo(self):
+		logo_pic = self.pictures[self.logo_picture_name]
+		src_rect = logo_pic.GetRect()
+		x_margin = (self.demo_screen_width - src_rect.GetWidth()) / 2.0
+		offset_x = (math.sin(math.radians(self.logo_offset_phase)) + 1.0) * x_margin
 		offset_y = 0
-		logo_pic = self.pictures[logo_pic_name]
-		self.screen_pic.Blit(logo_pic, logo_pic.GetRect(), gs.iVector2(int(offset_x), int(offset_y)))
+		self.screen_pic.Blit(logo_pic, src_rect, gs.iVector2(int(offset_x), int(offset_y)))
+
+		## Fade in using a blended rect
+		if self.logo_alpha < 1.0:
+			self.screen_pic.SetFillMode(gs.Picture.BrushSolid)
+			self.screen_pic.SetPenMode(gs.Picture.PenNone)
+			self.screen_pic.SetFillColorRGBA(screen_size.COLOUR_PURPLE.r, screen_size.COLOUR_PURPLE.g, screen_size.COLOUR_PURPLE.b, 1.0 - self.logo_alpha)
+			src_rect.SetWidth(self.demo_screen_width)
+			self.screen_pic.DrawRect(src_rect.sx, src_rect.sy, src_rect.ex, src_rect.ey)
 
 		self.logo_offset_phase += 3.0
 

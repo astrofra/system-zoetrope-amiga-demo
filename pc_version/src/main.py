@@ -45,7 +45,7 @@ def main():
 
 		demo.screen_pic.ClearRGBA(screen_size.COLOUR_PURPLE.r, screen_size.COLOUR_PURPLE.g, screen_size.COLOUR_PURPLE.b, 1.0)
 
-		demo.drawMandarineLogo()
+		demo.drawPixelArtLogo()
 		demo.drawCheckerboard()
 		demo.drawUnlimitedBobs()
 		egl.BlitTexture(demo_screen_tex, demo.screen_pic)

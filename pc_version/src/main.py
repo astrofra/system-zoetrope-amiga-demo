@@ -5,8 +5,8 @@ from demo_simulation import demoSimulation
 
 def main():
 	demo = None
-	demo_screen_width = 400
-	demo_screen_height = 400
+	demo_screen_width = 384
+	demo_screen_height = 384
 
 	# mount the system file driver
 	gs.GetFilesystem().Mount(gs.StdFileDriver("pkg.core"), "@core")
@@ -28,22 +28,12 @@ def main():
 	egl.EnableDepthTest(False)
 
 	# Init demo simulation
-	demo = demoSimulation()
-
-	demo_screen_pic = gs.Picture(demo_screen_width, demo_screen_height, gs.Picture.RGBA8)
-	demo_screen_pic.ClearRGBA(1, 0, 1, 1)
+	demo = demoSimulation(demo_screen_width, demo_screen_height)
 
 	demo.loadTextures()
 	demo_screen_tex = egl.NewTexture("demo_screen_texture")
 
-	# drawMandarineLogo(demo_textures["logo_mandarine"], demo_screen_pic, 0, 16)
-	# demo.drawMandarineLogo("logo_sys_zoetrope", demo_screen_pic, 0, 0)
-	# demo.drawCheckerboard(demo_screen_pic, 0)
-	# for i in range(0,360):
-	# 	demo.drawUnlimitedBobs(demo_screen_pic)
-	# gs.SavePicture(demo_screen_pic, "output.png", "STB", "format:png")
-
-	res = egl.CreateTexture(demo_screen_tex, demo_screen_pic)
+	res = egl.CreateTexture(demo_screen_tex, demo.screen_pic)
 	# res = egl.CreateTexture(demo_screen_tex, demo_screen_pic.GetWidth(), demo_screen_pic.GetHeight())
 	print("CreateTexture() returned ", res)
 
@@ -53,12 +43,12 @@ def main():
 		# egl.Clear(gs.Color.Black)
 		egl.Clear(screen_size.COLOUR_PURPLE_DARK)
 
-		demo_screen_pic.ClearRGBA(screen_size.COLOUR_PURPLE.r, screen_size.COLOUR_PURPLE.g, screen_size.COLOUR_PURPLE.b, 1.0)
+		demo.screen_pic.ClearRGBA(screen_size.COLOUR_PURPLE.r, screen_size.COLOUR_PURPLE.g, screen_size.COLOUR_PURPLE.b, 1.0)
 
-		demo.drawMandarineLogo("logo_sys_zoetrope", demo_screen_pic, 0, 0)
-		demo.drawCheckerboard(demo_screen_pic)
-		demo.drawUnlimitedBobs(demo_screen_pic)
-		egl.BlitTexture(demo_screen_tex, demo_screen_pic)
+		demo.drawMandarineLogo()
+		demo.drawCheckerboard()
+		demo.drawUnlimitedBobs()
+		egl.BlitTexture(demo_screen_tex, demo.screen_pic)
 
 		egl.SetBlendFunc(gs.GpuRenderer.BlendSrcAlpha, gs.GpuRenderer.BlendOneMinusSrcAlpha)
 		egl.EnableBlending(True)

@@ -4,92 +4,129 @@ import screen_size
 import math
 
 class demoSimulation:
-	def __init__(self):
-		self.textures = None
+	def __init__(self, demo_screen_width, demo_screen_height):
+
+		self.demo_screen_width = demo_screen_width
+		self.demo_screen_height = demo_screen_height
+		self.pictures = None
 		self.screen_tex = None
 		self.ubob_phase_x = 0
 		self.ubob_phase_y = 0
 		self.frame = 0
 
+		self.x_margin = int((self.demo_screen_width - screen_size.DISPL_WIDTH2) / 2.0)
+
+		#	Main screen
+		self.screen_pic = gs.Picture(demo_screen_width, demo_screen_height, gs.Picture.RGBA8)
+		self.screen_pic.ClearRGBA(1, 0, 1, 1)
+
+		#	Logos
+		self.logo_offset_phase = 0
+
+		#	Unlimited bob fx
+		self.ubob_frame = 0
+		self.ubob_buffer = gs.Picture(screen_size.WIDTH2, screen_size.HEIGHT2, gs.Picture.RGBA8)
+		self.ubob_buffer.ClearRGBA(0, 0, 0, 0)
+		self.ubob_offset_phase = 0
+
 	def loadTextures(self):
-		self.textures = {
+		self.pictures = {
 							"bob_ball":None, "bob_torus":None, 
 							"checkerboard_strip":None, "copper_list":None,
 							"logo_mandarine":None, "logo_sys_zoetrope":None, 
 							"font_sans_serif":None
 						}
 
-		for texture_name in self.textures:
+		for texture_name in self.pictures:
 			texture_filename = os.path.join("res", texture_name + ".png")
 			if (os.path.exists(texture_filename)):
-				self.textures[texture_name] = gs.LoadPicture(texture_filename)
+				self.pictures[texture_name] = gs.LoadPicture(texture_filename)
 				print("Found texture : ", texture_filename)
 
-		if self.textures["checkerboard_strip"] is not None:
-			pixel_data = self.textures["checkerboard_strip"].GetData()
+		if self.pictures["checkerboard_strip"] is not None:
+			pixel_data = self.pictures["checkerboard_strip"].GetData()
 			print("len(pixel_data) = ", len(pixel_data))
-			w = self.textures["checkerboard_strip"].GetWidth()
-			h = self.textures["checkerboard_strip"].GetHeight()
+			w = self.pictures["checkerboard_strip"].GetWidth()
+			h = self.pictures["checkerboard_strip"].GetHeight()
 
 			for strip_idx in range(0, screen_size.ANIM_STRIPE):
 				for y in range(0, int(h / screen_size.ANIM_STRIPE)):
-					cl_pixel = self.textures["copper_list"].GetPixelRGBA(8, y + screen_size.DISPL_HEIGHT2 - 100 + 21) / 255.0
+					cl_pixel = self.pictures["copper_list"].GetPixelRGBA(8, y + screen_size.DISPL_HEIGHT2 - screen_size.CHECKERBOARD_HEIGHT + 21) / 255.0
 					for x in range(0, w):
-						cb_pixel = self.textures["checkerboard_strip"].GetPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE))) / 255.0
+						cb_pixel = self.pictures["checkerboard_strip"].GetPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE))) / 255.0
 						cb_pixel.x = min(1.0, cb_pixel.x + cl_pixel.x * (1.0 - cb_pixel.x))
 						cb_pixel.y = min(1.0, cb_pixel.y + cl_pixel.y * (1.0 - cb_pixel.y))
 						cb_pixel.z = min(1.0, cb_pixel.z + cl_pixel.z * (1.0 - cb_pixel.z))
 						cb_pixel.w = 1.0
-						self.textures["checkerboard_strip"].PutPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)), cb_pixel.x, cb_pixel.y, cb_pixel.z, cb_pixel.w)
+						self.pictures["checkerboard_strip"].PutPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)), cb_pixel.x, cb_pixel.y, cb_pixel.z, cb_pixel.w)
 
-	def drawMandarineLogo(self, logo_pic_name, dest_pic, offset_x = 0, offset_y = 0):
-		logo_pic = self.textures[logo_pic_name]
-		dest_pic.Blit(logo_pic, logo_pic.GetRect(), gs.iVector2(int(-offset_x), int(-offset_y)))
+	def drawMandarineLogo(self):
+		logo_pic_name = "logo_mandarine"
+		offset_x = math.sin(math.radians(self.logo_offset_phase)) * 32.0
+		offset_y = 0
+		logo_pic = self.pictures[logo_pic_name]
+		self.screen_pic.Blit(logo_pic, logo_pic.GetRect(), gs.iVector2(int(offset_x), int(offset_y)))
 
-	def drawCheckerboard(self, dest_pic):
+		self.logo_offset_phase += 3.0
 
+	def drawCheckerboard(self):
 		# Draw the copper list
-		copper_pic = self.textures["copper_list"]
+		copper_pic = self.pictures["copper_list"]
 		offset_y = screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3
 		source_rect = copper_pic.GetRect()
-		for i in range(0, int(screen_size.DISPL_WIDTH2b / source_rect.GetWidth())):
-			dest_pic.Blit(copper_pic, source_rect, gs.iVector2(i * source_rect.GetWidth(), offset_y))
+		for i in range(0, int(self.demo_screen_width / source_rect.GetWidth())):
+			self.screen_pic.Blit(copper_pic, source_rect, gs.iVector2(i * source_rect.GetWidth(), offset_y))
 
 		# Draw the checkboard
-		checker_pic = self.textures["checkerboard_strip"]
+		checker_pic = self.pictures["checkerboard_strip"]
 
 		dest_rect = checker_pic.GetRect()
-		dest_rect.SetHeight(100)
-		dest_rect = dest_rect.Offset(0, screen_size.DISPL_HEIGHT2 + screen_size.DISPL_HEIGHT3)
+		dest_rect.SetHeight(screen_size.CHECKERBOARD_HEIGHT)
+		dest_rect = dest_rect.Offset(self.x_margin, screen_size.DISPL_HEIGHT2 + screen_size.DISPL_HEIGHT3)
 
-		src_matrix = gs.Matrix3.TranslationMatrix(gs.Vector2(0, self.frame * 100 - dest_rect.sy))
+		src_matrix = gs.Matrix3.TranslationMatrix(gs.Vector2(-self.x_margin, self.frame * screen_size.CHECKERBOARD_HEIGHT - dest_rect.sy))
 
-		dest_pic.BlitTransform(checker_pic, dest_rect, src_matrix, gs.Picture.Nearest)
+		self.screen_pic.BlitTransform(checker_pic, dest_rect, src_matrix, gs.Picture.Nearest)
 
 		self.frame = (self.frame + 1)%screen_size.ANIM_STRIPE
 
-	def drawUnlimitedBobs(self, dest_pic, figure_mode = 0):
+	def drawUnlimitedBobs(self, figure_mode = 0):
 		x = 0
 		y = 0
 
-		bob_pic = self.textures["bob_ball"]
+		bob_pic = self.pictures["bob_ball"]
 
 		##	Lissajous trajectory
+		phase_scaler = 0.5
 		self.ubob_phase_x += 3
 		self.ubob_phase_y += 2
 
-		x = (screen_size.DISPL_WIDTH2b - screen_size.DISPL_WIDTH2b * 0.8 + bob_pic.GetRect().GetWidth()) * 0.5 + (math.cos(math.radians(self.ubob_phase_x)) + 1.0 * 0.5) * screen_size.DISPL_WIDTH2b * 0.5 * 0.8
-		y = (math.sin(math.radians(self.ubob_phase_y)) + 1.0 * 0.5) * screen_size.DISPL_HEIGHT2b * 0.5 * 0.8
+		x = (screen_size.DISPL_WIDTH2b - screen_size.DISPL_WIDTH2b * 0.8 + bob_pic.GetRect().GetWidth()) * 0.5 + (math.cos(math.radians(self.ubob_phase_x) * phase_scaler) + 1.0 * 0.5) * screen_size.DISPL_WIDTH2b * 0.5 * 0.8
+		y = (math.sin(math.radians(self.ubob_phase_y) * phase_scaler) + 1.0 * 0.5) * screen_size.DISPL_HEIGHT2b * 0.5 * 0.8
 
 		x += bob_pic.GetRect().GetWidth()
 		y += bob_pic.GetRect().GetHeight()
 
-		y += screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3
+		# y += screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3
+		y += self.ubob_frame * screen_size.DISPL_HEIGHT2
 		x = int(x)
 		y = int(y)
 
 		# x = ((WIDTH2b - DISPL_WIDTH2b) >> 1) + 24 + ubob_scale + (((tcos[ubob_phase_x & 0x1FF] + 512) * (DISPL_WIDTH2b - 8 - 64 - ubob_scale - ubob_scale)) >> 10);
 		#  y = 8 + ubob_scale + (((tsin[ubob_phase_y & 0x1FF] + 512) * (DISPL_HEIGHT2b - 16 - 32 - ubob_scale - ubob_scale)) >> 10);
 
+		offset_x = math.sin(math.radians(self.ubob_offset_phase)) * 32.0 + self.x_margin
+
 		dest_rect = bob_pic.GetRect()
-		dest_pic.Blit(bob_pic, dest_rect, gs.iVector2(x, y))
+		self.ubob_buffer.Blit(bob_pic, dest_rect, gs.iVector2(x, y))
+
+		dest_rect = self.ubob_buffer.GetRect()
+		dest_rect.SetHeight(screen_size.DISPL_HEIGHT2)
+		# dest_rect = gs.iRect(screen_size.DISPL_WIDTH2, screen_size.DISPL_HEIGHT2)
+		dest_rect = dest_rect.Offset(0, self.ubob_frame * screen_size.DISPL_HEIGHT2)
+		self.screen_pic.Blit(self.ubob_buffer, dest_rect, gs.iVector2(int(offset_x), screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3))
+
+		# self.screen_pic.Blit(bob_pic, dest_rect, gs.iVector2(x, y))
+
+		self.ubob_frame = (self.ubob_frame + 1)%screen_size.ANIM_STRIPE
+		self.ubob_offset_phase += 2.0

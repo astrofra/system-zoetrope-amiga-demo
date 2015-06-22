@@ -6,7 +6,7 @@ from demo_simulation import demoSimulation
 def main():
 	demo = None
 	demo_screen_width = 384
-	demo_screen_height = 384
+	demo_screen_height = 280
 
 	# mount the system file driver
 	gs.GetFilesystem().Mount(gs.StdFileDriver("pkg.core"), "@core")
@@ -46,6 +46,7 @@ def main():
 		demo.screen_pic.ClearRGBA(screen_size.COLOUR_PURPLE.r, screen_size.COLOUR_PURPLE.g, screen_size.COLOUR_PURPLE.b, 1.0)
 
 		demo.drawPixelArtLogo()
+		demo.renderDemoText()
 		demo.drawCheckerboard()
 		demo.drawUnlimitedBobs()
 		egl.BlitTexture(demo_screen_tex, demo.screen_pic)

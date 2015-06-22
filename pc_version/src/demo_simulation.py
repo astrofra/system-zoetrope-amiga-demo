@@ -2,6 +2,7 @@ import os
 import gs
 import screen_size
 import math
+import font_desc
 
 class demoSimulation:
 	def __init__(self, demo_screen_width, demo_screen_height):
@@ -35,6 +36,13 @@ class demoSimulation:
 		self.ubob_buffer.ClearRGBA(0, 0, 0, 0)
 		self.ubob_offset_phase = 0
 
+		#	Font writer
+		self.text_buffer = gs.Picture(screen_size.WIDTH3, screen_size.HEIGHT3, gs.Picture.RGBA8)
+		self.text_buffer.ClearRGBA(0, 0, 0, 0)
+		self.current_text_idx = 0
+		self.text_drawn_on_top = True
+		self.text_display_timer = 0.0
+
 	def loadTextures(self):
 		self.pictures = {
 							"bob_ball":None, "bob_torus":None, 
@@ -61,9 +69,23 @@ class demoSimulation:
 					for x in range(0, w):
 						cb_pixel = self.pictures["checkerboard_strip"].GetPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE))) / 255.0
 
-						cb_pixel.x = min(1.0, cb_pixel.x + cl_pixel.x * (1.0 - cb_pixel.x))
-						cb_pixel.y = min(1.0, cb_pixel.y + cl_pixel.y * (1.0 - cb_pixel.y))
-						cb_pixel.z = min(1.0, cb_pixel.z + cl_pixel.z * (1.0 - cb_pixel.z))
+						cb_luma = pow(cb_pixel.x, 0.5) * 0.3 + max(0, cl_pixel.x - 0.25)
+						# print("cb_luma = " + str(cb_luma))
+						cb_pixel.x = min(1.0, cb_pixel.x * cb_luma + cl_pixel.x * (1.0 - cb_luma))
+						cb_pixel.y = min(1.0, cb_pixel.y * cb_luma + cl_pixel.y * (1.0 - cb_luma))
+						cb_pixel.z = min(1.0, cb_pixel.z * cb_luma + cl_pixel.z * (1.0 - cb_luma))
+
+						cb_pixel.x = min(1.0, cb_pixel.x + max(0, (cl_pixel.x - screen_size.COLOUR_PURPLE.r) * cb_luma))
+						cb_pixel.y = min(1.0, cb_pixel.y + max(0, (cl_pixel.y - screen_size.COLOUR_PURPLE.g) * cb_luma))
+						cb_pixel.z = min(1.0, cb_pixel.z + max(0, (cl_pixel.z - screen_size.COLOUR_PURPLE.b) * cb_luma))
+
+						# cb_pixel.x = cb_pixel.x * (1.0 - (16.0 / 255.0)) + gs.Color(0x22 / 255.0, 0xAA / 255.0, 0xFF / 255.0).r * (16.0 / 255.0)
+						# cb_pixel.x = cb_pixel.y * (1.0 - (16.0 / 255.0)) + gs.Color(0x22 / 255.0, 0xAA / 255.0, 0xFF / 255.0).g * (16.0 / 255.0)
+						# cb_pixel.x = cb_pixel.z * (1.0 - (16.0 / 255.0)) + gs.Color(0x22 / 255.0, 0xAA / 255.0, 0xFF / 255.0).b * (16.0 / 255.0)
+
+						cb_pixel.x = min(1.0, cb_pixel.x)
+						cb_pixel.y = min(1.0, cb_pixel.y)
+						cb_pixel.z = min(1.0, cb_pixel.z)								
 
 						cb_pixel.w = 1.0
 						self.pictures["checkerboard_strip"].PutPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)), cb_pixel.x, cb_pixel.y, cb_pixel.z, cb_pixel.w)
@@ -183,3 +205,16 @@ class demoSimulation:
 		self.ubob_offset_phase += 120.0 * self.dt
 
 		# print("clock = " + str(self.clock.GetDelta().to_sec()))
+
+	def renderDemoText(self):
+		if self.current_text_idx == -1 or self.text_display_timer > len(font_desc.demo_string[self.current_text_idx]) * 0.05:
+			self.text_display_timer = 0.0
+			self.current_text_idx += 1
+			if self.current_text_idx >= len(font_desc.demo_string):
+				self.current_text_idx = 0
+			text_str = font_desc.demo_string[self.current_text_idx]
+
+			print("text_str = " + text_str)
+
+		self.text_display_timer += self.dt
+

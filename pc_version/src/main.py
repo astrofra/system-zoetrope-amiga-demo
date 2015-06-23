@@ -1,6 +1,6 @@
 import gs
 import screen_size
-from demo_simulation import demoSimulation
+from demo_simulation import DemoSimulation
 
 
 def main():
@@ -28,9 +28,9 @@ def main():
 	egl.EnableDepthTest(False)
 
 	# Init demo simulation
-	demo = demoSimulation(demo_screen_width, demo_screen_height)
+	demo = DemoSimulation(demo_screen_width, demo_screen_height)
 
-	demo.loadTextures()
+	demo.load_textures()
 	demo_screen_tex = egl.NewTexture("demo_screen_texture")
 
 	res = egl.CreateTexture(demo_screen_tex, demo.screen_pic)
@@ -45,10 +45,10 @@ def main():
 
 		demo.screen_pic.ClearRGBA(screen_size.COLOUR_PURPLE.r, screen_size.COLOUR_PURPLE.g, screen_size.COLOUR_PURPLE.b, 1.0)
 
-		demo.drawPixelArtLogo()
-		demo.renderDemoText()
-		demo.drawCheckerboard()
-		demo.drawUnlimitedBobs()
+		demo.draw_pixel_art_logo()
+		demo.draw_checkerboard()
+		demo.draw_unlimited_bobs()
+		demo.render_demo_text()
 		egl.BlitTexture(demo_screen_tex, demo.screen_pic)
 
 		egl.SetBlendFunc(gs.GpuRenderer.BlendSrcAlpha, gs.GpuRenderer.BlendOneMinusSrcAlpha)

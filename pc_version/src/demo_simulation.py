@@ -4,7 +4,8 @@ import screen_size
 import math
 import font_desc
 
-class demoSimulation:
+
+class DemoSimulation:
 	def __init__(self, demo_screen_width, demo_screen_height):
 
 		self.dt = 1.0 / 60.0
@@ -19,31 +20,31 @@ class demoSimulation:
 
 		self.x_margin = int((self.demo_screen_width - screen_size.DISPL_WIDTH2) / 2.0)
 
-		#	Main screen
+		# Main screen
 		self.screen_pic = gs.Picture(demo_screen_width, demo_screen_height, gs.Picture.RGBA8)
 		self.screen_pic.ClearRGBA(1, 0, 1, 1)
 
-		#	Logos
+		# Logos
 		self.logo_mode = "FADEIN"
 		self.logo_offset_phase = 0
 		self.logo_picture_name = "logo_sys_zoetrope"
 		self.logo_alpha = 0.0
 		self.logo_display_timer = 0.0
 
-		#	Unlimited bob fx
+		# Unlimited bob fx
 		self.ubob_frame = 0
 		self.ubob_buffer = gs.Picture(screen_size.WIDTH2, screen_size.HEIGHT2, gs.Picture.RGBA8)
 		self.ubob_buffer.ClearRGBA(0, 0, 0, 0)
 		self.ubob_offset_phase = 0
 
-		#	Font writer
+		# Font writer
 		self.text_buffer = gs.Picture(screen_size.WIDTH3, screen_size.HEIGHT3, gs.Picture.RGBA8)
 		self.text_buffer.ClearRGBA(0, 0, 0, 0)
 		self.current_text_idx = 0
 		self.text_drawn_on_top = True
 		self.text_display_timer = 0.0
 
-	def loadTextures(self):
+	def load_textures(self):
 		self.pictures = {
 							"bob_ball":None, "bob_torus":None, 
 							"checkerboard_strip":None, "copper_list":None,
@@ -53,7 +54,7 @@ class demoSimulation:
 
 		for texture_name in self.pictures:
 			texture_filename = os.path.join("res", texture_name + ".png")
-			if (os.path.exists(texture_filename)):
+			if os.path.exists(texture_filename):
 				self.pictures[texture_name] = gs.LoadPicture(texture_filename)
 				print("Found texture : ", texture_filename)
 
@@ -70,7 +71,7 @@ class demoSimulation:
 						cb_pixel = self.pictures["checkerboard_strip"].GetPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE))) / 255.0
 
 						cb_luma = pow(cb_pixel.x, 0.5) * 0.3 + max(0, cl_pixel.x - 0.25)
-						# print("cb_luma = " + str(cb_luma))
+
 						cb_pixel.x = min(1.0, cb_pixel.x * cb_luma + cl_pixel.x * (1.0 - cb_luma))
 						cb_pixel.y = min(1.0, cb_pixel.y * cb_luma + cl_pixel.y * (1.0 - cb_luma))
 						cb_pixel.z = min(1.0, cb_pixel.z * cb_luma + cl_pixel.z * (1.0 - cb_luma))
@@ -79,10 +80,6 @@ class demoSimulation:
 						cb_pixel.y = min(1.0, cb_pixel.y + max(0, (cl_pixel.y - screen_size.COLOUR_PURPLE.g) * cb_luma))
 						cb_pixel.z = min(1.0, cb_pixel.z + max(0, (cl_pixel.z - screen_size.COLOUR_PURPLE.b) * cb_luma))
 
-						# cb_pixel.x = cb_pixel.x * (1.0 - (16.0 / 255.0)) + gs.Color(0x22 / 255.0, 0xAA / 255.0, 0xFF / 255.0).r * (16.0 / 255.0)
-						# cb_pixel.x = cb_pixel.y * (1.0 - (16.0 / 255.0)) + gs.Color(0x22 / 255.0, 0xAA / 255.0, 0xFF / 255.0).g * (16.0 / 255.0)
-						# cb_pixel.x = cb_pixel.z * (1.0 - (16.0 / 255.0)) + gs.Color(0x22 / 255.0, 0xAA / 255.0, 0xFF / 255.0).b * (16.0 / 255.0)
-
 						cb_pixel.x = min(1.0, cb_pixel.x)
 						cb_pixel.y = min(1.0, cb_pixel.y)
 						cb_pixel.z = min(1.0, cb_pixel.z)								
@@ -90,7 +87,7 @@ class demoSimulation:
 						cb_pixel.w = 1.0
 						self.pictures["checkerboard_strip"].PutPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)), cb_pixel.x, cb_pixel.y, cb_pixel.z, cb_pixel.w)
 
-	def drawPixelArtLogo(self):
+	def draw_pixel_art_logo(self):
 		if self.logo_mode == "FADEIN":
 			self.logo_alpha += self.dt * 10.0
 
@@ -132,7 +129,7 @@ class demoSimulation:
 		offset_y = 0
 		self.screen_pic.Blit(logo_pic, src_rect, gs.iVector2(int(offset_x), int(offset_y)))
 
-		## Fade in using a blended rect
+		# Fade in using a blended rect
 		if self.logo_alpha < 1.0:
 			self.screen_pic.SetFillMode(gs.Picture.BrushSolid)
 			self.screen_pic.SetPenMode(gs.Picture.PenNone)
@@ -142,7 +139,7 @@ class demoSimulation:
 
 		self.logo_offset_phase += 120.0 * self.dt
 
-	def drawCheckerboard(self):
+	def draw_checkerboard(self):
 		# Draw the copper list
 		copper_pic = self.pictures["copper_list"]
 		offset_y = screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3 + 16
@@ -163,13 +160,13 @@ class demoSimulation:
 
 		self.frame += (30.0 * self.dt) ##(self.frame + 1)%screen_size.ANIM_STRIPE
 
-	def drawUnlimitedBobs(self, figure_mode = 0):
+	def draw_unlimited_bobs(self, figure_mode = 0):
 		x = 0
 		y = 0
 
 		bob_pic = self.pictures["bob_ball"]
 
-		##	Lissajous trajectory
+		# Lissajous trajectory
 		phase_scaler = 0.5
 		self.ubob_phase_x += 180 * self.dt
 		self.ubob_phase_y += 120 * self.dt
@@ -197,24 +194,75 @@ class demoSimulation:
 		dest_rect.SetHeight(screen_size.DISPL_HEIGHT2)
 		# dest_rect = gs.iRect(screen_size.DISPL_WIDTH2, screen_size.DISPL_HEIGHT2)
 		dest_rect = dest_rect.Offset(0, self.ubob_frame * screen_size.DISPL_HEIGHT2)
-		self.screen_pic.Blit(self.ubob_buffer, dest_rect, gs.iVector2(int(offset_x), screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3))
-
-		# self.screen_pic.Blit(bob_pic, dest_rect, gs.iVector2(x, y))
+		self.screen_pic.Blit(self.ubob_buffer, dest_rect, gs.iVector2(int(offset_x), screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3 + 8))
 
 		self.ubob_frame = (self.ubob_frame + 1)%screen_size.ANIM_STRIPE
 		self.ubob_offset_phase += 120.0 * self.dt
 
 		# print("clock = " + str(self.clock.GetDelta().to_sec()))
 
-	def renderDemoText(self):
+	def render_demo_text(self):
 		if self.current_text_idx == -1 or self.text_display_timer > len(font_desc.demo_string[self.current_text_idx]) * 0.05:
 			self.text_display_timer = 0.0
 			self.current_text_idx += 1
 			if self.current_text_idx >= len(font_desc.demo_string):
 				self.current_text_idx = 0
-			text_str = font_desc.demo_string[self.current_text_idx]
+			text_string = font_desc.demo_string[self.current_text_idx]
 
-			print("text_str = " + text_str)
+			print("text_str = " + text_string)
+			self.font_writer_blit(self.pictures["font_sans_serif"], self.text_buffer, 0, 0, text_string)
 
 		self.text_display_timer += self.dt
+
+		dest_rect = self.text_buffer.GetRect()
+		dest_rect.SetHeight(screen_size.DISPL_HEIGHT3)
+		dest_rect_offset = dest_rect.Offset(0, screen_size.DISPL_HEIGHT1)
+		dest_rect_offset.SetHeight(screen_size.DISPL_HEIGHT3 + 1)
+
+		self.screen_pic.SetFillColorRGBA(screen_size.COLOUR_PURPLE_DARK.r, screen_size.COLOUR_PURPLE_DARK.g, screen_size.COLOUR_PURPLE_DARK.b, 1.0)
+		self.screen_pic.SetFillMode(gs.Picture.BrushSolid)
+		self.screen_pic.SetPenMode(gs.Picture.PenNone)
+		self.screen_pic.DrawRect(dest_rect_offset.sx, dest_rect_offset.sy, dest_rect_offset.ex, dest_rect_offset.ey)
+		self.screen_pic.Blit(self.text_buffer, dest_rect, gs.iVector2(0, screen_size.DISPL_HEIGHT1))
+
+	def font_writer_blit(self, font_picture, dest_picture, x, y, text_string): ##(struct BitMap *font_BitMap, struct BitMap *font_BitMap_dark, struct BitMap *dest_BitMap, const char *glyph_array, const short *x_pos_array, short x, short y, UBYTE *text_string)
+
+		def font_glyph_find_index(glyph, glyph_array):
+			i = 0
+			for g in glyph_array:
+				if glyph == g:
+					return i
+
+				i += 1
+
+			return -1
+
+		i = 0
+
+		cur_x = x
+		y += screen_size.DISPL_HEIGHT1
+		# glyph_h = font_BitMap->Rows;
+
+		text_string = list(text_string)
+
+		dest_picture.ClearRGBA(screen_size.COLOUR_PURPLE.r * 1.5, screen_size.COLOUR_PURPLE.g * 1.5, screen_size.COLOUR_PURPLE.b * 1.5, 1.0)
+
+		while i < len(text_string):
+			# /*	Space */
+			if text_string[i] == ' ':
+				cur_x += 4
+
+			# /*	Write glyph */
+			glyph_index = font_glyph_find_index(text_string[i], font_desc.tiny_font["glyph"])
+			if glyph_index >= 0:
+				glyph_w = font_desc.tiny_font["x_pos"][glyph_index + 1] - font_desc.tiny_font["x_pos"][glyph_index]
+				dest_rect = font_picture.GetRect()
+				dest_rect.SetWidth(glyph_w)
+				dest_rect = dest_rect.Offset(cur_x, 1)
+				src_matrix = gs.Matrix3.TranslationMatrix(gs.Vector2(font_desc.tiny_font["x_pos"][glyph_index] - cur_x, -1))
+				dest_picture.BlitTransform(font_picture, dest_rect, src_matrix, gs.Picture.Nearest)
+
+				cur_x += glyph_w	
+
+			i += 1
 

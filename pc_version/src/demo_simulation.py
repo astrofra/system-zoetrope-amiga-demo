@@ -43,6 +43,7 @@ class DemoSimulation:
 		self.current_text_idx = 0
 		self.text_drawn_on_top = True
 		self.text_display_timer = 0.0
+		self.text_pixel_w = 0.0
 
 	def load_textures(self):
 		self.pictures = {
@@ -210,7 +211,7 @@ class DemoSimulation:
 			text_string = font_desc.demo_string[self.current_text_idx]
 
 			print("text_str = " + text_string)
-			self.font_writer_blit(self.pictures["font_sans_serif"], self.text_buffer, 0, 0, text_string)
+			self.text_pixel_w = self.font_writer_blit(self.pictures["font_sans_serif"], self.text_buffer, 0, 0, text_string)
 
 		self.text_display_timer += self.dt
 
@@ -265,4 +266,6 @@ class DemoSimulation:
 				cur_x += glyph_w	
 
 			i += 1
+
+		return cur_x - x
 

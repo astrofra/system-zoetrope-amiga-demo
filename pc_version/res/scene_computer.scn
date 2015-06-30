@@ -5,15 +5,55 @@
 		},
 		"Components": {
 			"gs::core::Environment": {
+				"TimeOfDay": 0.3125,
 				"AmbientColor": {
-					"r": 0.4001,
-					"g": 0.4001,
-					"b": 0.4001
+					"r": 0.1963,
+					"g": 0.4661,
+					"b": 0.5153,
+					"a": 1.25
 				},
+				"AmbientIntensity": 0.5,
 				"FogColor": {
 					"r": 1.0,
 					"g": 1.0,
 					"b": 1.0
+				}
+			},
+			"gs::core::LogicScript": {
+				"gs::core::Script": {
+					"Path": "@core/lua/sky_lighting.lua",
+					"Parameters": {
+						"Parameter": {
+							"Name": "time_of_day",
+							"Type": "float",
+							"Value": 7.5
+						},
+						"Parameter": {
+							"Name": "longitude",
+							"Type": "float",
+							"Value": 0.7
+						},
+						"Parameter": {
+							"Name": "attenuation",
+							"Type": "float",
+							"Value": 0.6001
+						},
+						"Parameter": {
+							"Name": "shadow_range",
+							"Type": "int",
+							"Value": 150
+						},
+						"Parameter": {
+							"Name": "shadow_bias",
+							"Type": "float",
+							"Value": 0.01
+						},
+						"Parameter": {
+							"Name": "shadow_distribution",
+							"Type": "float",
+							"Value": 2.3
+						}
+					}
 				}
 			}
 		},
@@ -60,13 +100,13 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": 0.9159,
-							"y": 0.2634,
-							"z": -1.2294
+							"x": 0.552,
+							"y": 0.3101,
+							"z": -1.248
 						},
 						"Rotation": {
-							"x": 0.1544,
-							"y": -0.6398,
+							"x": 0.2077,
+							"y": -0.4214,
 							"z": 0.0
 						},
 						"Scale": {
@@ -76,7 +116,7 @@
 						}
 					},
 					"gs::core::Camera": {
-						"ZNear": 0.1001,
+						"ZNear": 0.1002,
 						"ZFar": 50000.0
 					}
 				}
@@ -114,50 +154,6 @@
 									"Name": "material",
 									"Type": "gs::render::sMaterial",
 									"Value": "@core/materials/default.mat"
-								}
-							}
-						}
-					}
-				}
-			},
-			"Node": {
-				"Uid": 6,
-				"Name": "Sky Lighting",
-				"Components": {
-					"gs::core::Transform": {},
-					"gs::core::LogicScript": {
-						"gs::core::Script": {
-							"Path": "@core/lua/sky_lighting.lua",
-							"Parameters": {
-								"Parameter": {
-									"Name": "time_of_day",
-									"Type": "int",
-									"Value": 12
-								},
-								"Parameter": {
-									"Name": "longitude",
-									"Type": "float",
-									"Value": 0.3001
-								},
-								"Parameter": {
-									"Name": "attenuation",
-									"Type": "int",
-									"Value": 1
-								},
-								"Parameter": {
-									"Name": "shadow_range",
-									"Type": "int",
-									"Value": 150
-								},
-								"Parameter": {
-									"Name": "shadow_bias",
-									"Type": "float",
-									"Value": 0.01
-								},
-								"Parameter": {
-									"Name": "shadow_distribution",
-									"Type": "float",
-									"Value": 0.5
 								}
 							}
 						}

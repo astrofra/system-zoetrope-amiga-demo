@@ -1,0 +1,185 @@
+{
+	"Scene": {
+		"Editor": {
+			"SceneTools": {}
+		},
+		"Components": {
+			"gs::core::Environment": {
+				"AmbientColor": {
+					"r": 0.4001,
+					"g": 0.4001,
+					"b": 0.4001
+				},
+				"FogColor": {
+					"r": 1.0,
+					"g": 1.0,
+					"b": 1.0
+				}
+			}
+		},
+		"Nodes": {
+			"Node": {
+				"Uid": 1,
+				"Name": "monitor",
+				"Components": {
+					"gs::core::Transform": {
+						"Scale": {
+							"x": 0.2807,
+							"y": 0.2807,
+							"z": 0.2807
+						}
+					},
+					"gs::core::Object": {
+						"Geometry": "res/monitor/monitor.geo"
+					}
+				}
+			},
+			"Node": {
+				"Uid": 2,
+				"Name": "monitor_frame",
+				"Components": {
+					"gs::core::Transform": {},
+					"gs::core::Object": {
+						"Geometry": "res/monitor/monitor_frame.geo"
+					}
+				}
+			},
+			"Node": {
+				"Uid": 3,
+				"Name": "monitor_screen",
+				"Components": {
+					"gs::core::Transform": {},
+					"gs::core::Object": {
+						"Geometry": "res/monitor/monitor_screen.geo"
+					}
+				}
+			},
+			"Node": {
+				"Uid": 4,
+				"Name": "Default Camera",
+				"Components": {
+					"gs::core::Transform": {
+						"Position": {
+							"x": 0.9159,
+							"y": 0.2634,
+							"z": -1.2294
+						},
+						"Rotation": {
+							"x": 0.1544,
+							"y": -0.6398,
+							"z": 0.0
+						},
+						"Scale": {
+							"x": 1.0001,
+							"y": 1.0001,
+							"z": 1.0001
+						}
+					},
+					"gs::core::Camera": {
+						"ZNear": 0.1001,
+						"ZFar": 50000.0
+					}
+				}
+			},
+			"Node": {
+				"Uid": 5,
+				"Name": "Plane",
+				"Components": {
+					"gs::core::Transform": {},
+					"gs::core::LogicScript": {
+						"gs::core::Script": {
+							"Path": "@core/lua/plane.lua",
+							"Parameters": {
+								"Parameter": {
+									"Name": "width",
+									"Type": "int",
+									"Value": 50
+								},
+								"Parameter": {
+									"Name": "length",
+									"Type": "int",
+									"Value": 50
+								},
+								"Parameter": {
+									"Name": "subdiv_x",
+									"Type": "int",
+									"Value": 1
+								},
+								"Parameter": {
+									"Name": "subdiv_z",
+									"Type": "int",
+									"Value": 1
+								},
+								"Parameter": {
+									"Name": "material",
+									"Type": "gs::render::sMaterial",
+									"Value": "@core/materials/default.mat"
+								}
+							}
+						}
+					}
+				}
+			},
+			"Node": {
+				"Uid": 6,
+				"Name": "Sky Lighting",
+				"Components": {
+					"gs::core::Transform": {},
+					"gs::core::LogicScript": {
+						"gs::core::Script": {
+							"Path": "@core/lua/sky_lighting.lua",
+							"Parameters": {
+								"Parameter": {
+									"Name": "time_of_day",
+									"Type": "int",
+									"Value": 12
+								},
+								"Parameter": {
+									"Name": "longitude",
+									"Type": "float",
+									"Value": 0.3001
+								},
+								"Parameter": {
+									"Name": "attenuation",
+									"Type": "int",
+									"Value": 1
+								},
+								"Parameter": {
+									"Name": "shadow_range",
+									"Type": "int",
+									"Value": 150
+								},
+								"Parameter": {
+									"Name": "shadow_bias",
+									"Type": "float",
+									"Value": 0.01
+								},
+								"Parameter": {
+									"Name": "shadow_distribution",
+									"Type": "float",
+									"Value": 0.5
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"NodeHierarchy": {
+			"Link": {
+				"Node": 2,
+				"Parent": 1
+			},
+			"Link": {
+				"Node": 3,
+				"Parent": 1
+			}
+		},
+		"Skins": {},
+		"State": {
+			"CurrentCamera": {
+				"Uid": 4
+			}
+		}
+	}
+}

@@ -39,4 +39,13 @@ struct LightModelOut
 	float i_spec;
 };
 
+// get depth buffer value
+float SampleDepthBuffer(tex2D depth_buffer, vec2 uv)
+{
+	vec4 rgba = texture2D(depth_buffer, uv);
+	if (vTechniqueIsForward == 1)
+		return dot(rgba, vec4(1.0, 1/255.0, 1/65025.0, 1/160581375.0));
+	return 1.0;
+};
+
 #endif // COMMON_I

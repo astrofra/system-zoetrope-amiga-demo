@@ -16,8 +16,8 @@ def main():
 	egl = gs.EglRenderer()
 	egl.Open(1280, 720)
 
-	sys = gs.RenderSystem(egl)
-	sys.Initialize()
+	sys = gs.RenderSystem()
+	sys.Initialize(egl)
 
 	# create the font object
 	font = gs.RasterFont("@core/fonts/default.ttf", 48, 512)

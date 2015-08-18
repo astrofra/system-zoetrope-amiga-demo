@@ -22,8 +22,7 @@ variant {
 
 			if (norm_dpth.z == 0.0) {
 				%out.color% = vec4(0.0, 0.0, 0.0, 1.0);
-			}
-			else {
+			} else {
 				vec3 pixel_view_pos = (forward / forward.z) * norm_dpth.w;
 
 				float pcf = ComputePointLightShadowPCF(pixel_view_pos);
@@ -47,8 +46,7 @@ variant {
 					// final contribution
 					vec4 diff_alpha = texture2D(vGBuffer1, UV);
 					%out.color% = vec4(mix(vLightShadowColor, diff_alpha.rgb * vLightDiffuseColor * idiff + spec_glos.rgb * vLightSpecularColor * ispec, pcf), 1.0);
-				}
-				else {
+				} else {
 					%out.color% = vec4(vLightShadowColor, 1.0);
 				}
 			}

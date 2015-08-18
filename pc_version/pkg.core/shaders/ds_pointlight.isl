@@ -21,8 +21,7 @@ variant {
 
 			if (norm_dpth.z == 0.0) {
 				%out.color% = vec4(0.0, 0.0, 0.0, 1.0);
-			}
-			else {
+			} else {
 				vec3 frag_viewpos = (forward / forward.z) * norm_dpth.w;
 
 				// normal in view-model space

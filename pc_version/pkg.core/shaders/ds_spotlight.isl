@@ -39,8 +39,7 @@ variant {
 					sdiff = 0.0;
 				else
 					sdiff = max((sdiff - vLightState.z) / (vLightState.y - vLightState.z), 0.0);
-			}
-			else {
+			} else {
 				sdiff = 1.0;
 			}
 

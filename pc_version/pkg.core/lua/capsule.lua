@@ -49,7 +49,7 @@ function CreateRenderGeometry(uname)
 		return
 	end
 
-	geo:SetVertex(0, 0, radius + (height_cylinder * 0.5), 0)
+	geo:SetVertex(0, -radius - (height_cylinder * 0.5), 0, 0)
 
 	local vtx_counter = 1
 	for s = 0, subdiv_y do
@@ -64,7 +64,7 @@ function CreateRenderGeometry(uname)
 
 			local c_a = c * (math.rad(360)) / subdiv_x
 
-			geo:SetVertex(vtx_counter, math.cos(c_a) * s_r, y, math.sin(c_a) * s_r)
+			geo:SetVertex(vtx_counter, -y, math.cos(c_a) * s_r, math.sin(c_a) * s_r)
 			vtx_counter = vtx_counter + 1
 		end
 	end
@@ -80,12 +80,12 @@ function CreateRenderGeometry(uname)
 
 			local c_a = c * (math.rad(360)) / subdiv_x
 
-			geo:SetVertex(vtx_counter, math.cos(c_a) * s_r, -y, math.sin(c_a) * s_r)
+			geo:SetVertex(vtx_counter, y, math.cos(c_a) * s_r, math.sin(c_a) * s_r)
 			vtx_counter = vtx_counter + 1
 		end
 	end
 
-	geo:SetVertex(vtx_counter, 0, -radius - (height_cylinder * 0.5), 0)
+	geo:SetVertex(vtx_counter, radius + (height_cylinder * 0.5), 0, 0)
 
 	-- Build polygons.
 	if geo:AllocatePolygon((subdiv_y * 2 + 2) * subdiv_x + subdiv_x) == 0 then

@@ -140,8 +140,8 @@ function Setup()
 			object:SetGeometry(render_geo)
 			node:AddComponent(object)
 
-			node:AddComponent(gs.BulletRigidBody())
-			local box_collision = gs.BulletBoxCollision()
+			node:AddComponent(gs.MakeRigidBody())
+			local box_collision = gs.MakeBoxCollision()
 			box_collision:SetDimensions(gs.Vector3(cube_x, cube_y, cube_z))
 			node:AddComponent(box_collision)
 

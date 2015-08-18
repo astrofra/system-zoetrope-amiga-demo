@@ -220,11 +220,11 @@ class DemoSimulation:
 		dest_rect_offset = dest_rect.Offset(0, screen_size.DISPL_HEIGHT1)
 		dest_rect_offset.SetHeight(screen_size.DISPL_HEIGHT3 + 1)
 
-		self.screen_pic.SetFillColorRGBA(screen_size.COLOUR_PURPLE_DARK.r, screen_size.COLOUR_PURPLE_DARK.g, screen_size.COLOUR_PURPLE_DARK.b, 1.0)
+		self.screen_pic.SetFillColorRGBA(screen_size.COLOUR_PURPLE.r * 1.5, screen_size.COLOUR_PURPLE.g * 1.5, screen_size.COLOUR_PURPLE.b * 1.5, 1.0)
 		self.screen_pic.SetFillMode(gs.Picture.BrushSolid)
 		self.screen_pic.SetPenMode(gs.Picture.PenNone)
 		self.screen_pic.DrawRect(dest_rect_offset.sx, dest_rect_offset.sy, dest_rect_offset.ex, dest_rect_offset.ey)
-		self.screen_pic.Blit(self.text_buffer, dest_rect, gs.iVector2(0, screen_size.DISPL_HEIGHT1))
+		self.screen_pic.Blit(self.text_buffer, dest_rect, gs.iVector2(int((screen_size.WIDTH3 - self.text_pixel_w) / 2.0), screen_size.DISPL_HEIGHT1))
 
 	def font_writer_blit(self, font_picture, dest_picture, x, y, text_string): ##(struct BitMap *font_BitMap, struct BitMap *font_BitMap_dark, struct BitMap *dest_BitMap, const char *glyph_array, const short *x_pos_array, short x, short y, UBYTE *text_string)
 

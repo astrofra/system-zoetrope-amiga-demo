@@ -49,35 +49,34 @@ function EndRenderPass(pass)
 	-- configure the rayleigh shader
 	renderer:SetShader(shader)
 
-	local var_view_rotation = shader:GetVariable("view_rotation")
 	local view_rotation = render_system:GetView().transform:GetCurrent().rotation
 
-	renderer:SetShaderMatrix3(shader, var_view_rotation, view_rotation)
+	renderer:SetShaderMatrix3("view_rotation", view_rotation)
 
-	renderer:SetShaderFloat(shader, shader:GetVariable("rayleigh_strength"), rayleigh_strength)
-	renderer:SetShaderFloat(shader, shader:GetVariable("rayleigh_brightness"), rayleigh_brightness)
-	renderer:SetShaderFloat(shader, shader:GetVariable("rayleigh_collection_power"), rayleigh_collection_power)
+	renderer:SetShaderFloat("rayleigh_strength", rayleigh_strength)
+	renderer:SetShaderFloat("rayleigh_brightness", rayleigh_brightness)
+	renderer:SetShaderFloat("rayleigh_collection_power", rayleigh_collection_power)
 
-	renderer:SetShaderFloat(shader, shader:GetVariable("mie_strength"), mie_strength)
-	renderer:SetShaderFloat(shader, shader:GetVariable("mie_brightness"), mie_brightness)
-	renderer:SetShaderFloat(shader, shader:GetVariable("mie_collection_power"), mie_collection_power)
-	renderer:SetShaderFloat(shader, shader:GetVariable("mie_distribution"), mie_distribution)
+	renderer:SetShaderFloat("mie_strength", mie_strength)
+	renderer:SetShaderFloat("mie_brightness", mie_brightness)
+	renderer:SetShaderFloat("mie_collection_power", mie_collection_power)
+	renderer:SetShaderFloat("mie_distribution", mie_distribution)
 
-	renderer:SetShaderFloat(shader, shader:GetVariable("spot_brightness"), spot_brightness)
-	renderer:SetShaderFloat(shader, shader:GetVariable("scatter_strength"), scatter_strength)
+	renderer:SetShaderFloat("spot_brightness", spot_brightness)
+	renderer:SetShaderFloat("scatter_strength", scatter_strength)
 
-	renderer:SetShaderFloat(shader, shader:GetVariable("step_count"), step_count)
-	renderer:SetShaderFloat(shader, shader:GetVariable("intensity"), intensity)
-	renderer:SetShaderFloat(shader, shader:GetVariable("surface_height"), surface_height)
+	renderer:SetShaderFloat("step_count", step_count)
+	renderer:SetShaderFloat("intensity", intensity)
+	renderer:SetShaderFloat("surface_height", surface_height)
 
-	renderer:SetShaderFloat(shader, shader:GetVariable("latitude"), latitude)
-	renderer:SetShaderFloat(shader, shader:GetVariable("longitude"), longitude)
+	renderer:SetShaderFloat("latitude", latitude)
+	renderer:SetShaderFloat("longitude", longitude)
 
 	-- configure the frame buffer so that only background pixels are drawn to
 	renderer:EnableDepthTest(true)
 	renderer:EnableDepthWrite(false)
 	renderer:SetDepthFunc(gs.GpuRenderer.DepthLessEqual)
-	render_system:DrawFullscreenQuad(shader, renderer:GetViewportToInternalResolutionRatio())
+	render_system:DrawFullscreenQuad(renderer:GetViewportToInternalResolutionRatio())
 	renderer:EnableDepthWrite(true)
 	renderer:EnableDepthTest(true)
 

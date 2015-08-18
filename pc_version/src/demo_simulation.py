@@ -88,6 +88,9 @@ class DemoSimulation:
 						cb_pixel.w = 1.0
 						self.pictures["checkerboard_strip"].PutPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)), cb_pixel.x, cb_pixel.y, cb_pixel.z, cb_pixel.w)
 
+	def clear_screen(self):
+		self.screen_pic.ClearRGBA(screen_size.COLOUR_PURPLE.r, screen_size.COLOUR_PURPLE.g, screen_size.COLOUR_PURPLE.b, 1.0)
+
 	def draw_pixel_art_logo(self):
 		if self.logo_mode == "FADEIN":
 			self.logo_alpha += self.dt * 10.0

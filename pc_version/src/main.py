@@ -40,15 +40,15 @@ def main():
 	demo_screen_vertices = [gs.Vector3(0.5 * 1280, 0.5 * 720, 0.5)]
 
 	while egl.GetDefaultOutputWindow():
-		# egl.Clear(gs.Color.Black)
-		egl.Clear(screen_size.COLOUR_PURPLE_DARK)
+		egl.Clear(gs.Color.Black)
 
-		demo.screen_pic.ClearRGBA(screen_size.COLOUR_PURPLE.r, screen_size.COLOUR_PURPLE.g, screen_size.COLOUR_PURPLE.b, 1.0)
-
+		# Demo simulation (re-creation)
+		demo.clear_screen()
 		demo.draw_pixel_art_logo()
 		demo.draw_checkerboard()
 		demo.draw_unlimited_bobs()
 		demo.render_demo_text()
+
 		egl.BlitTexture(demo_screen_tex, demo.screen_pic)
 
 		egl.SetBlendFunc(gs.GpuRenderer.BlendSrcAlpha, gs.GpuRenderer.BlendOneMinusSrcAlpha)

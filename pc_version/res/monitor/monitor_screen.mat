@@ -1,6 +1,6 @@
 {
 	"Material": {
-		"Shader": "@core/surfaces/diffuse_map.isl",
+		"Shader": "res/monitor/monitor_screen.isl",
 		"MaterialValues": {
 			"Value": {
 				"Name": "diffuse_map",

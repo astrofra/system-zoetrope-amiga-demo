@@ -54,7 +54,7 @@ class DemoSimulation:
 						}
 
 		for texture_name in self.pictures:
-			texture_filename = os.path.join("..\\", "res", texture_name + ".png")
+			texture_filename = os.path.join("res", texture_name + ".png")
 			if os.path.exists(texture_filename):
 				self.pictures[texture_name] = gs.LoadPicture(texture_filename)
 				print("Found texture : ", texture_filename)

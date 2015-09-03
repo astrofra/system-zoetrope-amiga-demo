@@ -26,43 +26,10 @@ def main():
 	scn = scene.new_scene()
 
 	cam = scene.add_camera(scn, gs.Matrix4.TranslationMatrix(gs.Vector3(0, 0, 0)))
-	# scene.add_light(scn, gs.Matrix4.TranslationMatrix(gs.Vector3(6, 4, -6)))
-	# scene.add_cube(scn, gs.Matrix4.TranslationMatrix(gs.Vector3(0, 0.5, 0)))
 	scene.add_plane(scn)
-	# demo_screen = scene.add_plane(scn, gs.Matrix4.TranslationMatrix(gs.Vector3(0, 2.0, 0)), 4 * 0.5, 3 * 0.5, os.path.join("res", "monitor", "monitor_screen.mat"))
-	# demo_screen.transform.SetRotation(gs.Vector3(math.pi * -0.5, 0.0, 0.0))
-
-	# monitor_geo = render.load_geometry(os.path.join("res", "monitor", "monitor.geo"))
-	# monitor_node = gs.Node("monitor")
-	# monitor_transform = gs.Transform()
-	# monitor_node.AddComponent(monitor_transform)
-	# monitor_object = gs.Object()
-	# monitor_object.SetGeometry(monitor_geo)
-	# monitor_node.AddComponent(monitor_object)
-	# scn.AddNode(monitor_node)
-
-	# monitor_frame_geo = render.load_geometry(os.path.join("res", "monitor", "monitor_frame.geo"))
-	# monitor_frame_node = gs.Node("monitor_frame")
-	# monitor_frame_transform = gs.Transform()
-	# monitor_frame_node.AddComponent(monitor_frame_transform)
-	# monitor_frame_object = gs.Object()
-	# monitor_frame_object.SetGeometry(monitor_frame_geo)
-	# monitor_frame_node.AddComponent(monitor_frame_object)
-	# scn.AddNode(monitor_frame_node)
-
-	# demo_screen_geo = render.load_geometry(os.path.join("res", "monitor", "monitor_screen.geo"))
-	# demo_screen_node = gs.Node("demo_screen")
-	# demo_screen_transform = gs.Transform()
-	# demo_screen_node.AddComponent(demo_screen_transform)
-	# demo_screen_object = gs.Object()
-	# demo_screen_object.SetGeometry(demo_screen_geo)
-	# demo_screen_node.AddComponent(demo_screen_object)
-	# scn.AddNode(demo_screen_node)
-	# demo_screen_mat = demo_screen_geo.GetMaterial(0)
-	# demo_screen_tex = demo_screen_mat.GetTexture("diffuse_map")
 
 	scn.Load(os.path.join("res/a500/a500.scn"), gs.SceneLoadContext(render.get_render_system()))
-	scn_monitor_load = scn.Load(os.path.join("res/monitor/monitor.scn"), gs.SceneLoadContext(render.get_render_system()))
+	scn.Load(os.path.join("res/monitor/monitor.scn"), gs.SceneLoadContext(render.get_render_system()))
 
 	scene.update_scene(scn, 0.0)
 	tmp_node = scn.GetNode('monitor')
@@ -71,12 +38,12 @@ def main():
 	tmp_pos.z += 0.5
 	tmp_node_transform.SetPosition(tmp_pos)
 
-	# demo_screen_node = scn.GetNode('monitor_screen')
-	# c_list = demo_screen_node.GetComponents()
-	# demo_screen_object = demo_screen_node.GetComponentsWithAspect("Object")[0]
-	# demo_screen_geo = demo_screen_object.GetGeometry()
-	# demo_screen_mat = demo_screen_geo.GetMaterial(0)
-	# demo_screen_tex = demo_screen_mat.GetTexture("diffuse_map")
+	demo_screen_node = scn.GetNode('monitor_screen')
+	c_list = demo_screen_node.GetComponents()
+	demo_screen_object = demo_screen_node.GetComponentsWithAspect("Renderable")[0]
+	demo_screen_geo = demo_screen_object.GetGeometry()
+	demo_screen_mat = demo_screen_geo.GetMaterial(0)
+	demo_screen_tex = demo_screen_mat.GetTexture("diffuse_map")
 
 	fps = camera.fps_controller(0, 0.5, -3.5)
 
@@ -103,7 +70,7 @@ def main():
 		demo.draw_checkerboard()
 		demo.draw_unlimited_bobs()
 		demo.render_demo_text()
-		# render.get_renderer().BlitTexture(demo_screen_tex, demo.screen_pic)
+		render.get_renderer().BlitTexture(demo_screen_tex, demo.screen_pic)
 
 		fps.update_and_apply_to_node(cam, dt_sec * 0.1)
 

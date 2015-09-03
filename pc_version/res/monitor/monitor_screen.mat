@@ -6,7 +6,12 @@
 				"Name": "diffuse_map",
 				"Type": "tex2D",
 				"Value": "res/monitor/smiley_test.png"
-			}
+			},
+			"Value": {
+				"Name": "crt_map",
+				"Type": "tex2D",
+				"Value": "res/monitor/monitor_crt_mask.png"
+			}			
 		}
 	}
 }

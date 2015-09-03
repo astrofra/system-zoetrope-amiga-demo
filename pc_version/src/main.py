@@ -87,7 +87,7 @@ def main():
 		demo.render_demo_text()
 		render.get_renderer().BlitTexture(demo_screen_tex, demo.screen_pic)
 
-		fps.update_and_apply_to_node(cam, dt_sec)
+		fps.update_and_apply_to_node(cam, dt_sec * 0.1)
 
 		scene.update_scene(scn, dt_sec)
 		render.text2d(5, 5, "Move around with QSZD, left mouse button to look around")

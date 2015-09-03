@@ -1,5 +1,8 @@
 {
 	"Scene": {
+		"Editor": {
+			"SceneTools": {}
+		},
 		"Components": {
 			"gs::core::Environment": {
 				"AmbientColor": {
@@ -21,19 +24,19 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.0006000000000000001,
-							"y": -0.006500000000000001,
-							"z": -0.0035
+							"x": -0.0006,
+							"y": 0.0007,
+							"z": -0.0034
 						},
 						"Rotation": {
 							"x": 1.5708,
-							"y": 0.0,
-							"z": 0.0
+							"y": 3.1416,
+							"z": 3.1416
 						},
 						"Scale": {
-							"x": 0.24760000000000002,
-							"y": 0.24760000000000002,
-							"z": 0.24760000000000002
+							"x": 0.2478,
+							"y": 0.2478,
+							"z": 0.2478
 						}
 					},
 					"gs::core::Object": {
@@ -47,12 +50,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -79,8 +82,8 @@
 						},
 						"Scale": {
 							"x": 1.0,
-							"y": 1.0001,
-							"z": 1.0001
+							"y": 1.0004,
+							"z": 1.0004
 						}
 					},
 					"gs::core::Object": {
@@ -95,7 +98,7 @@
 					"gs::core::Transform": {
 						"Position": {
 							"x": -0.023,
-							"y": -0.2866,
+							"y": -0.2865,
 							"z": -0.1621
 						},
 						"Rotation": {
@@ -105,8 +108,8 @@
 						},
 						"Scale": {
 							"x": 1.0,
-							"y": 1.0001,
-							"z": 1.0001
+							"y": 1.0004,
+							"z": 1.0004
 						}
 					},
 					"gs::core::Object": {
@@ -118,13 +121,7 @@
 				"Uid": 5,
 				"Name": "amiga_Down",
 				"Components": {
-					"gs::core::Transform": {
-						"Position": {
-							"x": 0.0,
-							"y": 0.0,
-							"z": -0.0
-						}
-					},
+					"gs::core::Transform": {},
 					"gs::core::Object": {
 						"Geometry": "res/a500/amiga_Down.geo"
 					}
@@ -136,12 +133,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -157,12 +154,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -178,12 +175,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -199,12 +196,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -220,12 +217,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -241,12 +238,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -262,12 +259,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -283,12 +280,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -304,12 +301,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -325,12 +322,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -346,12 +343,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -367,12 +364,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -388,12 +385,12 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.8056000000000001,
-							"y": -0.4254,
-							"z": -0.0976
+							"x": -0.8054,
+							"y": -0.4253,
+							"z": -0.0974
 						},
 						"Rotation": {
-							"x": -0.17450000000000003,
+							"x": -0.1745,
 							"y": 0.0,
 							"z": 0.0
 						}
@@ -409,19 +406,19 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": -0.7210000000000001,
-							"y": -0.3428,
-							"z": -0.1557
+							"x": -0.721,
+							"y": -0.3427,
+							"z": -0.1553
 						},
 						"Rotation": {
 							"x": -0.1738,
-							"y": 0.0916,
+							"y": 0.0918,
 							"z": -0.4878
 						},
 						"Scale": {
 							"x": 1.0,
 							"y": 1.0,
-							"z": 4.2911
+							"z": 4.2913
 						}
 					},
 					"gs::core::Object": {
@@ -435,14 +432,14 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": 0.8338,
-							"y": 0.0059,
-							"z": -0.21080000000000002
+							"x": 0.8339,
+							"y": 0.0061,
+							"z": -0.2108
 						},
 						"Scale": {
-							"x": 4.0397,
-							"y": 4.0397,
-							"z": 4.0397
+							"x": 4.0399,
+							"y": 4.0399,
+							"z": 4.0399
 						}
 					},
 					"gs::core::Object": {
@@ -458,12 +455,12 @@
 						"Position": {
 							"x": 0.7556,
 							"y": -0.0819,
-							"z": -0.1865
+							"z": -0.1861
 						},
 						"Scale": {
-							"x": 4.0397,
-							"y": 4.0397,
-							"z": 4.0397
+							"x": 4.0399,
+							"y": 4.0399,
+							"z": 4.0399
 						}
 					},
 					"gs::core::Object": {
@@ -477,14 +474,14 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": 0.7603000000000001,
+							"x": 0.7603,
 							"y": -0.1076,
 							"z": -0.1807
 						},
 						"Scale": {
-							"x": 4.0397,
-							"y": 4.0397,
-							"z": 4.0397
+							"x": 4.0399,
+							"y": 4.0399,
+							"z": 4.0399
 						}
 					},
 					"gs::core::Object": {
@@ -498,18 +495,163 @@
 				"Components": {
 					"gs::core::Transform": {
 						"Position": {
-							"x": 0.8316,
+							"x": 0.8318,
 							"y": -0.093,
-							"z": -0.18630000000000003
+							"z": -0.1861
 						},
 						"Scale": {
-							"x": 4.0397,
-							"y": 4.0397,
-							"z": 4.0397
+							"x": 4.0399,
+							"y": 4.0399,
+							"z": 4.0399
 						}
 					},
 					"gs::core::Object": {
 						"Geometry": "res/a500/Power_Drive_Lamp.geo"
+					}
+				}
+			},
+			"Node": {
+				"Uid": 24,
+				"Name": "Default Camera",
+				"Components": {
+					"gs::core::Transform": {
+						"Position": {
+							"x": 2.4389,
+							"y": 1.6289,
+							"z": -1.9319
+						},
+						"Rotation": {
+							"x": 0.4288,
+							"y": -0.7301,
+							"z": 0.0
+						},
+						"Scale": {
+							"x": 1.0002,
+							"y": 1.0005,
+							"z": 1.0005
+						}
+					},
+					"gs::core::Camera": {
+						"ZNear": 0.1002,
+						"ZFar": 50000.0
+					}
+				}
+			},
+			"Node": {
+				"Uid": 25,
+				"Name": "spotlight",
+				"Components": {
+					"gs::core::Transform": {
+						"Position": {
+							"x": 0.2285,
+							"y": 0.6755,
+							"z": -0.052
+						},
+						"Rotation": {
+							"x": 1.2281,
+							"y": -0.9634,
+							"z": 0.0001
+						},
+						"Scale": {
+							"x": 1.0004,
+							"y": 1.0,
+							"z": 1.0004
+						}
+					},
+					"gs::core::Light": {
+						"Model": "Spot",
+						"Shadow": "ShadowMap",
+						"ShadowRange": 0.0,
+						"Range": 10.0,
+						"VolumeRange": 10.0,
+						"SpecularColor": {
+							"r": 1.0,
+							"g": 1.0,
+							"b": 1.0
+						},
+						"DiffuseIntensity": 0.7,
+						"SpecularIntensity": 0.8002,
+						"ConeAngle": 0.0892,
+						"EdgeAngle": 0.5603
+					}
+				}
+			},
+			"Node": {
+				"Uid": 26,
+				"Name": "backlight",
+				"Components": {
+					"gs::core::Transform": {
+						"Position": {
+							"x": 1.9141,
+							"y": 0.7911,
+							"z": 1.5802
+						},
+						"Rotation": {
+							"x": 0.422,
+							"y": -2.1779,
+							"z": -0.0535
+						}
+					},
+					"gs::core::Light": {
+						"Model": "Spot",
+						"Shadow": "ShadowMap",
+						"ShadowRange": 0.0,
+						"Range": 5.0,
+						"VolumeRange": 5.0,
+						"DiffuseColor": {
+							"r": 0.0,
+							"g": 0.5905,
+							"b": 1.0
+						},
+						"SpecularColor": {
+							"r": 0.0079,
+							"g": 0.8961,
+							"b": 1.0
+						},
+						"DiffuseIntensity": 1.5,
+						"SpecularIntensity": 1.5,
+						"ConeAngle": 0.0071,
+						"EdgeAngle": 0.3423
+					}
+				}
+			},
+			"Node": {
+				"Uid": 27,
+				"Name": "Plane",
+				"DoNotInstantiate": true,
+				"Components": {
+					"gs::core::Transform": {},
+					"gs::core::LogicScript": {
+						"gs::core::Script": {
+							"Path": "@core/lua/plane.lua",
+							"Parameters": {
+								"Parameter": {
+									"Name": "width",
+									"Type": "int",
+									"Value": 1
+								},
+								"Parameter": {
+									"Name": "length",
+									"Type": "int",
+									"Value": 1
+								},
+								"Parameter": {
+									"Name": "subdiv_x",
+									"Type": "int",
+									"Value": 1
+								},
+								"Parameter": {
+									"Name": "subdiv_z",
+									"Type": "int",
+									"Value": 1
+								},
+								"Parameter": {
+									"Name": "material",
+									"Type": "gs::render::sMaterial",
+									"Value": "@core/materials/default.mat"
+								}
+							}
+						}
 					}
 				}
 			}
@@ -605,6 +747,10 @@
 			}
 		},
 		"Skeletons": {},
-		"State": {}
+		"State": {
+			"CurrentCamera": {
+				"Uid": 24
+			}
+		}
 	}
 }

@@ -26,7 +26,7 @@ def main():
 	scn = scene.new_scene()
 
 	cam = scene.add_camera(scn, gs.Matrix4.TranslationMatrix(gs.Vector3(0, 0, 0)))
-	scene.add_light(scn, gs.Matrix4.TranslationMatrix(gs.Vector3(6, 4, -6)))
+	# scene.add_light(scn, gs.Matrix4.TranslationMatrix(gs.Vector3(6, 4, -6)))
 	# scene.add_cube(scn, gs.Matrix4.TranslationMatrix(gs.Vector3(0, 0.5, 0)))
 	scene.add_plane(scn)
 	# demo_screen = scene.add_plane(scn, gs.Matrix4.TranslationMatrix(gs.Vector3(0, 2.0, 0)), 4 * 0.5, 3 * 0.5, os.path.join("res", "monitor", "monitor_screen.mat"))
@@ -71,12 +71,12 @@ def main():
 	tmp_pos.z += 0.5
 	tmp_node_transform.SetPosition(tmp_pos)
 
-	demo_screen_node = scn.GetNode('monitor_screen')
-	c_list = demo_screen_node.GetComponents()
-	demo_screen_object = demo_screen_node.GetComponentsWithAspect("Object")[0]
-	demo_screen_geo = demo_screen_object.GetGeometry()
-	demo_screen_mat = demo_screen_geo.GetMaterial(0)
-	demo_screen_tex = demo_screen_mat.GetTexture("diffuse_map")
+	# demo_screen_node = scn.GetNode('monitor_screen')
+	# c_list = demo_screen_node.GetComponents()
+	# demo_screen_object = demo_screen_node.GetComponentsWithAspect("Object")[0]
+	# demo_screen_geo = demo_screen_object.GetGeometry()
+	# demo_screen_mat = demo_screen_geo.GetMaterial(0)
+	# demo_screen_tex = demo_screen_mat.GetTexture("diffuse_map")
 
 	fps = camera.fps_controller(0, 0.5, -3.5)
 
@@ -91,6 +91,8 @@ def main():
 	audio.get_mixer().SetChannelState(demo_audio_stream, channel_state)
 	plane_angle = 0.0
 
+	scn.SetCurrentCamera(cam)
+
 	while not input.key_press(gs.InputDevice.KeyEscape):
 		dt_sec = clock.update()
 
@@ -101,7 +103,7 @@ def main():
 		demo.draw_checkerboard()
 		demo.draw_unlimited_bobs()
 		demo.render_demo_text()
-		render.get_renderer().BlitTexture(demo_screen_tex, demo.screen_pic)
+		# render.get_renderer().BlitTexture(demo_screen_tex, demo.screen_pic)
 
 		fps.update_and_apply_to_node(cam, dt_sec * 0.1)
 

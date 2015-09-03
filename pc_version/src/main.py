@@ -12,7 +12,6 @@ from demo_simulation import DemoSimulation
 
 
 def main():
-	demo = None
 	demo_screen_width = 384
 	demo_screen_height = 280
 
@@ -64,15 +63,20 @@ def main():
 
 	scn.Load(os.path.join("res/a500/a500.scn"), gs.SceneLoadContext(render.get_render_system()))
 	scn_monitor_load = scn.Load(os.path.join("res/monitor/monitor.scn"), gs.SceneLoadContext(render.get_render_system()))
-	while scn_monitor_load is False:
-		pass
 
-	demo_screen_node = scn.GetNode("monitor_screen") ##, None)
-	if demo_screen_node is not None:
-		demo_screen_transform = demo_screen_node.GetComponentsWithAspect("Transform")[0]
-		demo_screen_pos = demo_screen_transform.GetPosition()
-		demo_screen_pos.z -= 5.0
-		demo_screen_transform.GetPosition(demo_screen_pos)
+	scene.update_scene(scn, 0.0)
+	tmp_node = scn.GetNode('monitor')
+	tmp_node_transform = tmp_node.GetComponentsWithAspect("Transform")[0]
+	tmp_pos = tmp_node_transform.GetPosition()
+	tmp_pos.z += 0.5
+	tmp_node_transform.SetPosition(tmp_pos)
+
+	demo_screen_node = scn.GetNode('monitor_screen')
+	c_list = demo_screen_node.GetComponents()
+	demo_screen_object = demo_screen_node.GetComponentsWithAspect("Object")[0]
+	demo_screen_geo = demo_screen_object.GetGeometry()
+	demo_screen_mat = demo_screen_geo.GetMaterial(0)
+	demo_screen_tex = demo_screen_mat.GetTexture("diffuse_map")
 
 	fps = camera.fps_controller(0, 0.5, -3.5)
 
@@ -97,7 +101,7 @@ def main():
 		demo.draw_checkerboard()
 		demo.draw_unlimited_bobs()
 		demo.render_demo_text()
-		# render.get_renderer().BlitTexture(demo_screen_tex, demo.screen_pic)
+		render.get_renderer().BlitTexture(demo_screen_tex, demo.screen_pic)
 
 		fps.update_and_apply_to_node(cam, dt_sec * 0.1)
 

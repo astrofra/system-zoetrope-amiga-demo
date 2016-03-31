@@ -67,9 +67,9 @@ class DemoSimulation:
 
 			for strip_idx in range(0, screen_size.ANIM_STRIPE):
 				for y in range(0, int(h / screen_size.ANIM_STRIPE)):
-					cl_pixel = self.pictures["copper_list"].GetPixelRGBA(8, y + screen_size.DISPL_HEIGHT2 - screen_size.CHECKERBOARD_HEIGHT + 21 - 16) * (1 / 255.0)
+					cl_pixel = self.pictures["copper_list"].GetPixelRGBA(8, y + screen_size.DISPL_HEIGHT2 - screen_size.CHECKERBOARD_HEIGHT + 21 - 16)
 					for x in range(0, w):
-						cb_pixel = self.pictures["checkerboard_strip"].GetPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE))) * (1 / 255.0)
+						cb_pixel = self.pictures["checkerboard_strip"].GetPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)))
 
 						cb_luma = pow(cb_pixel.x, 0.5) * 0.3 + max(0, cl_pixel.x - 0.25)
 
@@ -83,7 +83,7 @@ class DemoSimulation:
 
 						cb_pixel.x = min(1.0, cb_pixel.x)
 						cb_pixel.y = min(1.0, cb_pixel.y)
-						cb_pixel.z = min(1.0, cb_pixel.z)								
+						cb_pixel.z = min(1.0, cb_pixel.z)
 
 						cb_pixel.w = 1.0
 						self.pictures["checkerboard_strip"].PutPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE)), cb_pixel.x, cb_pixel.y, cb_pixel.z, cb_pixel.w)

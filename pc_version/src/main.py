@@ -40,6 +40,11 @@ def main():
 
 	demo_screen_vertices = [gs.Vector3(0.5 * 1280, 0.5 * 720, 0.5)]
 
+	# play music
+	al = gs.MixerAsync(gs.ALMixer())
+	al.Open()
+	future_channel = al.Stream("res/music_loop.ogg")
+
 	while egl.GetDefaultOutputWindow():
 		egl.Clear(gs.Color.Black)
 

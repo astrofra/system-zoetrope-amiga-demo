@@ -43,13 +43,12 @@ function EndRenderPass(pass)
 
 	-- backup current view state
 	local view_state = render_system:GetViewState()
+	local view_rotation = view_state.view:GetRotationMatrix()
 
 	renderer:SetIdentityMatrices()
 
 	-- configure the rayleigh shader
 	renderer:SetShader(shader)
-
-	local view_rotation = render_system:GetView().transform:GetCurrent().rotation
 
 	renderer:SetShaderMatrix3("view_rotation", view_rotation)
 
@@ -76,7 +75,7 @@ function EndRenderPass(pass)
 	renderer:EnableDepthTest(true)
 	renderer:EnableDepthWrite(false)
 	renderer:SetDepthFunc(gs.GpuRenderer.DepthLessEqual)
-	render_system:DrawFullscreenQuad(renderer:GetViewportToInternalResolutionRatio())
+	render_system:DrawFullscreenQuad(render_system:GetViewportToInternalResolutionRatio())
 	renderer:EnableDepthWrite(true)
 	renderer:EnableDepthTest(true)
 

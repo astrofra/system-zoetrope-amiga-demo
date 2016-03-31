@@ -3,39 +3,29 @@
 #ifndef SHADOW_COMMON_I
 #define SHADOW_COMMON_I
 
-float SampleShadowMap(texShadow shadow_map, vec3 p)
+float SampleShadowMap(texShadow shadow_map, vec3 uv)
 {
 #if GLSL_API < 330
-	return shadow2D(shadow_map, p).r;
+	return shadow2D(shadow_map, uv).r;
 #else
-	return shadow2D(shadow_map, p);
+	return shadow2D(shadow_map, uv);
 #endif
+}
+
+float SampleShadowMapPCF(texShadow shadow_map, vec3 uv)
+{
+	float tap = 0.0;
+	for(int x = -2; x <= 2; ++x)
+		for(int y = -2; y <= 2; ++y)
+			tap += SampleShadowMap(shadow_map, uv + vec3(x * vInverseShadowMapSize, y * vInverseShadowMapSize, 0));
+	return tap / 25.0;
 }
 
 float ComputeShadowPCF(vec3 pixel_view_pos, mat4 projection, texShadow shadow_map)
 {
 	vec4 pixel_light_pos = _mtx_mul(projection, vec4(pixel_view_pos - vec3(0.0, 0.0, vLightState.w), 1.0));
-	vec3 pixel_shadow_uv = pixel_light_pos.xyz / pixel_light_pos.w;
-
-	#define SampleShadowPCF(u, v)\
-	{\
-		vec3 offset = pixel_shadow_uv + vec3(u, v, 0.0) * vInverseShadowMapSize;\
-		pcf_tap += SampleShadowMap(shadow_map, offset);\
-	}
-
-	float pcf_tap = 0.0;
-
-	SampleShadowPCF(-1.0, -1.0);
-	SampleShadowPCF( 0.0, -1.0);
-	SampleShadowPCF( 1.0, -1.0);
-	SampleShadowPCF(-1.0,  0.0);
-	SampleShadowPCF( 0.0,  0.0);
-	SampleShadowPCF( 1.0,  0.0);
-	SampleShadowPCF(-1.0,  1.0);
-	SampleShadowPCF( 0.0,  1.0);
-	SampleShadowPCF( 1.0,  1.0);
-
-	return pcf_tap * (1.0 / 9.0);
+	vec3 uv = pixel_light_pos.xyz / pixel_light_pos.w;
+	return SampleShadowMapPCF(shadow_map, uv);
 }
 
 float ComputeLinearLightShadowPCF(vec3 pixel_view_pos)

@@ -23,7 +23,7 @@ variant {
 			vec3 r = normalize(reflect(e, normalize(n)));
 
 			vec4 cube_color = textureCube(cube_map, r);
-			%diffuse% = cube_color;
+			%diffuse% = cube_color.xyz;
 		%}
 	}
 }

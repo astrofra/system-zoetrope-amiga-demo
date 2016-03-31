@@ -7,7 +7,7 @@ in {
 variant {
 	pixel {
 		source %{
-			%diffuse% = diffuse_color;
+			%diffuse% = diffuse_color.xyz;
 		%}
 	}
 }

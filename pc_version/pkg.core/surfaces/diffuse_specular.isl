@@ -7,8 +7,8 @@ in {
 variant {
 	pixel {
 		source %{
-			%diffuse% = diffuse_color;
-			%specular% = specular_color;
+			%diffuse% = diffuse_color.xyz;
+			%specular% = specular_color.xyz;
 			%glossiness% = glossiness;
 		%}
 	}

@@ -53,7 +53,7 @@ function CreateRenderGeometry(uname)
 	end
 
 	geo:AllocateRgb(polygon_count * 4)
-	geo:AllocateUVChannel(3, polygon_count * 4)
+	geo:AllocateUVChannels(3, polygon_count * 4)
 
 	if geo:AllocatePolygonBinding() == 0 then
 		return

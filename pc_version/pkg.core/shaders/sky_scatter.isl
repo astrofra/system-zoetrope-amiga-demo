@@ -26,8 +26,8 @@ variant {
 	vertex {
 		out { vec2 v_uv; }
 		source %{
-			float factor = 1.0 / vViewState.z;
-			v_uv = (vPosition.xy * vec2(factor, factor)) / vInverseViewportSize.zw;
+			float factor = 1.0 / 3.2; // assume default fov
+			v_uv = (vPosition.xy * vec2(factor, factor)) * vInverseViewportSize.zw;
 			%out.position% = vec4(vPosition, 1.0);
 		%}
 	}

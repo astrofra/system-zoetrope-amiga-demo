@@ -28,7 +28,7 @@ variant {
 				uv_n = (r.xy / (2.0*(1.0 - r.z))) + 0.5;
 
 			vec4 spherical_color = texture2D(spherical_map, uv_n);
-			%diffuse% = spherical_color;
+			%diffuse% = spherical_color.xyz;
 		%}
 	}
 }

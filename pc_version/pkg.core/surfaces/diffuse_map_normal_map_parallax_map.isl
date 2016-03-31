@@ -85,13 +85,14 @@ variant {
 			// sample, unpack and transform normal to tangent space
 			mat3 tangent_matrix = _build_mat3(normalize(v_tangent), normalize(v_bitangent), normalize(v_normal));
 
-			vec3 n = texture2D(normal_map, uv).rgb;
+			vec3 n = texture2D(normal_map, uv).xyz;
 			n = UnpackVectorFromColor(n);
 			n = normalize(tangent_matrix * n);
+			n = vNormalViewMatrix * n;
 
 			%normal% = n;
-			%diffuse% = texture2D(diffuse_map, uv);
-			%specular% = vec4(1.0, 1.0, 1.0, 1.0);
+			%diffuse% = texture2D(diffuse_map, uv).xyz;
+			%specular% = vec3(1.0, 1.0, 1.0);
 		%}
 	}
 }

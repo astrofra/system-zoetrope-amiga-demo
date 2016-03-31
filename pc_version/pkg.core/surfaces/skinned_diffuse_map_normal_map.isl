@@ -30,7 +30,7 @@ variant {
 			n = n * 2.0 - 1.0;
 			n = tangent_matrix * n;
 
-			%diffuse% = texture2D(diffuse_map, v_uv);
+			%diffuse% = texture2D(diffuse_map, v_uv).xyz;
 			%normal% = n;
 		%}
 	}

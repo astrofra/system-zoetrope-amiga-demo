@@ -58,8 +58,6 @@ class DemoSimulation:
 			if os.path.exists(texture_filename):
 				self.pictures[texture_name] = gs.LoadPicture(texture_filename)
 				print("Found texture : ", texture_filename)
-			else:
-				print("Cannot find texture : ", texture_filename)
 
 		if self.pictures["checkerboard_strip"] is not None:
 			pixel_data = self.pictures["checkerboard_strip"].GetData()
@@ -69,9 +67,9 @@ class DemoSimulation:
 
 			for strip_idx in range(0, screen_size.ANIM_STRIPE):
 				for y in range(0, int(h / screen_size.ANIM_STRIPE)):
-					cl_pixel = self.pictures["copper_list"].GetPixelRGBA(8, y + screen_size.DISPL_HEIGHT2 - screen_size.CHECKERBOARD_HEIGHT + 21 - 16) / 255.0
+					cl_pixel = self.pictures["copper_list"].GetPixelRGBA(8, y + screen_size.DISPL_HEIGHT2 - screen_size.CHECKERBOARD_HEIGHT + 21 - 16) * (1 / 255.0)
 					for x in range(0, w):
-						cb_pixel = self.pictures["checkerboard_strip"].GetPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE))) / 255.0
+						cb_pixel = self.pictures["checkerboard_strip"].GetPixelRGBA(x, int(y + strip_idx * (h / screen_size.ANIM_STRIPE))) * (1 / 255.0)
 
 						cb_luma = pow(cb_pixel.x, 0.5) * 0.3 + max(0, cl_pixel.x - 0.25)
 

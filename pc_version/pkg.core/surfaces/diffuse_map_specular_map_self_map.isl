@@ -22,9 +22,9 @@ variant {
 			vec4 specular_color = texture2D(specular_map, v_uv);
 			vec4 self_color = texture2D(self_map, v_uv);
 
-			%diffuse% = diffuse_color;
-			%specular% = specular_color;
-			%constant% = self_color;
+			%diffuse% = diffuse_color.xyz;
+			%specular% = specular_color.xyz;
+			%constant% = self_color.xyz;
 			%glossiness% = glossiness;
 		%}
 	}

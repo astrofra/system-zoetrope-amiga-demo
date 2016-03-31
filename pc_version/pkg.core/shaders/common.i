@@ -48,4 +48,9 @@ float SampleDepthBuffer(tex2D depth_buffer, vec2 uv)
 	return 1.0;
 }
 
+// Eye enumeration
+const float EyeMono = 0;
+const float EyeStereoLeft = 1;
+const float EyeStereoRight = 2;
+
 #endif // COMMON_I

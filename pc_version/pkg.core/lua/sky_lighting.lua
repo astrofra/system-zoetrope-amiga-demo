@@ -8,7 +8,7 @@ attenuation = 1.0 --> float
 
 shadow_range = 150 --> float
 shadow_bias = 0.01 --> float
-shadow_distribution = 0.5 --> float
+shadow_split = gs.Vector4(0.25, 0.25, 0.25, 0.25) --> gs::Vector4
 --------------------------------------------------------------------------------
 
 dofile("@core/lua/math_common.lua")
@@ -57,15 +57,15 @@ function Setup()
 end
 
 function UpdateLighting()
-	local main_light_c = main_light.light
+	local main_light_c = main_light:GetLight()
 	main_light_c:SetDiffuseIntensity(1.0 * attenuation)
 	main_light_c:SetSpecularIntensity(1.0 * attenuation)
 
 	main_light_c:SetShadowRange(shadow_range)
 	main_light_c:SetShadowBias(shadow_bias)
-	main_light_c:SetShadowDistribution(shadow_distribution)
+	main_light_c:SetShadowSplit(shadow_split)
 
-	local back_light_c = back_light.light
+	local back_light_c = back_light:GetLight()
 	back_light_c:SetDiffuseIntensity(0.5 * attenuation)
 
 	-- compute latitude from time of day
@@ -82,14 +82,14 @@ function UpdateLighting()
 	main_light_c:SetDiffuseColor(light_color)
 	main_light_c:SetSpecularColor(light_color)
 
-	main_light.transform:SetWorld(gs.Matrix4(gs.Matrix3.LookAt(light_dir:Reversed())))
+	main_light:GetTransform():SetWorld(gs.Matrix4(gs.Matrix3.LookAt(light_dir:Reversed())))
 
 	-- set back light attributes
 	local back_light_dir = LatlongToDirection(latitude, longitude + math.pi)
 	local back_light_color = get_rayleight(back_light_dir, light_dir, false)
 	back_light_c:SetDiffuseColor(back_light_color)
 
-	back_light.transform:SetWorld(gs.Matrix4(gs.Matrix3.LookAt(light_dir)))
+	back_light:GetTransform():SetWorld(gs.Matrix4(gs.Matrix3.LookAt(light_dir)))
 
 	-- update scene environment if it exists
 	local scene_environment = this:GetComponentsWithAspect("Environment")

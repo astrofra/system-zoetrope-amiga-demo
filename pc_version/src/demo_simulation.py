@@ -45,6 +45,9 @@ class DemoSimulation:
 		self.text_display_timer = 0.0
 		self.text_pixel_w = 0.0
 
+	def update_dt(self, dt = 1.0 / 60.0):
+		self.dt = dt
+
 	def load_textures(self):
 		self.pictures = {
 							"bob_ball":None, "bob_torus":None, 
@@ -216,7 +219,7 @@ class DemoSimulation:
 			print("text_str = " + text_string)
 			self.text_pixel_w = self.font_writer_blit(self.pictures["font_sans_serif"], self.text_buffer, 0, 0, text_string)
 
-		self.text_display_timer += self.dt
+		self.text_display_timer += self.dt * 0.5
 
 		dest_rect = self.text_buffer.GetRect()
 		dest_rect.SetHeight(screen_size.DISPL_HEIGHT3)

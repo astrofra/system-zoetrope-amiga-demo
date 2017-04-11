@@ -5,28 +5,25 @@ from demo_simulation import DemoSimulation
 
 def main():
 	demo = None
+	pc_screen_width = 1280
+	pc_screen_height = 720
 	demo_screen_width = 384
 	demo_screen_height = 280
+	amiga_screen_ratio = demo_screen_height / demo_screen_width
 
 	# mount the system file driver
-	gs.GetFilesystem().Mount(gs.StdFileDriver("pkg.core"), "@core")
+	# gs.GetFilesystem().Mount(gs.StdFileDriver("pkg.core"), "@core")
 	gs.MountFileDriver(gs.StdFileDriver())
 	gs.LoadPlugins(gs.get_default_plugins_path())
 
 	# create the renderer and render system
-	egl = gs.EglRenderer()
-	egl.Open(1280, 720)
+	plus = gs.GetPlus()
+	plus.RenderInit(1280, 720)
 
-	sys = gs.RenderSystem()
-	sys.Initialize(egl)
+	egl = plus.GetRenderer()
 
 	# create the font object
 	font = gs.RasterFont("@core/fonts/default.ttf", 48, 512)
-
-	# set default render states
-	egl.Set2DMatrices()
-	egl.EnableBlending(True)
-	egl.EnableDepthTest(False)
 
 	# Init demo simulation
 	demo = DemoSimulation(demo_screen_width, demo_screen_height)
@@ -35,20 +32,19 @@ def main():
 	demo_screen_tex = egl.NewTexture("demo_screen_texture")
 
 	res = egl.CreateTexture(demo_screen_tex, demo.screen_pic)
-	# res = egl.CreateTexture(demo_screen_tex, demo_screen_pic.GetWidth(), demo_screen_pic.GetHeight())
 	print("CreateTexture() returned ", res)
-
-	demo_screen_vertices = [gs.Vector3(0.5 * 1280, 0.5 * 720, 0.5)]
 
 	# play music
 	al = gs.MixerAsync(gs.ALMixer())
 	al.Open()
 	future_channel = al.Stream("res/music_loop.ogg")
 
-	while egl.GetDefaultOutputWindow():
-		egl.Clear(gs.Color.Black)
+	while not plus.KeyPress(gs.InputDevice.KeyEscape):
+		dt = plus.UpdateClock()
+		plus.Clear()
 
 		# Demo simulation (re-creation)
+		demo.update_dt(dt.to_sec())
 		demo.clear_screen()
 		demo.draw_pixel_art_logo()
 		demo.draw_checkerboard()
@@ -57,13 +53,12 @@ def main():
 
 		egl.BlitTexture(demo_screen_tex, demo.screen_pic)
 
-		egl.SetBlendFunc(gs.GpuRenderer.BlendSrcAlpha, gs.GpuRenderer.BlendOneMinusSrcAlpha)
-		egl.EnableBlending(True)
-		sys.DrawSpriteAuto(1, demo_screen_vertices, demo_screen_tex, 0.5 * 720)
+		_x_offset = (pc_screen_width - pc_screen_width * amiga_screen_ratio) * 0.5
+		plus.Quad2D(_x_offset, 0, _x_offset, pc_screen_height, _x_offset + (pc_screen_width * amiga_screen_ratio),
+					pc_screen_height, _x_offset + (pc_screen_width * amiga_screen_ratio), 0,
+					gs.Color.White, gs.Color.White, gs.Color.White, gs.Color.White, demo_screen_tex)
 
-		egl.DrawFrame()
-		egl.ShowFrame()
-		egl.UpdateOutputWindow()
+		plus.Flip()
 
 	font = None
 

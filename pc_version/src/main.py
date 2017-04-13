@@ -1,10 +1,27 @@
 import gs
+import pymsgbox
 import screen_size
 from demo_simulation import DemoSimulation
 
 
 def main():
-	demo = None
+	plus = gs.GetPlus()
+	plus.CreateWorkers()
+
+	window_mode = pymsgbox.confirm(text='Select your screen mode', title='System Zoetrope', buttons=['Windowed', 'Fullscreen'])
+
+	if window_mode == 'Windowed':
+		pc_screen_windowed = True
+		screen_resolutions = ['800x600', '1280x800']
+	elif window_mode == 'Fullscreen':
+		pc_screen_windowed = False
+		screen_resolutions = ['800x600', '1280x720', '1280x800', '1920x1080']
+	else:
+		return False
+
+	screen_res = pymsgbox.confirm(text='Select your screen resolution', title='System Zoetrope',
+								   buttons=screen_resolutions)
+
 	pc_screen_windowed = True
 	pc_screen_width = 1280
 	pc_screen_height = 720
@@ -22,10 +39,13 @@ def main():
 	gs.LoadPlugins(gs.get_default_plugins_path())
 
 	# create the renderer and render system
-	plus = gs.GetPlus()
-	plus.RenderInit(pc_screen_width, pc_screen_height)
+	if pc_screen_windowed:
+		w_mode = gs.Window.Windowed
+	else:
+		w_mode = gs.Window.Fullscreen
+	plus.RenderInit(pc_screen_width, pc_screen_height, 1, w_mode)
 
-	egl = plus.GetRenderer()
+	egl = plus.GetRendererAsync()
 
 	# create the font object
 	font = gs.RasterFont("@core/fonts/default.ttf", 48, 512)
@@ -43,7 +63,7 @@ def main():
 	al = gs.MixerAsync(gs.ALMixer())
 	al.Open()
 	channel_state = gs.MixerChannelState(0, 1, gs.MixerRepeat)
-	future_channel = al.Stream("res/music_loop.ogg", channel_state)
+	al.Stream("res/music_loop.ogg", channel_state)
 
 	while not plus.KeyPress(gs.InputDevice.KeyEscape):
 		dt = plus.UpdateClock()
@@ -57,7 +77,7 @@ def main():
 		demo.draw_unlimited_bobs()
 		demo.render_demo_text()
 
-		egl.BlitTexture(demo_screen_tex, demo.screen_pic)
+		egl.BlitTexture(demo_screen_tex, gs.BinaryBlobFromByteArray(demo.screen_pic.GetData()), demo_screen_width, demo_screen_height)
 
 		if pc_screen_windowed:
 			plus.Quad2D(0, 0, 0, pc_screen_height, pc_screen_width, pc_screen_height,
@@ -70,8 +90,6 @@ def main():
 						gs.Color.White, gs.Color.White, gs.Color.White, gs.Color.White, demo_screen_tex)
 
 		plus.Flip()
-
-	font = None
 
 if __name__ == "__main__":
     main()

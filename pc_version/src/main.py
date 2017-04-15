@@ -1,10 +1,13 @@
 import gs
 import pymsgbox
-import screen_size
 from demo_simulation import DemoSimulation
 
 
 def main():
+	pc_screen_windowed = True
+	pc_screen_width = 1280
+	pc_screen_height = 720
+
 	plus = gs.GetPlus()
 	plus.CreateWorkers()
 
@@ -22,9 +25,11 @@ def main():
 	screen_res = pymsgbox.confirm(text='Select your screen resolution', title='System Zoetrope',
 								   buttons=screen_resolutions)
 
-	pc_screen_windowed = True
-	pc_screen_width = 1280
-	pc_screen_height = 720
+	if screen_res is not None:
+		pc_screen_width = int(screen_res.split('x')[0])
+		pc_screen_height = int(screen_res.split('x')[1])
+	else:
+		return False
 
 	demo_screen_width = 384
 	demo_screen_height = 280
@@ -65,7 +70,7 @@ def main():
 	channel_state = gs.MixerChannelState(0, 1, gs.MixerRepeat)
 	al.Stream("res/music_loop.ogg", channel_state)
 
-	while not plus.KeyPress(gs.InputDevice.KeyEscape):
+	while not plus.IsAppEnded(plus.EndOnDefaultWindowClosed) and not plus.KeyPress(gs.InputDevice.KeyEscape):
 		dt = plus.UpdateClock()
 		plus.Clear()
 

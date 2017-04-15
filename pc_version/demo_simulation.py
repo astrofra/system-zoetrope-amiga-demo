@@ -18,6 +18,7 @@ class DemoSimulation:
 		self.ubob_phase_x = 0
 		self.ubob_phase_y = 0
 		self.frame = 0
+		self.figure_mode = 0
 
 		self.x_margin = int((self.demo_screen_width - screen_size.DISPL_WIDTH2) / 2.0)
 
@@ -169,16 +170,44 @@ class DemoSimulation:
 
 		self.frame += (30.0 * self.dt) ##(self.frame + 1)%screen_size.ANIM_STRIPE
 
-	def draw_unlimited_bobs(self, figure_mode = 0):
+	def draw_unlimited_bobs(self):
 		x = 0
 		y = 0
 
-		bob_pic = self.pictures["bob_ball"]
+		def table_to_angle(table_index):
+			return (180 * table_index) / 3
 
 		# Lissajous trajectory
+		if self.figure_mode == 0:
+			self.ubob_phase_x += table_to_angle(3) * self.dt
+			self.ubob_phase_y += table_to_angle(2) * self.dt
+			bob_pic = self.pictures["bob_ball"]
+		elif self.figure_mode == 1:
+			self.ubob_phase_x += table_to_angle(2) * self.dt
+			self.ubob_phase_y += table_to_angle(3) * self.dt
+			bob_pic = self.pictures["bob_torus"]
+		elif self.figure_mode == 2:
+			self.ubob_phase_x += table_to_angle(3) * self.dt
+			self.ubob_phase_y += table_to_angle(1) * self.dt
+			bob_pic = self.pictures["bob_ball"]
+		elif figure_mode == 3:
+			self.ubob_phase_x += table_to_angle(1) * self.dt
+			self.ubob_phase_y += table_to_angle(5) * self.dt
+			bob_pic = self.pictures["bob_torus"]
+		elif self.figure_mode == 4:
+			self.ubob_phase_x += table_to_angle(1) * self.dt
+			self.ubob_phase_y += table_to_angle(2) * self.dt
+			bob_pic = self.pictures["bob_ball"]
+		elif self.figure_mode == 5:
+			self.ubob_phase_x += table_to_angle(1) * self.dt
+			self.ubob_phase_y += table_to_angle(1) * self.dt
+			bob_pic = self.pictures["bob_ball"]
+
+		# bob_pic = self.pictures["bob_ball"]
+
 		phase_scaler = 0.5
-		self.ubob_phase_x += 180 * self.dt
-		self.ubob_phase_y += 120 * self.dt
+		# self.ubob_phase_x += 180 * self.dt
+		# self.ubob_phase_y += 120 * self.dt
 
 		x = (screen_size.DISPL_WIDTH2b - screen_size.DISPL_WIDTH2b * 0.8 + bob_pic.GetRect().GetWidth()) * 0.5 + (math.cos(math.radians(self.ubob_phase_x) * phase_scaler) + 1.0 * 0.5) * screen_size.DISPL_WIDTH2b * 0.5 * 0.8
 		y = (math.sin(math.radians(self.ubob_phase_y) * phase_scaler) + 1.0 * 0.5) * screen_size.DISPL_HEIGHT2b * 0.5 * 0.8

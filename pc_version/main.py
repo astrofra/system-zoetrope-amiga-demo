@@ -82,12 +82,18 @@ def main():
 		demo.clear_screen()
 		demo.draw_pixel_art_logo()
 		demo.draw_checkerboard()
-		print(mode_switch)
+
 		if mode_switch == "DMODE_SW_UBOB":
 			if not demo.draw_unlimited_bobs():
-				mode_switch = "DMODE_SW_CLEAR_FROM_TOP"
+				if demo.figure_mode % 2 == 0:
+					mode_switch = "DMODE_SW_CLEAR_FROM_TOP"
+				else:
+					mode_switch = "DMODE_SW_CLEAR_FROM_BOTTOM"
 		elif mode_switch == "DMODE_SW_CLEAR_FROM_TOP":
-			if demo.clear_playfield():
+			if demo.clear_playfield(True):
+				mode_switch = "DMODE_SW_NEXT_UBOB"
+		elif mode_switch == "DMODE_SW_CLEAR_FROM_BOTTOM":
+			if demo.clear_playfield(False):
 				mode_switch = "DMODE_SW_NEXT_UBOB"
 		elif mode_switch == "DMODE_SW_NEXT_UBOB":
 			demo.set_next_unlimited_bobs()

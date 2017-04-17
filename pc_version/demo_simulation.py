@@ -38,6 +38,7 @@ class DemoSimulation:
 		self.ubob_buffer = gs.Picture(screen_size.WIDTH2, screen_size.HEIGHT2, gs.Picture.RGBA8)
 		self.ubob_buffer.ClearRGBA(0, 0, 0, 0)
 		self.ubob_offset_phase = 0
+		self.clear_line_y = 0
 
 		# Font writer
 		self.text_buffer = gs.Picture(screen_size.WIDTH3, screen_size.HEIGHT3, gs.Picture.RGBA8)
@@ -177,6 +178,7 @@ class DemoSimulation:
 
 		self.ubob_phase_x = 0
 		self.ubob_phase_y = 0
+		self.clear_line_y = 0
 		# self.ubob_scale = 0
 		# self.ubob_frame_y = 0
 
@@ -196,39 +198,40 @@ class DemoSimulation:
 		if self.figure_mode == 0:
 			self.ubob_phase_x += table_to_angle(3) * self.dt
 			self.ubob_phase_y += table_to_angle(2) * self.dt
-			bob_pic = self.pictures["bob_ball"]
+			bob_pic_name = "bob_ball"
 		elif self.figure_mode == 1:
 			self.ubob_phase_x += table_to_angle(2) * self.dt
 			self.ubob_phase_y += table_to_angle(3) * self.dt
-			bob_pic = self.pictures["bob_torus"]
+			bob_pic_name = "bob_torus"
 		elif self.figure_mode == 2:
 			self.ubob_phase_x += table_to_angle(3) * self.dt
 			self.ubob_phase_y += table_to_angle(1) * self.dt
-			bob_pic = self.pictures["bob_ball"]
+			bob_pic_name = "bob_ball"
 		elif self.figure_mode == 3:
 			self.ubob_phase_x += table_to_angle(1) * self.dt
 			self.ubob_phase_y += table_to_angle(5) * self.dt
-			bob_pic = self.pictures["bob_torus"]
+			bob_pic_name = "bob_torus"
 		elif self.figure_mode == 4:
 			self.ubob_phase_x += table_to_angle(1) * self.dt
 			self.ubob_phase_y += table_to_angle(2) * self.dt
-			bob_pic = self.pictures["bob_ball"]
+			bob_pic_name = "bob_ball"
 		elif self.figure_mode == 5:
 			self.ubob_phase_x += table_to_angle(1) * self.dt
 			self.ubob_phase_y += table_to_angle(1) * self.dt
-			bob_pic = self.pictures["bob_ball"]
+			bob_pic_name = "bob_ball"
 
 		# bob_pic = self.pictures["bob_ball"]
 
 		phase_scaler = 0.5
-		# self.ubob_phase_x += 180 * self.dt
-		# self.ubob_phase_y += 120 * self.dt
 
-		x = (screen_size.DISPL_WIDTH2b - screen_size.DISPL_WIDTH2b * 0.8 + bob_pic.GetRect().GetWidth()) * 0.5 + (math.cos(math.radians(self.ubob_phase_x) * phase_scaler) + 1.0 * 0.5) * screen_size.DISPL_WIDTH2b * 0.5 * 0.8
+		bob_pic = self.pictures[bob_pic_name]
+		x = (screen_size.DISPL_WIDTH2b - screen_size.DISPL_WIDTH2b * 0.8 + bob_pic.GetRect().GetWidth()) * 0.5\
+			+ (math.cos(math.radians(self.ubob_phase_x) * phase_scaler) + 1.0 * 0.5)\
+			  * screen_size.DISPL_WIDTH2b * 0.5 * 0.8
 		y = (math.sin(math.radians(self.ubob_phase_y) * phase_scaler) + 1.0 * 0.5) * screen_size.DISPL_HEIGHT2b * 0.5 * 0.8
 
 		x += bob_pic.GetRect().GetWidth()
-		y += bob_pic.GetRect().GetHeight()
+		y += bob_pic.GetRect().GetWidth()
 
 		# y += screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3
 		y += self.ubob_frame * screen_size.DISPL_HEIGHT2
@@ -241,22 +244,59 @@ class DemoSimulation:
 		offset_x = math.sin(math.radians(self.ubob_offset_phase)) * 32.0 + self.x_margin
 
 		if not has_ended():
-			dest_rect = bob_pic.GetRect()
-			self.ubob_buffer.Blit(bob_pic, dest_rect, gs.iVector2(x, y))
+			if "bob_ball" in bob_pic_name:
+				dest_rect = bob_pic.GetRect()
+				self.ubob_buffer.Blit(bob_pic, dest_rect, gs.iVector2(x, y))
+			elif "bob_torus" in bob_pic_name:
+				dest_rect = bob_pic.GetRect()
+				dest_rect.SetHeight(dest_rect.GetWidth())
+				_bob_frame = int((self.ubob_offset_phase//10)%8)
+				dest_rect = dest_rect.Offset(0, _bob_frame * dest_rect.GetWidth())
+				self.ubob_buffer.Blit(bob_pic, dest_rect, gs.iVector2(x, y))
 
 		dest_rect = self.ubob_buffer.GetRect()
 		dest_rect.SetHeight(screen_size.DISPL_HEIGHT2)
 		dest_rect = dest_rect.Offset(0, self.ubob_frame * screen_size.DISPL_HEIGHT2)
 		self.screen_pic.Blit(self.ubob_buffer, dest_rect, gs.iVector2(int(offset_x), screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3 + 8))
 
-		self.ubob_frame = (self.ubob_frame + 1)%screen_size.ANIM_STRIPE
+		self.ubob_frame = (self.ubob_frame + 1)%screen_size.ANIM_STRIPEb
 		self.ubob_offset_phase += 120.0 * self.dt
 
 		return not has_ended()
 
-	def clear_playfield(self):
-		self.ubob_buffer.ClearRGBA(0,0,0,0)
-		return True
+	def clear_playfield(self, from_top=True):
+		offset_x = math.sin(math.radians(self.ubob_offset_phase)) * 32.0 + self.x_margin
+
+		for s in range(screen_size.ANIM_STRIPEb):
+			if from_top:
+				_y = self.clear_line_y + (s * screen_size.DISPL_HEIGHT2b)
+				for _x in range(screen_size.WIDTH2b//2):
+					self.ubob_buffer.PutPixelRGBA(_x * 2, _y + 2, 0, 0, 0, 0)
+					self.ubob_buffer.PutPixelRGBA(_x * 2 + 1, _y + 1, 0, 0, 0, 0)
+					self.ubob_buffer.PutPixelRGBA(_x * 2, _y, 0, 0, 0, 0)
+					self.ubob_buffer.PutPixelRGBA(_x * 2 + 1, _y, 0, 0, 0, 0)
+			else:
+				_y = (screen_size.DISPL_HEIGHT2b - self.clear_line_y) + (s * screen_size.DISPL_HEIGHT2b)
+				for _x in range(screen_size.WIDTH2b//2):
+					self.ubob_buffer.PutPixelRGBA(_x * 2, _y, 0, 0, 0, 0)
+					self.ubob_buffer.PutPixelRGBA(_x * 2 + 1, _y + 1, 0, 0, 0, 0)
+					self.ubob_buffer.PutPixelRGBA(_x * 2, _y + 2, 0, 0, 0, 0)
+					self.ubob_buffer.PutPixelRGBA(_x * 2 + 1, _y + 2, 0, 0, 0, 0)
+
+		dest_rect = self.ubob_buffer.GetRect()
+		dest_rect.SetHeight(screen_size.DISPL_HEIGHT2)
+		dest_rect = dest_rect.Offset(0, self.ubob_frame * screen_size.DISPL_HEIGHT2)
+		self.screen_pic.Blit(self.ubob_buffer, dest_rect, gs.iVector2(int(offset_x), screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3 + 8))
+
+		self.ubob_frame = (self.ubob_frame + 1)%screen_size.ANIM_STRIPEb
+		self.ubob_offset_phase += 120.0 * self.dt
+		self.clear_line_y += 2
+
+		if self.clear_line_y > screen_size.DISPL_HEIGHT2:
+			self.ubob_buffer.ClearRGBA(0, 0, 0, 0)
+			return True
+		else:
+			return False
 
 	def render_demo_text(self):
 		text_duration = len(font_desc.demo_string[self.current_text_idx]) * 0.05

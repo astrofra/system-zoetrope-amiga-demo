@@ -12,25 +12,25 @@ def main():
 	plus = gs.GetPlus()
 	plus.CreateWorkers()
 
-	# window_mode = pymsgbox.confirm(text='Select your screen mode', title='System Zoetrope', buttons=['Windowed', 'Fullscreen'])
-	#
-	# if window_mode == 'Windowed':
-	# 	pc_screen_windowed = True
-	# 	screen_resolutions = ['640x480', '800x600', '1280x800']
-	# elif window_mode == 'Fullscreen':
-	# 	pc_screen_windowed = False
-	# 	screen_resolutions = ['640x480', '800x600', '1280x720', '1280x800', '1920x1080']
-	# else:
-	# 	return False
-	#
-	# screen_res = pymsgbox.confirm(text='Select your screen resolution', title='System Zoetrope',
-	# 							   buttons=screen_resolutions)
-	#
-	# if screen_res is not None:
-	# 	pc_screen_width = int(screen_res.split('x')[0])
-	# 	pc_screen_height = int(screen_res.split('x')[1])
-	# else:
-	# 	return False
+	window_mode = pymsgbox.confirm(text='Select your screen mode', title='System Zoetrope', buttons=['Windowed', 'Fullscreen'])
+
+	if window_mode == 'Windowed':
+		pc_screen_windowed = True
+		screen_resolutions = ['640x480', '800x600', '1280x800']
+	elif window_mode == 'Fullscreen':
+		pc_screen_windowed = False
+		screen_resolutions = ['640x480', '800x600', '1280x720', '1280x800', '1920x1080']
+	else:
+		return False
+
+	screen_res = pymsgbox.confirm(text='Select your screen resolution', title='System Zoetrope',
+								   buttons=screen_resolutions)
+
+	if screen_res is not None:
+		pc_screen_width = int(screen_res.split('x')[0])
+		pc_screen_height = int(screen_res.split('x')[1])
+	else:
+		return False
 
 	demo_screen_width = 720//2
 	demo_screen_height = 568//2

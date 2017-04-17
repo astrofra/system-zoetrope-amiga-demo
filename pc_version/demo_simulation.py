@@ -230,7 +230,7 @@ class DemoSimulation:
 			+ (math.cos(math.radians(self.ubob_phase_x) * phase_scaler) + 1.0 * 0.5)\
 			  * ((screen_size.DISPL_WIDTH2b - self.ubob_scale) * 0.5 * 0.8)
 		y = (math.sin(math.radians(self.ubob_phase_y) * phase_scaler) + 1.0 * 0.5) \
-			* ((screen_size.DISPL_HEIGHT2b - self.ubob_scale) * 0.5 * 0.8)
+			* ((screen_size.DISPL_HEIGHT2b - self.ubob_scale) * 0.5 * 0.75)
 
 		x += bob_pic.GetRect().GetWidth()
 		y += bob_pic.GetRect().GetWidth()
@@ -263,7 +263,7 @@ class DemoSimulation:
 
 		self.ubob_frame = (self.ubob_frame + 1)%screen_size.ANIM_STRIPEb
 		self.ubob_offset_phase += 120.0 * self.dt
-		self.ubob_scale += self.dt * 2
+		self.ubob_scale += self.dt * 1.5
 
 		return not has_ended()
 

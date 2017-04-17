@@ -20,6 +20,7 @@ class DemoSimulation:
 		self.ubob_scale = 0
 		self.frame = 0
 		self.figure_mode = 0
+		self.palette_idx = 0
 
 		self.x_margin = int((self.demo_screen_width - screen_size.DISPL_WIDTH2) / 2.0)
 
@@ -54,10 +55,14 @@ class DemoSimulation:
 
 	def load_textures(self):
 		self.pictures = {
-							"bob_ball":None, "bob_torus":None, 
-							"checkerboard_strip":None, "copper_list":None,
-							"logo_mandarine":None, "logo_sys_zoetrope":None, 
-							"font_sans_serif":None
+							"bob_ball": None, "bob_torus": None,
+							"bob_ball_pal0": None, "bob_torus_pal0": None,
+							"bob_ball_pal1": None, "bob_torus_pal1": None,
+							"bob_ball_pal2": None, "bob_torus_pal2": None,
+							"bob_ball_pal3": None, "bob_torus_pal3": None,
+							"checkerboard_strip": None, "copper_list": None,
+							"logo_mandarine": None, "logo_sys_zoetrope": None,
+							"font_sans_serif": None
 						}
 
 		for texture_name in self.pictures:
@@ -177,6 +182,10 @@ class DemoSimulation:
 		if self.figure_mode > 5:
 			self.figure_mode = 0
 
+		self.palette_idx += 1
+		if self.palette_idx > 3:
+			self.palette_idx = 0
+
 		self.ubob_phase_x = 0
 		self.ubob_phase_y = 0
 		self.clear_line_y = 0
@@ -221,11 +230,9 @@ class DemoSimulation:
 			self.ubob_phase_y += table_to_angle(1) * self.dt
 			bob_pic_name = "bob_ball"
 
-		# bob_pic = self.pictures["bob_ball"]
-
 		phase_scaler = 0.5
 
-		bob_pic = self.pictures[bob_pic_name]
+		bob_pic = self.pictures[bob_pic_name + "_pal" + str(self.palette_idx)]
 		x = (screen_size.DISPL_WIDTH2b - screen_size.DISPL_WIDTH2b * 0.8 + bob_pic.GetRect().GetWidth()) * 0.5\
 			+ (math.cos(math.radians(self.ubob_phase_x) * phase_scaler) + 1.0 * 0.5)\
 			  * ((screen_size.DISPL_WIDTH2b - self.ubob_scale) * 0.5 * 0.8)

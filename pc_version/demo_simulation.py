@@ -17,6 +17,7 @@ class DemoSimulation:
 		self.screen_tex = None
 		self.ubob_phase_x = 0
 		self.ubob_phase_y = 0
+		self.ubob_scale = 0
 		self.frame = 0
 		self.figure_mode = 0
 
@@ -179,7 +180,7 @@ class DemoSimulation:
 		self.ubob_phase_x = 0
 		self.ubob_phase_y = 0
 		self.clear_line_y = 0
-		# self.ubob_scale = 0
+		self.ubob_scale = 0
 		# self.ubob_frame_y = 0
 
 	def draw_unlimited_bobs(self):
@@ -190,7 +191,7 @@ class DemoSimulation:
 			return (180 * table_index) / 3
 
 		def has_ended():
-			if self.ubob_phase_x < 360 * 2 or self.ubob_phase_y < 360 * 2:
+			if self.ubob_phase_x < 360 * 4 or self.ubob_phase_y < 360 * 4:
 				return False
 			return True
 
@@ -227,8 +228,9 @@ class DemoSimulation:
 		bob_pic = self.pictures[bob_pic_name]
 		x = (screen_size.DISPL_WIDTH2b - screen_size.DISPL_WIDTH2b * 0.8 + bob_pic.GetRect().GetWidth()) * 0.5\
 			+ (math.cos(math.radians(self.ubob_phase_x) * phase_scaler) + 1.0 * 0.5)\
-			  * screen_size.DISPL_WIDTH2b * 0.5 * 0.8
-		y = (math.sin(math.radians(self.ubob_phase_y) * phase_scaler) + 1.0 * 0.5) * screen_size.DISPL_HEIGHT2b * 0.5 * 0.8
+			  * ((screen_size.DISPL_WIDTH2b - self.ubob_scale) * 0.5 * 0.8)
+		y = (math.sin(math.radians(self.ubob_phase_y) * phase_scaler) + 1.0 * 0.5) \
+			* ((screen_size.DISPL_HEIGHT2b - self.ubob_scale) * 0.5 * 0.8)
 
 		x += bob_pic.GetRect().GetWidth()
 		y += bob_pic.GetRect().GetWidth()
@@ -261,6 +263,7 @@ class DemoSimulation:
 
 		self.ubob_frame = (self.ubob_frame + 1)%screen_size.ANIM_STRIPEb
 		self.ubob_offset_phase += 120.0 * self.dt
+		self.ubob_scale += self.dt * 2
 
 		return not has_ended()
 
@@ -271,6 +274,7 @@ class DemoSimulation:
 			if from_top:
 				_y = self.clear_line_y + (s * screen_size.DISPL_HEIGHT2b)
 				for _x in range(screen_size.WIDTH2b//2):
+					self.ubob_buffer.PutPixelRGBA(_x * 2, _y + 7, 0, 0, 0, 0)
 					self.ubob_buffer.PutPixelRGBA(_x * 2, _y + 2, 0, 0, 0, 0)
 					self.ubob_buffer.PutPixelRGBA(_x * 2 + 1, _y + 1, 0, 0, 0, 0)
 					self.ubob_buffer.PutPixelRGBA(_x * 2, _y, 0, 0, 0, 0)
@@ -278,6 +282,7 @@ class DemoSimulation:
 			else:
 				_y = (screen_size.DISPL_HEIGHT2b - self.clear_line_y) + (s * screen_size.DISPL_HEIGHT2b)
 				for _x in range(screen_size.WIDTH2b//2):
+					self.ubob_buffer.PutPixelRGBA(_x * 2, _y - 5, 0, 0, 0, 0)
 					self.ubob_buffer.PutPixelRGBA(_x * 2, _y, 0, 0, 0, 0)
 					self.ubob_buffer.PutPixelRGBA(_x * 2 + 1, _y + 1, 0, 0, 0, 0)
 					self.ubob_buffer.PutPixelRGBA(_x * 2, _y + 2, 0, 0, 0, 0)

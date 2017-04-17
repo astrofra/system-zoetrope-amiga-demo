@@ -170,12 +170,27 @@ class DemoSimulation:
 
 		self.frame += (30.0 * self.dt) ##(self.frame + 1)%screen_size.ANIM_STRIPE
 
+	def set_next_unlimited_bobs(self):
+		self.figure_mode += 1
+		if self.figure_mode > 5:
+			self.figure_mode = 0
+
+		self.ubob_phase_x = 0
+		self.ubob_phase_y = 0
+		# self.ubob_scale = 0
+		# self.ubob_frame_y = 0
+
 	def draw_unlimited_bobs(self):
 		x = 0
 		y = 0
 
 		def table_to_angle(table_index):
 			return (180 * table_index) / 3
+
+		def has_ended():
+			if self.ubob_phase_x < 360 * 2 or self.ubob_phase_y < 360 * 2:
+				return False
+			return True
 
 		# Lissajous trajectory
 		if self.figure_mode == 0:
@@ -190,7 +205,7 @@ class DemoSimulation:
 			self.ubob_phase_x += table_to_angle(3) * self.dt
 			self.ubob_phase_y += table_to_angle(1) * self.dt
 			bob_pic = self.pictures["bob_ball"]
-		elif figure_mode == 3:
+		elif self.figure_mode == 3:
 			self.ubob_phase_x += table_to_angle(1) * self.dt
 			self.ubob_phase_y += table_to_angle(5) * self.dt
 			bob_pic = self.pictures["bob_torus"]
@@ -225,19 +240,23 @@ class DemoSimulation:
 
 		offset_x = math.sin(math.radians(self.ubob_offset_phase)) * 32.0 + self.x_margin
 
-		dest_rect = bob_pic.GetRect()
-		self.ubob_buffer.Blit(bob_pic, dest_rect, gs.iVector2(x, y))
+		if not has_ended():
+			dest_rect = bob_pic.GetRect()
+			self.ubob_buffer.Blit(bob_pic, dest_rect, gs.iVector2(x, y))
 
 		dest_rect = self.ubob_buffer.GetRect()
 		dest_rect.SetHeight(screen_size.DISPL_HEIGHT2)
-		# dest_rect = gs.iRect(screen_size.DISPL_WIDTH2, screen_size.DISPL_HEIGHT2)
 		dest_rect = dest_rect.Offset(0, self.ubob_frame * screen_size.DISPL_HEIGHT2)
 		self.screen_pic.Blit(self.ubob_buffer, dest_rect, gs.iVector2(int(offset_x), screen_size.DISPL_HEIGHT1 + screen_size.DISPL_HEIGHT3 + 8))
 
 		self.ubob_frame = (self.ubob_frame + 1)%screen_size.ANIM_STRIPE
 		self.ubob_offset_phase += 120.0 * self.dt
 
-		# print("clock = " + str(self.clock.GetDelta().to_sec()))
+		return not has_ended()
+
+	def clear_playfield(self):
+		self.ubob_buffer.ClearRGBA(0,0,0,0)
+		return True
 
 	def render_demo_text(self):
 		text_duration = len(font_desc.demo_string[self.current_text_idx]) * 0.05

@@ -12,25 +12,25 @@ def main():
 	plus = gs.GetPlus()
 	plus.CreateWorkers()
 
-	window_mode = pymsgbox.confirm(text='Select your screen mode', title='System Zoetrope', buttons=['Windowed', 'Fullscreen'])
-
-	if window_mode == 'Windowed':
-		pc_screen_windowed = True
-		screen_resolutions = ['640x480', '800x600', '1280x800']
-	elif window_mode == 'Fullscreen':
-		pc_screen_windowed = False
-		screen_resolutions = ['640x480', '800x600', '1280x720', '1280x800', '1920x1080']
-	else:
-		return False
-
-	screen_res = pymsgbox.confirm(text='Select your screen resolution', title='System Zoetrope',
-								   buttons=screen_resolutions)
-
-	if screen_res is not None:
-		pc_screen_width = int(screen_res.split('x')[0])
-		pc_screen_height = int(screen_res.split('x')[1])
-	else:
-		return False
+	# window_mode = pymsgbox.confirm(text='Select your screen mode', title='System Zoetrope', buttons=['Windowed', 'Fullscreen'])
+	#
+	# if window_mode == 'Windowed':
+	# 	pc_screen_windowed = True
+	# 	screen_resolutions = ['640x480', '800x600', '1280x800']
+	# elif window_mode == 'Fullscreen':
+	# 	pc_screen_windowed = False
+	# 	screen_resolutions = ['640x480', '800x600', '1280x720', '1280x800', '1920x1080']
+	# else:
+	# 	return False
+	#
+	# screen_res = pymsgbox.confirm(text='Select your screen resolution', title='System Zoetrope',
+	# 							   buttons=screen_resolutions)
+	#
+	# if screen_res is not None:
+	# 	pc_screen_width = int(screen_res.split('x')[0])
+	# 	pc_screen_height = int(screen_res.split('x')[1])
+	# else:
+	# 	return False
 
 	demo_screen_width = 720//2
 	demo_screen_height = 568//2
@@ -71,6 +71,8 @@ def main():
 	channel_state = gs.MixerChannelState(0, 1, gs.MixerRepeat)
 	al.Stream("res/music_loop.ogg", channel_state)
 
+	mode_switch = "DMODE_SW_UBOB"
+
 	while not plus.IsAppEnded(plus.EndOnDefaultWindowClosed) and not plus.KeyPress(gs.InputDevice.KeyEscape):
 		dt = plus.UpdateClock()
 		plus.Clear()
@@ -80,7 +82,17 @@ def main():
 		demo.clear_screen()
 		demo.draw_pixel_art_logo()
 		demo.draw_checkerboard()
-		demo.draw_unlimited_bobs()
+		print(mode_switch)
+		if mode_switch == "DMODE_SW_UBOB":
+			if not demo.draw_unlimited_bobs():
+				mode_switch = "DMODE_SW_CLEAR_FROM_TOP"
+		elif mode_switch == "DMODE_SW_CLEAR_FROM_TOP":
+			if demo.clear_playfield():
+				mode_switch = "DMODE_SW_NEXT_UBOB"
+		elif mode_switch == "DMODE_SW_NEXT_UBOB":
+			demo.set_next_unlimited_bobs()
+			mode_switch = "DMODE_SW_UBOB"
+
 		demo.render_demo_text()
 
 		egl.BlitTexture(demo_screen_tex, gs.BinaryBlobFromByteArray(demo.screen_pic.GetData()), demo_screen_width, demo_screen_height)

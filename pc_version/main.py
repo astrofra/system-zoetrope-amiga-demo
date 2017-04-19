@@ -10,7 +10,7 @@ def main():
 	pc_screen_height = 720
 
 	plus = gs.GetPlus()
-	# plus.CreateWorkers()
+	plus.CreateWorkers()
 
 	# window_mode = pymsgbox.confirm(text='Select your screen mode', title='System Zoetrope', buttons=['Windowed', 'Fullscreen'])
 	#
@@ -54,7 +54,7 @@ def main():
 		w_mode = gs.Window.Fullscreen
 	plus.RenderInit(pc_screen_width, pc_screen_height, 1, w_mode)
 
-	egl = plus.GetRenderer()
+	egl = plus.GetRendererAsync()
 
 	# create the font object
 	font = gs.RasterFont("@core/fonts/default.ttf", 48, 512)
@@ -144,7 +144,7 @@ def main():
 
 			egl.SetShader(shader)
 			egl.SetShaderTexture("u_tex", demo_screen_tex)
-			gs.DrawBuffers(egl, 6, idx, vtx, vtx_layout)
+			egl.DrawBuffers(6, idx, vtx, vtx_layout)
 			# plus.Quad2D(0, 0, 0, pc_screen_height, pc_screen_width, pc_screen_height,
 			# 			pc_screen_width, 0, gs.Color.White, gs.Color.White, gs.Color.White, gs.Color.White,
 			# 			demo_screen_tex, overscan_factor.x / demo_screen_width, overscan_factor.y / demo_screen_height,

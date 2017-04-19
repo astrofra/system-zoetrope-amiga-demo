@@ -1,4 +1,4 @@
-in { tex2D u_tex [wrap-u: clamp, wrap-v: clamp, filter: nearest, min-filter: nearest, mag-filter:nearest]; }
+in { tex2D u_tex [wrap-u: clamp, wrap-v: clamp, filter: nearest]; }
 
 variant {
 	vertex {

@@ -1,40 +1,43 @@
 import gs
 import pymsgbox
 from demo_simulation import DemoSimulation
+from utils import *
 
 
 def main():
 	pc_screen_windowed = True
 	pc_screen_width = 1280
 	pc_screen_height = 720
-	overscan_factor = gs.Vector4(16, 4, 16, 28) # in pixels
 
 	plus = gs.GetPlus()
 	# plus.CreateWorkers()
 
-	window_mode = pymsgbox.confirm(text='Select your screen mode', title='System Zoetrope', buttons=['Windowed', 'Fullscreen'])
-
-	if window_mode == 'Windowed':
-		pc_screen_windowed = True
-		screen_resolutions = ['640x480', '720x568', '800x600', '1280x800']
-	elif window_mode == 'Fullscreen':
-		pc_screen_windowed = False
-		screen_resolutions = ['640x480', '800x600', '1280x720', '1280x800', '1920x1080']
-	else:
-		return False
-
-	screen_res = pymsgbox.confirm(text='Select your screen resolution', title='System Zoetrope',
-								   buttons=screen_resolutions)
-
-	if screen_res is not None:
-		pc_screen_width = int(screen_res.split('x')[0])
-		pc_screen_height = int(screen_res.split('x')[1])
-	else:
-		return False
+	# window_mode = pymsgbox.confirm(text='Select your screen mode', title='System Zoetrope', buttons=['Windowed', 'Fullscreen'])
+	#
+	# if window_mode == 'Windowed':
+	# 	pc_screen_windowed = True
+	# 	screen_resolutions = ['640x480', '720x568', '800x600', '1280x800']
+	# elif window_mode == 'Fullscreen':
+	# 	pc_screen_windowed = False
+	# 	screen_resolutions = ['640x480', '800x600', '1280x720', '1280x800', '1920x1080']
+	# else:
+	# 	return False
+	#
+	# screen_res = pymsgbox.confirm(text='Select your screen resolution', title='System Zoetrope',
+	# 							   buttons=screen_resolutions)
+	#
+	# if screen_res is not None:
+	# 	pc_screen_width = int(screen_res.split('x')[0])
+	# 	pc_screen_height = int(screen_res.split('x')[1])
+	# else:
+	# 	return False
 
 	demo_screen_width = 720//2
 	demo_screen_height = 568//2
 	amiga_screen_ratio = demo_screen_height / demo_screen_width
+	overscan_factor = gs.Vector4(16 / demo_screen_width, 4 / demo_screen_height,
+								 (demo_screen_width - 16) / demo_screen_width, (demo_screen_height - 28) / demo_screen_height) # in pixels
+
 
 	if pc_screen_windowed:
 		pc_screen_width = int(pc_screen_height * (demo_screen_width / demo_screen_height))
@@ -64,7 +67,7 @@ def main():
 
 	# Create index buffer
 	data = gs.BinaryBlob()
-	data.WriteShorts([0, 1, 2])
+	data.WriteShorts([0, 1, 2, 0, 2, 3])
 
 	idx = egl.NewBuffer()
 	egl.CreateBuffer(idx, data, gs.GpuBuffer.Index)
@@ -73,17 +76,21 @@ def main():
 	# Create vertex buffer
 	vtx_layout = gs.VertexLayout()
 	vtx_layout.AddAttribute(gs.VertexAttribute.Position, 3, gs.VertexFloat)
-	vtx_layout.AddAttribute(gs.VertexAttribute.UV0, 2, gs.VertexUByte,
-							True)  # UVs are sent as normalized 8 bit unsigned integer (range [0;255])
+	vtx_layout.AddAttribute(gs.VertexAttribute.UV0, 2, gs.VertexUByte, True)  # UVs are sent as normalized 8 bit unsigned integer (range [0;255])
+
+	def custom_uv(u, v):
+		return [int(Clamp(u, 0, 1) * 255), int(Clamp(v, 0, 1) * 255)]
 
 	data = gs.BinaryBlob()
 	x, y = 1, 1
 	data.WriteFloats([-x, -y, 0.5])
-	data.WriteUnsignedBytes([127, 0])
+	data.WriteUnsignedBytes(custom_uv(overscan_factor.x, overscan_factor.w))
 	data.WriteFloats([-x, y, 0.5])
-	data.WriteUnsignedBytes([0, 127])
+	data.WriteUnsignedBytes(custom_uv(overscan_factor.x, overscan_factor.y))
 	data.WriteFloats([x, y, 0.5])
-	data.WriteUnsignedBytes([127, 127])
+	data.WriteUnsignedBytes(custom_uv(overscan_factor.z, overscan_factor.y))
+	data.WriteFloats([x, -y, 0.5])
+	data.WriteUnsignedBytes(custom_uv(overscan_factor.z, overscan_factor.w))
 
 	vtx = egl.NewBuffer()
 	egl.CreateBuffer(vtx, data, gs.GpuBuffer.Vertex)
@@ -137,7 +144,7 @@ def main():
 
 			egl.SetShader(shader)
 			egl.SetShaderTexture("u_tex", demo_screen_tex)
-			gs.DrawBuffers(egl, 3, idx, vtx, vtx_layout)
+			gs.DrawBuffers(egl, 6, idx, vtx, vtx_layout)
 			# plus.Quad2D(0, 0, 0, pc_screen_height, pc_screen_width, pc_screen_height,
 			# 			pc_screen_width, 0, gs.Color.White, gs.Color.White, gs.Color.White, gs.Color.White,
 			# 			demo_screen_tex, overscan_factor.x / demo_screen_width, overscan_factor.y / demo_screen_height,

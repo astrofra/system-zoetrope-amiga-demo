@@ -146,17 +146,15 @@ def main():
 			# egl.DrawBuffers(6, idx, vtx, vtx_layout)
 			plus.Quad2D(0, 0, 0, pc_screen_height, pc_screen_width, pc_screen_height,
 						pc_screen_width, 0, gs.Color.White, gs.Color.White, gs.Color.White, gs.Color.White,
-						demo_screen_tex, overscan_factor.x / demo_screen_width, overscan_factor.y / demo_screen_height,
-						(demo_screen_width - overscan_factor.z) / demo_screen_width,
-						(demo_screen_height - overscan_factor.w) / demo_screen_height)
+						demo_screen_tex, overscan_factor.x, overscan_factor.y,
+						overscan_factor.z, overscan_factor.w)
 		else:
 			_x_offset = (pc_screen_width - pc_screen_width * amiga_screen_ratio) * 0.5
 			plus.Quad2D(_x_offset, 0, _x_offset, pc_screen_height, _x_offset + (pc_screen_width * amiga_screen_ratio),
 						pc_screen_height, _x_offset + (pc_screen_width * amiga_screen_ratio), 0,
 						gs.Color.White, gs.Color.White, gs.Color.White, gs.Color.White, demo_screen_tex,
-						overscan_factor.x / demo_screen_width, overscan_factor.y / demo_screen_height,
-						(demo_screen_width - overscan_factor.z) / demo_screen_width,
-						(demo_screen_height - overscan_factor.w) / demo_screen_height)
+						overscan_factor.x, overscan_factor.y,
+						overscan_factor.z, overscan_factor.w)
 
 		plus.Flip()
 

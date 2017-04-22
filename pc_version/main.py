@@ -1,5 +1,7 @@
 import gs
 import pymsgbox
+import sys
+from os.path import dirname, realpath
 from demo_simulation import DemoSimulation
 from utils import *
 
@@ -11,6 +13,14 @@ def main():
 
 	plus = gs.GetPlus()
 	plus.CreateWorkers()
+	DemoSimulation.print_ascii_intro(None)
+
+	if getattr(sys, 'frozen', False):
+	    # frozen
+	    dir_ = dirname(sys.executable)
+	else:
+	    # unfrozen
+	    dir_ = dirname(realpath(__file__))
 
 	window_mode = pymsgbox.confirm(text='Select your screen mode', title='System Zoetrope', buttons=['Windowed', 'Fullscreen'])
 

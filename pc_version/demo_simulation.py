@@ -50,6 +50,10 @@ class DemoSimulation:
 		self.text_display_timer = 0.0
 		self.text_pixel_w = 0.0
 
+	def print_ascii_intro(self):
+		for l in font_desc.ascii_art:
+			print(l)
+
 	def update_dt(self, dt = 1.0 / 60.0):
 		self.dt = dt
 
@@ -69,11 +73,11 @@ class DemoSimulation:
 			texture_filename = os.path.join("res", texture_name + ".png")
 			if os.path.exists(texture_filename):
 				self.pictures[texture_name] = gs.LoadPicture(texture_filename)
-				print("Found texture : ", texture_filename)
+				# print("Found texture : ", texture_filename)
 
 		if self.pictures["checkerboard_strip"] is not None:
 			pixel_data = self.pictures["checkerboard_strip"].GetData()
-			print("len(pixel_data) = ", len(pixel_data))
+			# print("len(pixel_data) = ", len(pixel_data))
 			w = self.pictures["checkerboard_strip"].GetWidth()
 			h = self.pictures["checkerboard_strip"].GetHeight()
 
@@ -321,7 +325,7 @@ class DemoSimulation:
 				self.current_text_idx = 0
 			text_string = font_desc.demo_string[self.current_text_idx]
 
-			print("text_str = " + text_string)
+			# print("text_str = " + text_string)
 			self.text_pixel_w = self.font_writer_blit(self.pictures["font_sans_serif"], self.text_buffer, 0, 0, text_string)
 
 		self.text_display_timer += self.dt * 0.5

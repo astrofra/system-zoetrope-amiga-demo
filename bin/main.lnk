@@ -1,0 +1,6 @@
+FROM LIB:c.o "main.o"+"mandarine_logo.o"+"checkerboard_strip.o"+"bob_bitmaps.o"+"font_bitmap.o"+"font_desc.o"+"vert_copper_palettes.o"+"3d_objects.o"+"color_routines.o"+"fx_routines.o"+"bitmap_routines.o"+"font_routines.o"+"sound_routines.o"+"3d_routines.o"+"cosine_table.o"+"demo_strings.o"
+TO "commonbin:main.exe"
+LIB LIB:scnb.lib LIB:amiga.lib
+SMALLCODE
+STRIPDEBUG
+

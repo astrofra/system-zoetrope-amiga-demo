@@ -249,7 +249,7 @@ return Class {
     self.ubob_frame = (self.ubob_frame+1%screen_size.ANIM_STRIPEb)
     self.ubob_offset_phase = self.ubob_offset_phase+120.0*self.dt
     self.ubob_scale = self.ubob_scale+self.dt*1.5
-    return  not has_ended()
+    return not has_ended()
   end,
 
   clear_playfield = function(self, from_top)
@@ -292,40 +292,40 @@ return Class {
   end,
 
   render_demo_text = function(self)
-    local text_duration = #(font_desc.demo_string[self.current_text_idx + 1])*0.05
-    local fade_duration = 0.2
-    if self.current_text_idx==-1 or self.text_display_timer>text_duration then
-      self.text_display_timer = 0.0
-      self.current_text_idx = self.current_text_idx+1
-      if self.current_text_idx>=#font_desc.demo_string then
-        self.current_text_idx = 0
-      end
-      local text_string = font_desc.demo_string[self.current_text_idx]
-      self.text_pixel_w = self.font_writer_blit(self.pictures['font_sans_serif'], self.text_buffer, 0, 0, text_string)
-    end
-    self.text_display_timer = self.text_display_timer+self.dt*0.5
-    local opacity
-    if self.text_display_timer<fade_duration then
-      opacity = Clamp(RangeAdjust(self.text_display_timer, 0.0, fade_duration, 0.0, 1.0), 0.0, 1.0)
-    elseif self.text_display_timer>text_duration-fade_duration then
-      opacity = Clamp(RangeAdjust(self.text_display_timer, text_duration-fade_duration, text_duration, 1.0, 0.0), 0.0, 1.0)
-    else
-      opacity = 1.0
-    end
-    opacity = Quantize(opacity, 8)
-    local dest_rect = self.text_buffer:GetRect()
-    dest_rect:SetHeight(screen_size.DISPL_HEIGHT3)
-    local dest_rect_offset = dest_rect:Offset(0, screen_size.DISPL_HEIGHT1)
-    dest_rect_offset:SetHeight(screen_size.DISPL_HEIGHT3+1)
-    self.screen_pic:SetFillColorRGBA(screen_size.COLOUR_PURPLE.r*1.5, screen_size.COLOUR_PURPLE.g*1.5, screen_size.COLOUR_PURPLE.b*1.5, 1.0)
-    self.screen_pic:SetFillMode(hg.BrushSolid)
-    self.screen_pic:SetPenMode(hg.PenNone)
-    self.screen_pic:DrawRect(dest_rect_offset.sx, dest_rect_offset.sy, dest_rect_offset.ex, dest_rect_offset.ey)
-    self.screen_pic:Blit(self.text_buffer, dest_rect, hg.IntVector2(math.floor((screen_size.WIDTH3-self.text_pixel_w)/2.0), screen_size.DISPL_HEIGHT1+1))
-    if opacity<1.0 then
-      self.screen_pic:SetFillColorRGBA(screen_size.COLOUR_PURPLE.r*1.5, screen_size.COLOUR_PURPLE.g*1.5, screen_size.COLOUR_PURPLE.b*1.5, 1.0-opacity)
-      self.screen_pic:DrawRect(dest_rect_offset.sx, dest_rect_offset.sy, dest_rect_offset.ex, dest_rect_offset.ey)
-    end
+    -- local text_duration = #(font_desc.demo_string[self.current_text_idx + 1])*0.05
+    -- local fade_duration = 0.2
+    -- if self.current_text_idx==-1 or self.text_display_timer>text_duration then
+    --   self.text_display_timer = 0.0
+    --   self.current_text_idx = self.current_text_idx+1
+    --   if self.current_text_idx>=#font_desc.demo_string then
+    --     self.current_text_idx = 0
+    --   end
+    --   local text_string = font_desc.demo_string[self.current_text_idx]
+    --   self.text_pixel_w = self:font_writer_blit(self.pictures['font_sans_serif'], self.text_buffer, 0, 0, text_string)
+    -- end
+    -- self.text_display_timer = self.text_display_timer+self.dt*0.5
+    -- local opacity
+    -- if self.text_display_timer<fade_duration then
+    --   opacity = Clamp(RangeAdjust(self.text_display_timer, 0.0, fade_duration, 0.0, 1.0), 0.0, 1.0)
+    -- elseif self.text_display_timer>text_duration-fade_duration then
+    --   opacity = Clamp(RangeAdjust(self.text_display_timer, text_duration-fade_duration, text_duration, 1.0, 0.0), 0.0, 1.0)
+    -- else
+    --   opacity = 1.0
+    -- end
+    -- opacity = Quantize(opacity, 8)
+    -- local dest_rect = self.text_buffer:GetRect()
+    -- dest_rect:SetHeight(screen_size.DISPL_HEIGHT3)
+    -- local dest_rect_offset = dest_rect:Offset(0, screen_size.DISPL_HEIGHT1)
+    -- dest_rect_offset:SetHeight(screen_size.DISPL_HEIGHT3+1)
+    -- self.screen_pic:SetFillColorRGBA(screen_size.COLOUR_PURPLE.r*1.5, screen_size.COLOUR_PURPLE.g*1.5, screen_size.COLOUR_PURPLE.b*1.5, 1.0)
+    -- self.screen_pic:SetFillMode(hg.BrushSolid)
+    -- self.screen_pic:SetPenMode(hg.PenNone)
+    -- self.screen_pic:DrawRect(dest_rect_offset.sx, dest_rect_offset.sy, dest_rect_offset.ex, dest_rect_offset.ey)
+    -- self.screen_pic:Blit(self.text_buffer, dest_rect, hg.IntVector2(math.floor((screen_size.WIDTH3-self.text_pixel_w)/2.0), screen_size.DISPL_HEIGHT1+1))
+    -- if opacity<1.0 then
+    --   self.screen_pic:SetFillColorRGBA(screen_size.COLOUR_PURPLE.r*1.5, screen_size.COLOUR_PURPLE.g*1.5, screen_size.COLOUR_PURPLE.b*1.5, 1.0-opacity)
+    --   self.screen_pic:DrawRect(dest_rect_offset.sx, dest_rect_offset.sy, dest_rect_offset.ex, dest_rect_offset.ey)
+    -- end
   end,
 
   font_writer_blit = function(self, font_picture, dest_picture, x, y, text_string)
@@ -342,11 +342,11 @@ return Class {
     end
     local i = 0
     local cur_x = x
-    y = y+screen_size.DISPL_HEIGHT1
-    local text_string = list(text_string)
+    y = y + screen_size.DISPL_HEIGHT1
+    local text_string = stringToList(text_string)
     dest_picture.ClearRGBA(screen_size.COLOUR_PURPLE.r*1.5, screen_size.COLOUR_PURPLE.g*1.5, screen_size.COLOUR_PURPLE.b*1.5, 1.0)
     while i<#text_string do
-      if text_string[i]==' ' then
+      if text_string[i + 1] == ' ' then
         cur_x = cur_x+4
       end
       local glyph_index = font_glyph_find_index(text_string[i], font_desc.tiny_font['glyph'])

@@ -21,3 +21,13 @@ mapValueToArray = function(val, in_lower, in_upper, mapping_array)
 	local floor_pos = math.floor(array_pos)
 	return mapping_array[floor_pos + 1]*(ceil_pos-array_pos) + mapping_array[ceil_pos + 1]*(1.0-(ceil_pos-array_pos))
 end
+
+stringToList = function(str)
+  local t = {}
+  for i = 1, #str do
+    t[i] = str:sub(i, i)
+  end
+  return t
+end
+
+

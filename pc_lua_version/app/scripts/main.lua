@@ -6,13 +6,17 @@ hg = require('harfang')
 require('app/scripts/utils')
 local DemoSimulation = require('app/scripts/demo_simulation')
 
+ASYNC_MODE = false
+
 main = function()
   local pc_screen_windowed = true
   local pc_screen_width = 1280
   local pc_screen_height = 720
 
   local plus = hg.GetPlus()
-  plus:CreateWorkers()
+  if ASYNC_MODE then
+    plus:CreateWorkers()
+  end
 
   pc_screen_windowed = false
 
@@ -41,7 +45,17 @@ main = function()
 
   plus:RenderInit(pc_screen_width, pc_screen_height) -- , 1, w_mode)
   plus:AudioInit()
-  local egl = plus:GetRendererAsync()
+  local egl
+  local al
+  
+  if ASYNC_MODE then 
+    egl = plus:GetRendererAsync()
+    al = plus:GetMixerAsync()
+  else
+    egl = plus:GetRenderer()
+    al = plus:GetMixer()
+  end
+
   local font = hg.RasterFont('@core/fonts/default.ttf', 48, 512)
 
   local demo = DemoSimulation(demo_screen_width, demo_screen_height)
@@ -53,7 +67,7 @@ main = function()
 
   local res = egl:CreateTexture(demo_screen_tex, demo.screen_pic)
   print('CreateTexture() returned ', res)
-  local al = plus:GetMixerAsync()
+
   al:Open()
   local channel_state = hg.MixerChannelState(0, 1, hg.MixerRepeat)
   al:Stream('res/music_loop.ogg', channel_state)
@@ -91,7 +105,11 @@ main = function()
 
     demo:render_demo_text()
 
-    egl:BlitTexture(demo_screen_tex, hg.BinaryData(demo.screen_pic:GetData()), demo_screen_width, demo_screen_height)
+    if ASYNC_MODE then
+      egl:BlitTexture(demo_screen_tex, hg.BinaryData(demo.screen_pic:GetData()), demo_screen_width, demo_screen_height)
+    else
+      egl:BlitTexture(demo_screen_tex, demo.screen_pic) -- , demo_screen_width, demo_screen_height)
+    end
 
     if pc_screen_windowed then
       plus:Quad2D(0, 0, 0, pc_screen_height, pc_screen_width, pc_screen_height, pc_screen_width, 0, hg.Color.White, hg.Color.White, hg.Color.White, hg.Color.White, demo_screen_tex, overscan_factor.x, overscan_factor.y, overscan_factor.z, overscan_factor.w)
